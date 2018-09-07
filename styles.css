@@ -1,0 +1,17 @@
+#mod-peerassessment-summary-table .singlebutton {
+    display: inline-block;
+    margin-right: 4px;
+}
+
+#mod-peerassessment-summary-table .singlebutton input {
+    width: 70px;
+}
+
+#mod-peerassessment-summary-table td {
+	padding: 0px 20px;
+}
+
+#mod-peerassessment-summary-table th {
+	padding: 10px 20px;
+	text-align: left;
+}

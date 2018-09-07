@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/peerassessment/db" VERSION="20130906" COMMENT="XMLDB file for Moodle mod/peerassessment"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+  <TABLES>
+    <TABLE NAME="peerassessment" COMMENT="Default comment for peerassessment, please edit me" NEXT="peerassessment_submission">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course peerassessment activity belongs to" PREVIOUS="id" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances" PREVIOUS="course" NEXT="intro"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the peerassessment activity" PREVIOUS="name" NEXT="introformat"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)" PREVIOUS="intro" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="introformat" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="selfgrading"/>
+        <FIELD NAME="selfgrading" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Self-grading enabled" PREVIOUS="timemodified" NEXT="duedate"/>
+        <FIELD NAME="duedate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="selfgrading" NEXT="maxfiles"/>
+        <FIELD NAME="maxfiles" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="duedate" NEXT="fromdate"/>
+        <FIELD NAME="fromdate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" PREVIOUS="maxfiles" NEXT="notifylatesubmissions"/>
+        <FIELD NAME="notifylatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="fromdate" NEXT="allowlatesubmissions"/>
+        <FIELD NAME="allowlatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="notifylatesubmissions" NEXT="treat0asgrade"/>
+        <FIELD NAME="treat0asgrade" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="allowlatesubmissions"/>
+        <FIELD NAME="moderation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="2" SEQUENCE="false" PREVIOUS="standard_deviation"/>
+        <FIELD NAME="calculationtype" TYPE="text" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="treat0asgrade"/>
+        <FIELD NAME="standard_deviation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="1.15" SEQUENCE="false" PREVIOUS="calculationtype"/>
+        <!-- <FIELD NAME="multiplier" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="4" SEQUENCE="false" PREVIOUS="moderation"/> -->
+        <FIELD NAME="submissiongroupingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="A grouping id to get groups for submissions"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="peerassessment_submission" COMMENT="This table keeps information about student interactions with the mod/peerassessment." PREVIOUS="peerassessment" NEXT="peerassessment_peers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="assignment"/>
+        <FIELD NAME="assignment" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="assignment" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of the first student submission to this assignment." PREVIOUS="userid" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this assignment submission was modified by a student." PREVIOUS="timecreated" NEXT="status"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The status of this assignment submission. The current statuses are DRAFT and SUBMITTED." PREVIOUS="timemodified" NEXT="groupid"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The group id for team submissions" PREVIOUS="status" NEXT="attemptnumber"/>
+        <FIELD NAME="attemptnumber" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Used to track attempts for an assignment" PREVIOUS="groupid" NEXT="grade"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false" PREVIOUS="attemptnumber" NEXT="groupaverage"/>
+        <FIELD NAME="groupaverage" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade" NEXT="individualaverage"/>
+        <FIELD NAME="individualaverage" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="groupaverage" NEXT="finalgrade"/>
+        <FIELD NAME="finalgrade" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="individualaverage" NEXT="feedbacktext"/>
+        <FIELD NAME="feedbacktext" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="finalgrade" NEXT="feedbackformat"/>
+        <FIELD NAME="feedbackformat" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="feedbacktext" NEXT="timegraded"/>
+        <FIELD NAME="timegraded" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="feedbackformat" NEXT="gradedby"/>
+        <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="timegraded"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="The unique id for this assignment submission." NEXT="assignment"/>
+        <KEY NAME="assignment" TYPE="foreign" FIELDS="assignment" REFTABLE="assign" REFFIELDS="id" COMMENT="The instance of mod_assign this submission belongs to." PREVIOUS="primary"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" NEXT="attemptnumber"/>
+        <INDEX NAME="attemptnumber" UNIQUE="false" FIELDS="attemptnumber" PREVIOUS="userid" NEXT="uniquesubmission"/>
+        <INDEX NAME="uniquesubmission" UNIQUE="true" FIELDS="assignment, userid, groupid" PREVIOUS="attemptnumber"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="peerassessment_peers" COMMENT="Entries for pees assessments" PREVIOUS="peerassessment_submission">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="peerassessment"/>
+        <FIELD NAME="peerassessment" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="grade"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false" PREVIOUS="peerassessment" NEXT="groupid"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade" NEXT="gradedby"/>
+        <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="groupid" NEXT="gradefor"/>
+        <FIELD NAME="gradefor" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="gradedby" NEXT="feedback"/>
+        <FIELD NAME="feedback" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="gradefor" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of grading a peer." PREVIOUS="feedback"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="grade" UNIQUE="true" FIELDS="peerassessment, gradedby, gradefor"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
