@@ -109,7 +109,41 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->setType('treat0asgrade', PARAM_BOOL);
         $mform->setDefault('treat0asgrade', true);
         $mform->addHelpButton('treat0asgrade', 'treat0asgrade', 'peerassessment');
+        
+        ///////// KM new criteria, from workshop/form/accumulative/edit_form.php
+        $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerassessment'));
 
+        $norepeats          = 3;                                    // number of dimensions to display
+        $mform->addElement('hidden', 'norepeats', $norepeats);
+        $mform->setType('norepeats', PARAM_INT);
+        $mform->setConstants(array('norepeats' => $norepeats));     // value not to be overridden by submitted value
+        
+        $descriptionopts    = 'descriptionopts';    // wysiwyg fields options
+        $current            = "currentdata";            // current data to be set
+        
+        for ($i = 0; $i < $norepeats; $i++) {
+            
+            //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerassessment', $i+1)); // KM doesnt nest
+            $mform->addElement('static', 'dimension'.$i, '', get_string('assessmentcriteria:static', 'peerassessment', $i+1) );
+            
+            $mform->addElement('hidden', 'dimensionid__idx_'.$i);
+            $mform->setType('dimensionid__idx_'.$i, PARAM_INT);
+            
+            $mform->addElement('editor', 'description__idx_'.$i.'_editor',
+                get_string('dimensiondescription', 'peerassessment'), '', $descriptionopts);
+            $mform->setType('description__idx_'.$i.'_editor', PARAM_RAW);
+            
+            $mform->addElement('modgrade', 'grade__idx_'.$i,
+                get_string('dimensionmaxgrade','peerassessment'), null, true);
+            $mform->setDefault('grade__idx_'.$i, 10);
+            
+            $mform->addElement('select', 'weight__idx_'.$i,
+                get_string('dimensionweight', 'peerassessment'), range(0, 5));
+            $mform->setDefault('weight__idx_'.$i, 1);
+        }
+        
+        
+        ///////// KM end new criteria
         $mform->addElement('header', 'groupsubmissionsettings', get_string('groupsubmissionsettings', 'peerassessment'));
 
         $groupings = groups_get_all_groupings($COURSE->id);
