@@ -122,7 +122,32 @@ function xmldb_peerassessment_upgrade($oldversion) {
 
     }
 
+    trigger_error( "upgrade DB oldversion=$oldversion");
+    if ($oldversion < 2017030609) {
+        trigger_error( "upgrade DB oldversion=triggered");
+        $table = new xmldb_table('peerassessment_criteria');
 
+        // Adding fields to table peerassessment_criteria.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('peerassessmentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sort', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('descriptionformat', XMLDB_TYPE_INTEGER, '3', null, null, null, '0');
+        $table->add_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('weight', XMLDB_TYPE_INTEGER, '5', null, null, null, '1');
+        
+        // Adding keys to table peerassessment_criteria.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('peerassessment_fk', XMLDB_KEY_FOREIGN, array('peerassessmentid'), 'peerassessment', array('id'));
+        
+        // Conditionally launch create table for peerassessment_criteria.
+        if (!$dbman->table_exists($table)) {
+            trigger_error( "upgrade DB oldversion=creating");
+            $dbman->create_table($table);
+        }
+        
+        upgrade_mod_savepoint(true, 2017030609, 'peerassessment');
+    }
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
