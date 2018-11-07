@@ -25,9 +25,10 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
+require_once( __DIR__ . '/classes/peerassessment_criteria.php');
 
 /**
- * Module instance settings form
+ * Module instance settings form. This is the form that allows editing of the peerassessment settings.
  */
 class mod_peerassessment_mod_form extends moodleform_mod {
 
@@ -59,7 +60,7 @@ class mod_peerassessment_mod_form extends moodleform_mod {
             $peerassessment = $DB->get_record('peerassessment', array('id' => $this->current->id), '*', MUST_EXIST);
         }
 
-        // Adding the rest of peerassessment settings, spreeading all them into this fieldset,
+        // Adding the rest of peerassessment settings, spreading all them into this fieldset,
         // or adding more fieldsets ('header' elements) if needed for better logic.
         $mform->addElement('header', 'peerassessmentfieldset', get_string('peerassessmentfieldset', 'peerassessment'));
         $mform->addElement('advcheckbox', 'selfgrading', get_string('selfgrading', 'peerassessment'));
@@ -110,40 +111,11 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->setDefault('treat0asgrade', true);
         $mform->addHelpButton('treat0asgrade', 'treat0asgrade', 'peerassessment');
         
-        ///////// KM new criteria, from workshop/form/accumulative/edit_form.php
-        $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerassessment'));
+        
+        // KM add in the fields to specify assessment criteria, using a separate class to isolate change.
+        $pac = new peerassessment_criteria( $this->current->id );
+        $pac ->definition($mform);
 
-        $norepeats          = 3;                                    // number of dimensions to display
-        $mform->addElement('hidden', 'norepeats', $norepeats);
-        $mform->setType('norepeats', PARAM_INT);
-        $mform->setConstants(array('norepeats' => $norepeats));     // value not to be overridden by submitted value
-        
-        $descriptionopts    = 'descriptionopts';    // wysiwyg fields options
-        $current            = "currentdata";            // current data to be set
-        
-        for ($i = 0; $i < $norepeats; $i++) {
-            
-            //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerassessment', $i+1)); // KM doesnt nest
-            $mform->addElement('static', 'dimension'.$i, '', get_string('assessmentcriteria:static', 'peerassessment', $i+1) );
-            
-            $mform->addElement('hidden', 'dimensionid__idx_'.$i);
-            $mform->setType('dimensionid__idx_'.$i, PARAM_INT);
-            
-            $mform->addElement('editor', 'description__idx_'.$i.'_editor',
-                get_string('dimensiondescription', 'peerassessment'), '', $descriptionopts);
-            $mform->setType('description__idx_'.$i.'_editor', PARAM_RAW);
-            
-            $mform->addElement('modgrade', 'grade__idx_'.$i,
-                get_string('dimensionmaxgrade','peerassessment'), null, true);
-            $mform->setDefault('grade__idx_'.$i, 10);
-            
-            $mform->addElement('select', 'weight__idx_'.$i,
-                get_string('dimensionweight', 'peerassessment'), range(0, 5));
-            $mform->setDefault('weight__idx_'.$i, 1);
-        }
-        
-        
-        ///////// KM end new criteria
         $mform->addElement('header', 'groupsubmissionsettings', get_string('groupsubmissionsettings', 'peerassessment'));
 
         $groupings = groups_get_all_groupings($COURSE->id);
@@ -169,4 +141,23 @@ class mod_peerassessment_mod_form extends moodleform_mod {
 
         $this->add_action_buttons();
     }
+    
+    /**
+     * Collect criteria data from the DB to initialise the form and add into $data, then pass $data on to the parent class to complete.
+     * @param unknown $data incoming data is stdClass Object populated with fields => DB data
+     * @return unknown
+     */
+    public function set_data($data) {
+        
+        global $DB;
+        
+        // Collect the criteria data for this peerassessment and add into $data.
+        $pac = new peerassessment_criteria( $data->id );
+        $pac ->set_data($data); 
+      
+        // error_log("set_data with ". print_r($data,true) );
+        return parent::set_data($data);
+    }
+    
+
 }

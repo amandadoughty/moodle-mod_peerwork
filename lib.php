@@ -52,7 +52,7 @@ function peerassessment_supports($feature) {
 }
 
 /**
- * Saves a new instance of the peerassessment into the database
+ * Saves a new instance of the peerassessment definition into the database
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -75,7 +75,7 @@ function peerassessment_add_instance(stdClass $peerassessment, mod_peerassessmen
 }
 
 /**
- * Updates an instance of the peerassessment in the database
+ * Updates an instance of the peerassessment details in the database, the criteria are added to a separate table (peerassessment_criteria)
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -84,17 +84,24 @@ function peerassessment_add_instance(stdClass $peerassessment, mod_peerassessmen
  * @param object $peerassessment An object from the form in mod_form.php
  * @param mod_peerassessment_mod_form $mform
  * @return boolean Success/Fail
+ * 
  */
 function peerassessment_update_instance(stdClass $peerassessment, mod_peerassessment_mod_form $mform = null) {
     global $DB;
+    
+    //error_log("peerassessment_update_instance called data is " . print_r($peerassessment,true) );
 
     $peerassessment->timemodified = time();
     $peerassessment->id = $peerassessment->instance;
-
-    $return = $DB->update_record('peerassessment', $peerassessment);
+    $return1 = $DB->update_record('peerassessment', $peerassessment);
+    
+    // Now save all the criteria.
+    $pac = new peerassessment_criteria( $peerassessment->id );
+    $return2 = $pac ->update_instance($peerassessment);
+    
     peerassessment_update_grades($peerassessment);
 
-    return $return;
+    return $return1 && $return2;
 }
 
 /**
@@ -117,7 +124,7 @@ function peerassessment_delete_instance($id) {
     // Delete any dependent records here.
 
     $DB->delete_records('peerassessment', array('id' => $peerassessment->id));
-
+    
     return true;
 }
 

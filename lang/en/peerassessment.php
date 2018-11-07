@@ -89,6 +89,20 @@ $string['peerassessment:submit'] = 'Submit peer grades';
 $string['peerassessment:view'] = 'View peer assessment content';
 // $string['teamsubmission'] = 'Students submit in groups';
 // $string['teamsubmission_help'] = 'If enabled students will be divided into groups based on the default set of groups or a custom grouping. A group submission will be shared among group members and all members of the group will see each others changes to the submission.';
+
+
+// Criteria strings
+$string['assessmentcriteria:header'] = 'Assessment criteria settings'; 
+$string['assessmentcriteria:static'] = 'Criteria number {$a}';
+$string['assessmentcriteria:description'] = 'Criteria description';
+$string['assessmentcriteria:maxgrade'] = 'Best possible grade / Scale to use';
+$string['assessmentcriteria:weight'] = 'Weight';
+
+$string['assessmentcriteria:description_help'] = 'TODO';
+$string['assessmentcriteria:maxgrade_help'] = 'TODO';
+$string['assessmentcriteria:description_help'] = 'TODO';
+
+
 $string['groupsubmissionsettings'] = 'Group submission settings';
 $string['submissiongroupingid'] = 'Grouping for student groups';
 $string['submissiongroupingid_help'] = 'This is the grouping that the assignment will use to find groups for student groups. If not set - the default set of groups will be used.';
