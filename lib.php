@@ -75,7 +75,10 @@ function peerassessment_add_instance(stdClass $peerassessment, mod_peerassessmen
 }
 
 /**
- * Updates an instance of the peerassessment details in the database, the criteria are added to a separate table (peerassessment_criteria)
+ * Settings
+ * Called automatically when saving peerassessment setttings.
+ * Updates an instance of the peerassessment details in the database, 
+ * the criteria settings are added to a separate table (peerassessment_criteria)
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -88,8 +91,6 @@ function peerassessment_add_instance(stdClass $peerassessment, mod_peerassessmen
  */
 function peerassessment_update_instance(stdClass $peerassessment, mod_peerassessment_mod_form $mform = null) {
     global $DB;
-    
-    //error_log("peerassessment_update_instance called data is " . print_r($peerassessment,true) );
 
     $peerassessment->timemodified = time();
     $peerassessment->id = $peerassessment->instance;
@@ -277,6 +278,8 @@ function peerassessment_grade_item_update(stdClass $peerassessment, $grades = nu
  * @param stdClass $peerassessment instance object with extra cmidnumber and modname property
  * @param int $userid update grade of specific user only, 0 means all participants
  * @return void
+ * 
+ * TODO should this even be called if peers havent yet added submissions and grades??
  */
 function peerassessment_update_grades(stdClass $peerassessment, $userid = 0, $nullifnone = true) {
     // Will be called for each user id from a group, upon grading.
