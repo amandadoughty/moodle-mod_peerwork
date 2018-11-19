@@ -453,6 +453,7 @@ function peerassessment_get_groupaverage($peerassessment, $group) {
 
 /**
  * Get simple group average. Rounded to two decimal places.
+ * May return NAN (if $count was zero) which the caller should handle. 
  * @param $peerassessment
  * @param $group
  */
@@ -462,7 +463,11 @@ function peerassessment_get_simplegravg($peerassessment, $group) {
     $count = peerassessment_get_groupcount($peerassessment, $group);
     $total = peerassessment_get_grouppeergradestotal($peerassessment, $group);
 
-    return round($total / $count, 2);
+    if($count>0) {
+        return round($total / $count, 2);
+    } else {
+        return NAN;
+    }
 
     // return $count;
 }
@@ -661,16 +666,13 @@ function peerassessment_get_simple_grade($peerassessment, $group, stdClass $memb
 
     // $multiply = get_config('peerassessment', 'multiplyby');
     $multiplier = 5;
-    $indavg = peerassessment_get_simpleindavg($peerassessment, $group, $member);
     $gravg = peerassessment_get_simplegravg($peerassessment, $group);
     $submission = $DB->get_record('peerassessment_submission', array('assignment' => $peerassessment->id, 'groupid' => $group->id));
-
-    if (!$submission || !isset($submission->grade)) {
+  
+    if (empty($submission) || !isset($submission->grade) || is_nan($gravg) ) {
         return '-';
     }
 
-    $gravg = peerassessment_get_simplegravg($peerassessment, $group);
-    // $multiply = get_config('peerassessment', 'multiplyby');
     $members = groups_get_members($group->id);
     foreach ($members as $member) {
 
