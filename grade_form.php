@@ -25,6 +25,9 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 
+/**
+ * Creates UI elements for the tutor to give an overall grade.
+ */
 class mod_peerassessment_grade_form extends moodleform
 {
     public static $fileoptions = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,

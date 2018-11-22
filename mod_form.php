@@ -28,7 +28,7 @@ require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
 require_once( __DIR__ . '/classes/peerassessment_criteria.php');
 
 /**
- * Module instance settings form. This is the form that allows editing of the peerassessment settings.
+ * Module instance settings form. This is the form that allows teacher editing of the peerassessment settings.
  */
 class mod_peerassessment_mod_form extends moodleform_mod {
 
@@ -92,10 +92,11 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->setType('calculationtype', PARAM_TEXT);
         $mform->setDefault('calculationtype', PEERASSESSMENT_SIMPLE);
         $mform->addHelpButton('calculationtype', 'calculationtype', 'peerassessment');
-        // Cant change the formula once a grade has been awarded. why?
-        if (($this->current->id) && has_been_graded($peerassessment)) {
-            $mform->freeze('calculationtype');
-        }
+        // Cant change the formula once a grade has been awarded. Why?
+// TODO temp disable for dev purposes.        
+//         if (($this->current->id) && has_been_graded($peerassessment)) {
+//             $mform->freeze('calculationtype');
+//         }
 
         // $mform->addElement('text', 'multiplyby', get_string('multiplyby', 'peerassessment'), array('size' => '10'));
         // $mform->setType('multiplyby', PARAM_INT);
@@ -111,8 +112,7 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->setType('treat0asgrade', PARAM_BOOL);
         $mform->setDefault('treat0asgrade', true);
         $mform->addHelpButton('treat0asgrade', 'treat0asgrade', 'peerassessment');
-        
-        
+                
         // KM add in the fields to specify assessment criteria, using a separate class to isolate change.
         $pac = new peerassessment_criteria( $this->current->id );
         $pac ->definition($mform);
@@ -130,9 +130,10 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->addElement('select', 'submissiongroupingid', $name, $options);
         $mform->addHelpButton('submissiongroupingid', 'submissiongroupingid', 'peerassessment');
         $mform->disabledIf('submissiongroupingid', 'teamsubmission', 'eq', 0);
-        if (($this->current->id) && has_been_graded($peerassessment)) {
-            $mform->freeze('calculationtype');
-        }
+// TODO Why is this been done twice??        
+//         if (($this->current->id) && has_been_graded($peerassessment)) {
+//             $mform->freeze('calculationtype');
+//         }
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();

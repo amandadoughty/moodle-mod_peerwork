@@ -65,6 +65,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="peerassessment"/>
         <FIELD NAME="peerassessment" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="grade"/>
+        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="peerassessment" COMMENT="Which of the criteria does this record relate to." NEXT="grade"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false" PREVIOUS="peerassessment" NEXT="groupid"/>
         <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade" NEXT="gradedby"/>
         <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="groupid" NEXT="gradefor"/>

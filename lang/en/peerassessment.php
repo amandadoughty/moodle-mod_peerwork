@@ -52,7 +52,9 @@ $string['maxfiles'] = 'Maximum number of uploaded files';
 $string['maxfiles_help'] = 'The maximum number of files the group will be able to upload for their submission.';
 
 $string['calculationtype'] = 'Type of calculation used to formulate final grade';
-$string['calculationtype_help'] = 'There are two types of formula which can be chosen. Simple is the default, original calculation and does not calculate standard deviation. Outlier includes a standard deviation moderation.';
+$string['calculationtype_help'] = 'Choose the formula used to calculate a users grade. <br/>
+Simple is the default, original calculation. It totals the marks awarded by peers and uses those to decide the proportion of the tutors final grade to award. Simple does not calculate standard deviation.<br />
+Outlier includes a standard deviation moderation.';
 $string['defaultcalculationtype'] = 'Default Calculation Type';
 
 $string['standard_deviation'] = 'Maximum standard deviation to not be classed an outlier';
@@ -100,7 +102,8 @@ $string['assessmentcriteria:weight'] = 'Weight';
 
 $string['assessmentcriteria:description_help'] = 'TODO';
 $string['assessmentcriteria:maxgrade_help'] = 'TODO';
-$string['assessmentcriteria:description_help'] = 'TODO';
+$string['assessmentcriteria:weight_help'] = 'TODO';
+$string['assessmentcriteria:nocriteria'] = 'No Criteria have been set for this assignment.';
 
 
 $string['groupsubmissionsettings'] = 'Group submission settings';

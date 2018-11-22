@@ -382,7 +382,7 @@ function peerassessment_get_indpeergradestotal($peerassessment, $group, $user) {
 
 
 /**
- * Get count of peer grades. Takes into account treat0asgrade
+ * Get count of peer grades, multiple criteria will cause more than one grade per peer. Takes into account treat0asgrade
  * @param $peerassessment
  * @param $group
  */
@@ -464,6 +464,7 @@ function peerassessment_get_simplegravg($peerassessment, $group) {
     $count = peerassessment_get_groupcount($peerassessment, $group);
     $total = peerassessment_get_grouppeergradestotal($peerassessment, $group);
 
+    error_log("peerassessment_get_simplegravg count=" . $count . " total=" . $total );
     if($count>0) {
         return round($total / $count, 2);
     } else {
@@ -633,7 +634,6 @@ function peerassessment_get_indsd($peerassessment, $group, $user) {
     return round($result, 2);
 }
 
-
 function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
     global $DB;
 
@@ -646,6 +646,8 @@ function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
         $grade = peerassessment_get_simple_grade($peerassessment, $group, $member);
     } else if ($peerassessment->calculationtype == PEERASSESSMENT_OUTLIER) {
         $grade = peerassessment_get_outlier_adjusted_grade($peerassessment, $group, $member);
+    } else if($peerassessment->calculationtype == PEERASSESSMENT_WEBPA) {
+        $grade = peerassessment_get_simple_grade($peerassessment, $group, $member); // TODO
     } else {
         return null;
     }
@@ -653,9 +655,14 @@ function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
     return $grade;
 }
 
+/**
+ * Perform the calculation of a users final grade using the 'simple' calculation.
+ * 
+ * @return number
+ */
 function peerassessment_get_simple_grade($peerassessment, $group, stdClass $member) {
     global $CFG, $DB;
-    error_log("peerassessment_get_simple_grade for " . print_r($member,true) );
+    //error_log("peerassessment_get_simple_grade for " . print_r($member,true) );
     $thisperson = $member;
 
     $peermarks = array();
@@ -1012,10 +1019,18 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
         array('peerassessment' => $peerassessment->id, 'groupid' => $group->id, 'gradedby' => $USER->id));
 
     error_log("peerassessment_save() incoming data is " . print_r($data,true) );
-    // Save the grades and feedback for your peers against each criteria.
     
-    $sorts = range(0, 1); // TODO HARDCODE creates a maximum     
-    foreach ($sorts as $sort) {
+    // Save the grades and feedback for your peers against each criteria.
+    // Only save against criteria that have been specified otherwise we create a lot of "criteria#4 = grade zero" records
+    $peerassessment_criteria = new peerassessment_criteria($peerassessment->id);
+    $criterias = $peerassessment_criteria ->getCriteria(); // id => record
+    $sorts = array();
+    foreach ($criterias as $id => $record) {
+        $sorts[] = $record->sort;
+    }
+    error_log("peerassessment_save() criteria=" . print_r($criterias,true) . " sort=". print_r($sorts, true));
+ 
+    foreach ($sorts as $key => $sort) {
     
         foreach ($membersgradeable as $member) {
 

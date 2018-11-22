@@ -28,6 +28,10 @@ require_once($CFG->dirroot . '/mod/peerassessment/add_submission_form.php');
 require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
 require_once($CFG->dirroot . '/mod/peerassessment/grade_form.php');
 
+/**
+ * This provides a teacher with a summary view of the assessment, who has submitted and given feedback.
+ * @var unknown $id
+ */
 
 $id = required_param('id', PARAM_INT);
 $groupid = required_param('groupid', PARAM_INT);
@@ -133,6 +137,7 @@ echo $OUTPUT->box('Status: ' . $status->text);
 $submissionfiles = peerassessment_submission_files($context, $group);
 echo $OUTPUT->box('Submission: ' . implode(',', $submissionfiles) . $OUTPUT->help_icon('submissiongrading', 'peerassessment'));
 
+// Create a tabulation of the peers and the grades awarded and received. 
 $t = new html_table();
 $t->attributes['class'] = 'userenrolment';
 $t->id = 'mod-peerassessment-summary-table';

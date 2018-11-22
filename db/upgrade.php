@@ -122,9 +122,8 @@ function xmldb_peerassessment_upgrade($oldversion) {
 
     }
 
-    trigger_error( "upgrade DB oldversion=$oldversion");
-    if ($oldversion < 2017030609) {
-        trigger_error( "upgrade DB oldversion=triggered");
+    if ($oldversion < 2017030610) {
+        error_log( "upgrade DB oldversion=triggered oldversion=$oldversion");
         $table = new xmldb_table('peerassessment_criteria');
 
         // Adding fields to table peerassessment_criteria.
@@ -142,12 +141,22 @@ function xmldb_peerassessment_upgrade($oldversion) {
         
         // Conditionally launch create table for peerassessment_criteria.
         if (!$dbman->table_exists($table)) {
-            trigger_error( "upgrade DB oldversion=creating");
             $dbman->create_table($table);
         }
         
+        // Define field id to be added to peerassessment_peers.
+        $table = new xmldb_table('peerassessment_peers');
+        $field = new xmldb_field('sort', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        
+        // Conditionally launch add field id.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Peerassessment savepoint reached.
         upgrade_mod_savepoint(true, 2017030609, 'peerassessment');
     }
+    
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
