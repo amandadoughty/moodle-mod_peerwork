@@ -87,11 +87,12 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->setType('maxfiles', PARAM_INT);
         $mform->addHelpButton('maxfiles', 'maxfiles', 'peerassessment');
 
-        $calculations = array('simple' => 'simple', 'outlier' => 'outlier');
+        $calculations = array(PEERASSESSMENT_SIMPLE => PEERASSESSMENT_SIMPLE, PEERASSESSMENT_OUTLIER => PEERASSESSMENT_OUTLIER, PEERASSESSMENT_WEBPA => PEERASSESSMENT_WEBPA);
         $mform->addElement('select', 'calculationtype', get_string('calculationtype', 'peerassessment'), $calculations);
         $mform->setType('calculationtype', PARAM_TEXT);
-        $mform->setDefault('calculationtype', 'simple');
+        $mform->setDefault('calculationtype', PEERASSESSMENT_SIMPLE);
         $mform->addHelpButton('calculationtype', 'calculationtype', 'peerassessment');
+        // Cant change the formula once a grade has been awarded. why?
         if (($this->current->id) && has_been_graded($peerassessment)) {
             $mform->freeze('calculationtype');
         }
@@ -148,9 +149,7 @@ class mod_peerassessment_mod_form extends moodleform_mod {
      * @return unknown
      */
     public function set_data($data) {
-        
-        global $DB;
-        
+
         // Collect the criteria data for this peerassessment and add into $data.
         $pac = new peerassessment_criteria( $data->id );
         $pac ->set_data($data); 

@@ -37,6 +37,7 @@ define('PEERASSESSMENT_FROMDATE_BEFORE', 2);
 
 define('PEERASSESSMENT_SIMPLE', 'simple');
 define('PEERASSESSMENT_OUTLIER', 'outlier');
+define('PEERASSESSMENT_WEBPA', 'webpa');
 
 require_once($CFG->dirroot . '/lib/grouplib.php');
 
@@ -654,7 +655,7 @@ function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
 
 function peerassessment_get_simple_grade($peerassessment, $group, stdClass $member) {
     global $CFG, $DB;
-
+    error_log("peerassessment_get_simple_grade for " . print_r($member,true) );
     $thisperson = $member;
 
     $peermarks = array();
@@ -804,22 +805,36 @@ function peerassessment_feedback_files($context, $group) {
     return $allfiles;
 }
 
+/**
+ * Total all the grades awarded by the $user to other members of the group.
+ * Return a structure that can be used to visualise the progress made in providing marks to peers in the group. 
+ */
 function peerassessment_grade_by_user($peerassessment, $user, $membersgradeable) {
     global $DB;
 
-    $data = new stdClass();
+    $data = new stdClass(); // data->grade[member]
+    $data ->grade = array();
+    $data ->feedback = array();
+    
     $mygrades = $DB->get_records('peerassessment_peers', array('peerassessment' => $peerassessment->id,
-        'gradedby' => $user->id), '', 'gradefor,feedback,grade');
+        'gradedby' => $user->id), '', 'id,sort,gradefor,feedback,grade');
+    
+    foreach( $mygrades as $grade) {
+        
+        $peerid = $grade ->gradefor;
+        @$data->grade[$peerid] += $grade->grade; // @suppress "Undefined index" error reports
+        @$data->feedback[$peerid] |= $grade->feedback;
+    }
+    
+    // Make sure all the peers have an entry in the returning data array.
     foreach ($membersgradeable as $member) {
-        if (isset($mygrades[$member->id])) {
-            $data->feedback[$member->id] = $mygrades[$member->id]->feedback;
-            $data->grade[$member->id] = $mygrades[$member->id]->grade;
-        } else {
-            $data->feedback[$member->id] = '-';
-            $data->grade[$member->id] = '-';
+        if ( !array_key_exists( $member->id, $data ->grade ) ) {
+            $data ->grade[$member->id] = '-';
+        }
+        if ( !array_key_exists( $member->id, $data ->feedback ) ) {
+            $data ->feedback[$member->id] = '-';
         }
     }
-
     return $data;
 }
 
@@ -861,7 +876,10 @@ function peerassessment_teachers($context) {
     }
     return $contacts;
 }
-
+/**
+ * Student has provided some grades on their peers using the add_submission_form, save into database.
+ * 
+ */
 function peerassessment_save($peerassessment, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable) {
     global $USER, $DB;
 
@@ -993,37 +1011,52 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
     $DB->delete_records('peerassessment_peers',
         array('peerassessment' => $peerassessment->id, 'groupid' => $group->id, 'gradedby' => $USER->id));
 
-    // Save the grades for your peers.
-    foreach ($membersgradeable as $member) {
-        $peer = new stdClass();
-        $peer->peerassessment = $peerassessment->id;
-        $peer->groupid = $group->id;
-        $peer->gradedby = $USER->id;
-        $peer->gradefor = $member->id;
-        $peer->timecreated = time();
-        if (isset($data->grade[$member->id])) {
-            $peer->grade = $data->grade[$member->id];
-        } else {
-            $peer->grade = 0;
+    error_log("peerassessment_save() incoming data is " . print_r($data,true) );
+    // Save the grades and feedback for your peers against each criteria.
+    
+    $sorts = range(0, 1); // TODO HARDCODE creates a maximum     
+    foreach ($sorts as $sort) {
+    
+        foreach ($membersgradeable as $member) {
+
+            $peer = new stdClass();
+            $peer->peerassessment = $peerassessment->id;
+            $peer->sort = $sort;
+            $peer->groupid = $group->id;
+            $peer->gradedby = $USER->id;
+            $peer->gradefor = $member->id;
+            $peer->timecreated = time();
+            
+            $field = 'grade__idx_'. $sort;
+            if (isset($data->{$field}[$peer->gradefor]) ) {
+                $peer->grade = $data->{$field}[$peer->gradefor];
+            } else {
+                $peer->grade = 0;
+            }
+            $field = 'feedback__idx_'. $sort;
+            if (isset($data->{$field}[$peer->gradefor]) ) {
+                $peer->feedback = $data->{$field}[$peer->gradefor];
+            } 
+            error_log("peerassessment_save() saving data field=" . print_r($peer,true) );
+            $ret = $DB->insert_record('peerassessment_peers', $peer, true);
+            error_log( "indent record returned $ret");
         }
-        $peer->feedback = $data->feedback[$member->id];
-        $peer->id = $DB->insert_record('peerassessment_peers', $peer);
+// TODO add a log entry
+//         $fullname = fullname($member);
 
-        $fullname = fullname($member);
+//         $params = array(
+//                 'objectid' => $peer->id,
+//                 'context' => $context,
+//                 'relateduserid' => $member->id,
+//                 'other' => array(
+//                     'grade' => $peer->grade,
+//                     'fullname' => $fullname
+//                     )
+//             );
 
-        $params = array(
-                'objectid' => $peer->id,
-                'context' => $context,
-                'relateduserid' => $member->id,
-                'other' => array(
-                    'grade' => $peer->grade,
-                    'fullname' => $fullname
-                    )
-            );
-
-        $event = \mod_peerassessment\event\peer_grade_created::create($params);
-        $event->add_record_snapshot('peerassessment_peers', $peer);
-        $event->trigger();
+//         $event = \mod_peerassessment\event\peer_grade_created::create($params);
+//         $event->add_record_snapshot('peerassessment_peers', $peer);
+//         $event->trigger();
     }
 
     // Send email confirmation.
@@ -1034,6 +1067,8 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
 
 function mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data) {
     global $CFG, $USER;
+error_log("mail_confirmation_submission TODO " . print_r($data,true));
+return true;
 
     $subject = get_string('confirmationmailsubject', 'peerassessment', $course->fullname);
 
