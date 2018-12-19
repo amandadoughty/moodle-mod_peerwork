@@ -40,6 +40,7 @@ define('PEERASSESSMENT_OUTLIER', 'outlier');
 define('PEERASSESSMENT_WEBPA', 'webpa');
 
 require_once($CFG->dirroot . '/lib/grouplib.php');
+require_once($CFG->dirroot . '/mod/peerassessment/classes/algorithms/WebPAAlgorithm.php');
 
 function peerassessment_get_peers($course, $peerassessment, $groupingid, $group = null) {
     global $USER;
@@ -86,7 +87,7 @@ function peerassessment_get_mygroup($courseid, $userid, $groupingid = 0, $die = 
 }
 
 /**
- * Gets the status.
+ * Gets the status, one of PEERASSESSMENT_STATUS_*  
  * @param $peerassessment
  * @param int $group returns only groups in the specified grouping.
  */
@@ -453,7 +454,7 @@ function peerassessment_get_groupaverage($peerassessment, $group) {
 
 
 /**
- * Get simple group average. Rounded to two decimal places.
+ * Get simple group average ie total marks awarded divided by number in group. Rounded to two decimal places.
  * May return NAN (if $count was zero) which the caller should handle. 
  * @param $peerassessment
  * @param $group
@@ -464,14 +465,11 @@ function peerassessment_get_simplegravg($peerassessment, $group) {
     $count = peerassessment_get_groupcount($peerassessment, $group);
     $total = peerassessment_get_grouppeergradestotal($peerassessment, $group);
 
-    error_log("peerassessment_get_simplegravg count=" . $count . " total=" . $total );
     if($count>0) {
         return round($total / $count, 2);
     } else {
         return NAN;
     }
-
-    // return $count;
 }
 
 
@@ -488,7 +486,7 @@ function peerassessment_get_adjustedgravg($peerassessment, $group) {
     $count = 0;
     $groupaverage = 0;
 
-    $members = groups_get_members($group->id);
+    $members = groups_get_members($group->id); 
     foreach ($members as $member) {
         $standarddev = peerassessment_get_indsd($peerassessment, $group, $member);
         $indaverage = peerassessment_get_simpleindavg($peerassessment, $group, $member);
@@ -634,6 +632,9 @@ function peerassessment_get_indsd($peerassessment, $group, $user) {
     return round($result, 2);
 }
 
+/**
+ * Get the final awarded grade of the student.
+ */
 function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
     global $DB;
 
@@ -647,7 +648,7 @@ function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
     } else if ($peerassessment->calculationtype == PEERASSESSMENT_OUTLIER) {
         $grade = peerassessment_get_outlier_adjusted_grade($peerassessment, $group, $member);
     } else if($peerassessment->calculationtype == PEERASSESSMENT_WEBPA) {
-        $grade = peerassessment_get_simple_grade($peerassessment, $group, $member); // TODO
+        $grade = peerassessment_get_webpa_grade($peerassessment, $group, $member);
     } else {
         return null;
     }
@@ -656,13 +657,31 @@ function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
 }
 
 /**
+ * Return a final grade for the member using the webpa algorithm.
+ * 
+ * @return number or null if unable to calculate
+ */
+function peerassessment_get_webpa_grade($peerassessment, $group, stdClass $member) {
+    global $CFG, $DB;
+      
+    // Can't calculate grade if student does not belong to any group.
+    if (!$group) {
+        return null;
+    }
+    
+    $algorithm = new WebPAAlgorithm($peerassessment, $group);
+    $algorithm ->calculate();
+    return $algorithm ->getGrade($member);  
+}
+
+/**
  * Perform the calculation of a users final grade using the 'simple' calculation.
+ * This seems to give very strange results @see issue#3
  * 
  * @return number
  */
 function peerassessment_get_simple_grade($peerassessment, $group, stdClass $member) {
-    global $CFG, $DB;
-    //error_log("peerassessment_get_simple_grade for " . print_r($member,true) );
+    global $CFG, $DB;    
     $thisperson = $member;
 
     $peermarks = array();
@@ -686,8 +705,12 @@ function peerassessment_get_simple_grade($peerassessment, $group, stdClass $memb
 
         $peermarks[$member->id] = new stdClass();
         $peermarks[$member->id]->userid = $member->id;
-        $peermarks[$member->id]->indaverage = peerassessment_get_simpleindavg($peerassessment, $group, $member);
+        $psia = peerassessment_get_simpleindavg($peerassessment, $group, $member);
+        $peermarks[$member->id]->indaverage = $psia;
         $peermarks[$member->id]->final_grade = $submission->grade + (($peermarks[$member->id]->indaverage - $gravg) * $multiplier);
+        
+        error_log("peerassessment_get_simple_grade psia = " . print_r($psia,true) );
+        error_log("peerassessment_get_simple_grade " . print_r($peermarks[$member->id],true) );
     }
 
     $grade = $peermarks[$thisperson->id]->final_grade;
@@ -819,7 +842,7 @@ function peerassessment_feedback_files($context, $group) {
 function peerassessment_grade_by_user($peerassessment, $user, $membersgradeable) {
     global $DB;
 
-    $data = new stdClass(); // data->grade[member]
+    $data = new stdClass(); // data->grade[member] data->feedback[member]
     $data ->grade = array();
     $data ->feedback = array();
     
