@@ -28,9 +28,10 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Handles the assessment criteria including saving/restore to database.
  * Assessment criteria are specific points to be considered when a peer marks a submission and consist of
- * a description, an expected type of grade to give and some feedback.
+ * a description, an expected type of grade (likert, split100,...) for the students to give to each other and some feedback.
  * 
- * Table: descriptionformat: {0=moode autoformat,1=editor, 2=plain text,3=HTML, 4=markdown}
+ * Criteria are held in the $tablename=peerassessment_criteria table:-
+ *  descriptionformat: {0=moodle autoformat,1=editor, 2=plain text,3=HTML, 4=markdown}
  */
 class peerassessment_criteria  {
 
@@ -61,8 +62,9 @@ class peerassessment_criteria  {
     }
     
     /**
-     * Settings
-     * Define the field elements, modified from workshop/form/accumulative/edit_form.php that allow the modules settings to be edited.
+     * part of setting up the assessment form - called from mod_form.php:definition()
+     * Define the field elements, modified from workshop/form/accumulative/edit_form.php that allow for the assessments criteria settings to be specified.
+     * The major section is "Assessment criteria settings"
      * TODO like to group the criteria better (box or expandable) maybe use AMD to 
      */
     public function definition( &$mform ) {
@@ -89,13 +91,14 @@ class peerassessment_criteria  {
             $mform->setType($field, PARAM_RAW);
             $mform->addHelpButton($field,'assessmentcriteria:description', self::$langkey);
         
-            // Type modgrade does the dropdown and options automatically.
+            // Adds the dropdown of "Scoring Type" etc and appropriate options automatically.
             $field = 'grade__idx_'.$i;
             $mform->addElement('modgrade', $field,
-                get_string('assessmentcriteria:maxgrade',self::$langkey, $i+1), null, true);
+                get_string('assessmentcriteria:scoretype',self::$langkey, $i+1), true );
             $mform->setDefault($field, 10);
-            $mform->addHelpButton($field,'assessmentcriteria:maxgrade', self::$langkey);
-        
+            $mform->addHelpButton($field,'assessmentcriteria:scoretype', self::$langkey);
+             
+
             $field = 'weight__idx_'.$i;
             $mform->addElement('select', $field,
                 get_string('assessmentcriteria:weight', self::$langkey, $i+1), range(0, 5));

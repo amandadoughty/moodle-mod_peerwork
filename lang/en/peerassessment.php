@@ -97,11 +97,12 @@ $string['peerassessment:view'] = 'View peer assessment content';
 $string['assessmentcriteria:header'] = 'Assessment criteria settings'; 
 $string['assessmentcriteria:static'] = 'Criteria number {$a}';
 $string['assessmentcriteria:description'] = 'Criteria description';
-$string['assessmentcriteria:maxgrade'] = 'Best possible grade / Scale to use';
+$string['assessmentcriteria:scoretype'] = 'Scoring Type';
 $string['assessmentcriteria:weight'] = 'Weight';
+$string['assessmentcriteria:modgradetypescale'] = "Likert";
 
 $string['assessmentcriteria:description_help'] = 'TODO';
-$string['assessmentcriteria:maxgrade_help'] = 'TODO';
+$string['assessmentcriteria:scoretype_help'] = 'TODO';
 $string['assessmentcriteria:weight_help'] = 'TODO';
 $string['assessmentcriteria:nocriteria'] = 'No Criteria have been set for this assignment.';
 
