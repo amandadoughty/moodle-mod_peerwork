@@ -47,7 +47,7 @@ class WebPAAlgorithm {
         if( self::$calculationdone ) { // Try and avoid recalculating grades 
             return true;
         }
-        error_log("\n\n\npeerassessment WebPAAlgorithm calculating for group ..." . $this->group->name );
+        //error_log("\n\n\npeerassessment WebPAAlgorithm calculating for group ..." . $this->group->name );
 
         // Get details of the submission, we can only give grades if the tutor has provided a grade. 
         $submission = $DB->get_record('peerassessment_submission', array('assignment' => $this->peerassessment->id, 'groupid' => $this->group->id));
@@ -55,7 +55,7 @@ class WebPAAlgorithm {
             return false;
         }
         
-        $group_member_frac_scores_awarded = array();    // array of [member->id] => factional
+        $group_member_frac_scores_awarded = array();    // array of [member->id] => fractional
          
         /* (2)
          * Get the normalised fraction awarded by each member to each member
@@ -86,21 +86,26 @@ class WebPAAlgorithm {
         $members = groups_get_members($this->group->id); // Groups API
         $_calc_group_submitters = array();  // Count which members if this group submitted grades to their peers.
         foreach ($members as $member) {
-            $awarded = peerassessment_grade_by_user($this->peerassessment, $member, $members); // grades this member awarded to others
-            error_log("member " . $member->id . " awarded " .  print_r($awarded,true));
+            $awarded = peerassessment_grade_by_user($this->peerassessment, $member, $members); // array of grades this member awarded to others
+            //error_log("member " . $member->id . " awarded " .  print_r($awarded,true));
             
             $total = 0;
             foreach( $awarded ->grade as $a ) { // The grade may be '-' to signify not given.
                 if( is_numeric($a) ) {
                     $total += $a;   
-                    $_calc_group_submitters[$member->id] = 1; // this member awarded another grade. Well done!
+                    $_calc_group_submitters[$member->id] = 1; // this member awarded a grade to someone else. Well done!
                 } else {
                     $total += 0;
                 }
             }
+            // Convert awarded grades to fractional.
             $group_member_frac_scores_awarded[$member->id] = $awarded ->grade;
-            array_walk( $group_member_frac_scores_awarded[$member->id], function (&$item1, $key, $prefix) { $item1 /= $prefix; }, $total);
-        }
+            array_walk( $group_member_frac_scores_awarded[$member->id], function (&$g, $key, $t) {
+                // $total is passed in as '$t'
+                if( !is_numeric($g)  ) { $g = 0; }
+                if( $t != 0 ) { $g /= $t; }       
+            }, $total);
+        }  
         // All the scores awarded are now normalised. Time to calculate the actual Web-PA scores
         
         /* (3)
@@ -113,8 +118,8 @@ class WebPAAlgorithm {
         $pa_group_mark = $submission->grade;//($this->_params['weighting']/100) * $group_mark;
         $nonpa_group_mark = 0;//( (100-$this->_params['weighting']) /100 ) * $group_mark;
         
-        error_log( $this->group->name . " members count = " . $num_members. " submitters = ". $num_submitted);
-        error_log("peerassessment WebPAAlgorithm  group_member_frac_scores_awarded=" . print_r($group_member_frac_scores_awarded,true) );
+        //error_log( $this->group->name . " members count = " . $num_members. " submitters = ". $num_submitted);
+        //error_log("peerassessment WebPAAlgorithm  group_member_frac_scores_awarded=" . print_r($group_member_frac_scores_awarded,true) );
        
         /* (5)
          * Get the Web-PA score = total fractional score awarded to a member * multiplication-factor
@@ -128,7 +133,7 @@ class WebPAAlgorithm {
             }
         }
         array_walk($calc_total_marks_awarded, function(&$item1, $key, $prefix) { $item1 *= $prefix; }, $multi_factor );
-        error_log("peerassessment WebPAAlgorithm  calc_total_marks_awarded=" . print_r($calc_total_marks_awarded,true) );
+        //error_log("peerassessment WebPAAlgorithm  calc_total_marks_awarded=" . print_r($calc_total_marks_awarded,true) );
         
         /* (6)
          * Get the member's intermediate grade = Web-PA score * weighted-group-mark   (does not include penalties)
@@ -142,7 +147,7 @@ class WebPAAlgorithm {
             self::$grades[$memberid] = $intermediate_grade;
         }
         
-        error_log("final grades are " . print_r(self::$grades,true) );
+        //error_log("final grades are " . print_r(self::$grades,true) );
         self::$calculationdone = true;        
         return true;        
     }
@@ -153,7 +158,7 @@ class WebPAAlgorithm {
      * @return float 
      */
     public function getGrade(stdClass $member) {
-        error_log("peerassessment getGrade final grade for member= " . print_r($member->username,true) . " = " . self::$grades[$member->id]);
+        //error_log("peerassessment getGrade final grade for member= " . print_r($member->username,true) . " = " . self::$grades[$member->id]);
         return self::$grades[$member->id];
     }
 }
