@@ -24,11 +24,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
-require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
+require_once( __DIR__ . '/locallib.php');
 require_once( __DIR__ . '/classes/peerassessment_criteria.php');
 
 /**
- * Module instance settings form. This is the form that allows teacher editing of the peerassessment settings.
+ * Module instance settings form. This is the form that allows the teacher to
+ * configure the peerassessment settings.
+ * It has to be located in the modules' root directory.
  */
 class mod_peerassessment_mod_form extends moodleform_mod {
 
@@ -37,7 +39,7 @@ class mod_peerassessment_mod_form extends moodleform_mod {
      */
     public function definition() {
         global $CFG, $DB, $COURSE;
-
+        
         $mform = $this->_form;
 
         // Adding the "general" fieldset, where all the common settings are showed.

@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
-require_once( __DIR__ . '/classes/peerassessment_criteria.php');
+require_once( __DIR__ . '/../classes/peerassessment_criteria.php');
 
 /**
  * This form is the layout for a student grading their peers. Contains a file submission area where files can be submitted on behalf of the group

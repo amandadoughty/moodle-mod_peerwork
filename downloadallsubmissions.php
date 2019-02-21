@@ -24,9 +24,9 @@
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/add_submission_form.php');
+require_once($CFG->dirroot . '/mod/peerassessment/forms/add_submission_form.php');
 require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/grade_form.php');
+require_once($CFG->dirroot . '/mod/peerassessment/forms/grade_form.php');
 require_once("$CFG->libdir/filestorage/zip_archive.php");
 
 $id = required_param('id', PARAM_INT);
