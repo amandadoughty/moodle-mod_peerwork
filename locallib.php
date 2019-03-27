@@ -251,11 +251,12 @@ function peerassessment_get_peer_grades($peerassessment, $group, $membersgradeab
     $grades = array();
     $feedback = array();
 
-    foreach ($peers as $peer) {
-        $grades[$peer->gradedby][$peer->gradefor] = $peer->grade;
-        $feedback[$peer->gradedby][$peer->gradefor] = $peer->feedback;
+    foreach ($peers as $peer) {    
+        $grades[$peer->sort][$peer->gradedby][$peer->gradefor] = $peer->grade;
+        $feedback[$peer->sort][$peer->gradedby][$peer->gradefor] = $peer->feedback;
     }
 
+    // anthing not proceessed about gets a default string)
     if ($full) {
         foreach ($membersgradeable as $member1) {
             foreach ($membersgradeable as $member2) {
@@ -907,12 +908,26 @@ function peerassessment_teachers($context) {
     return $contacts;
 }
 /**
- * Student has provided some grades on their peers using the add_submission_form, save into database.
+ * Student has provided some grades on their peers using the add_submission_form, save into database and trigger events.
  * 
+ * @param unknown $peerassessment
+ * @param unknown $submission - database record in stdClass
+ * @param unknown $group
+ * @param unknown $course
+ * @param unknown $cm
+ * @param unknown $context
+ * @param unknown $data
+ * @param unknown $draftitemid
+ * @param unknown $membersgradeable
+ * @throws Exception
  */
 function peerassessment_save($peerassessment, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable) {
     global $USER, $DB;
 
+    
+    error_log( "calling peerassessment_save peerassessment=" . print_r($peerassessment,true) . "  submission=". print_r($submission,true) . "  group=" . print_r($group,true) . "  data=" . print_r($data,true) );
+
+    
     // Form has been submitted, commit, display confirmation and redirect.
     // Create submission record if none yet.
     if (!$submission) {
@@ -949,6 +964,7 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
         $event->trigger();
     }
 
+    
     // Save the file submitted.
     // Check if the file is different or the same.
     $fs = get_file_storage();
@@ -1041,9 +1057,8 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
     $DB->delete_records('peerassessment_peers',
         array('peerassessment' => $peerassessment->id, 'groupid' => $group->id, 'gradedby' => $USER->id));
 
-    error_log("peerassessment_save() incoming data is " . print_r($data,true) );
-    
-    // Save the grades and feedback for your peers against each criteria.
+
+    // Save the grades and feedback for your peers against each criteria. This is held in $data
     // Only save against criteria that have been specified otherwise we create a lot of "criteria#4 = grade zero" records
     $peerassessment_criteria = new peerassessment_criteria($peerassessment->id);
     $criterias = $peerassessment_criteria ->getCriteria(); // id => record
@@ -1051,7 +1066,7 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
     foreach ($criterias as $id => $record) {
         $sorts[] = $record->sort;
     }
-    error_log("peerassessment_save() criteria=" . print_r($criterias,true) . " sort=". print_r($sorts, true));
+//    error_log("peerassessment_save() criteria=" . print_r($criterias,true) . " sort=". print_r($sorts, true));
  
     foreach ($sorts as $key => $sort) {
     
@@ -1064,37 +1079,34 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
             $peer->gradedby = $USER->id;
             $peer->gradefor = $member->id;
             $peer->timecreated = time();
-            
-            $field = 'grade__idx_'. $sort;
+                       
+            $field = 'grade_idx_'. $sort;	// eg grade_idx_0 matches field setup at submissions_form.php $grpname
+            error_log("looking for ". print_r( $data->{$field}, true) ); 
             if (isset($data->{$field}[$peer->gradefor]) ) {
                 $peer->grade = $data->{$field}[$peer->gradefor];
             } else {
                 $peer->grade = 0;
             }
-            $field = 'feedback__idx_'. $sort;
-            if (isset($data->{$field}[$peer->gradefor]) ) {
-                $peer->feedback = $data->{$field}[$peer->gradefor];
-            } 
-            error_log("peerassessment_save() saving data field=" . print_r($peer,true) );
+            // place where we would store feedback
             $ret = $DB->insert_record('peerassessment_peers', $peer, true);
-            error_log( "indent record returned $ret");
+
         }
-// TODO add a log entry
-//         $fullname = fullname($member);
+		// add a log entry
+        $fullname = fullname($member);
 
-//         $params = array(
-//                 'objectid' => $peer->id,
-//                 'context' => $context,
-//                 'relateduserid' => $member->id,
-//                 'other' => array(
-//                     'grade' => $peer->grade,
-//                     'fullname' => $fullname
-//                     )
-//             );
+        $params = array(
+                'objectid' => $peer->id,
+                'context' => $context,
+                'relateduserid' => $member->id,
+                'other' => array(
+                    'grade' => $peer->grade,
+                    'fullname' => $fullname
+                    )
+            );
 
-//         $event = \mod_peerassessment\event\peer_grade_created::create($params);
-//         $event->add_record_snapshot('peerassessment_peers', $peer);
-//         $event->trigger();
+        $event = \mod_peerassessment\event\peer_grade_created::create($params);
+        $event->add_record_snapshot('peerassessment_peers', $peer);
+        $event->trigger();
     }
 
     // Send email confirmation.
@@ -1105,7 +1117,7 @@ function peerassessment_save($peerassessment, $submission, $group, $course, $cm,
 
 function mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data) {
     global $CFG, $USER;
-error_log("mail_confirmation_submission TODO " . print_r($data,true));
+error_log("mail_confirmation_submission TODO ");
 return true;
 
     $subject = get_string('confirmationmailsubject', 'peerassessment', $course->fullname);

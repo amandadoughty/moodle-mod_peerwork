@@ -56,8 +56,9 @@ class peerassessment_criteria  {
     public function getCriteria() {
         global $DB;
         $records = $DB ->get_records(self::$tablename, array('peerassessmentid'=>$this->id ) );
-        
-        // TODO return in sort order, use a php array sorting function
+
+        // return in field=sort order, using a php array sorting function
+        uasort($records, function($a, $b) { if ($a->sort == $b->sort) {return 0;} return ($a->sort < $b->sort) ? -1 : 1; } );        
         return $records;
     }
     
@@ -144,6 +145,8 @@ class peerassessment_criteria  {
         }
     }
     
+  //  public function get_scoretype_on_criteria
+    
     /**
      * Settings
      * Called from lib.php::peerassessment_update_instance() which is called automatically when the settings form is saved.
@@ -207,104 +210,105 @@ class peerassessment_criteria  {
         return true;
     }
     
-    /*************************************************************************************
-     * SUBMISSION FORM
-     */
+//     /*************************************************************************************
+//      * SUBMISSION FORM
+//      */
     
-    /**
-     * Submission
-     * Add in fields to allow peers to submit their peer assessments of their peers to the marking criteria as set by tutor.
-     * Called by mod_peerassessment_add_submission_form::definition()
-     * @param unknown $mform
-     */
-    public function add_submission_form_definition( &$mform, $gradepeersform = array() ) {
+//     /**
+//      * Submission from student.
+//      * Add in fields to allow peers to submit their peer assessments of their peers to the marking criteria as set by tutor.
+//      * Called by mod_peerassessment_add_submission_form::definition()
+//      * @param unknown $mform
+//      */
+//     public function add_submission_form_definition( &$mform, $gradepeersform = array() ) {
         
-        global $DB;
+//         global $DB;
         
-        // Fetch the criteria for this assessment so we know how to identify them (we need the 
-        // 'sort' field).
-        $records = $DB->get_records( self::$tablename, array('peerassessmentid'=>''. $this->id) );
-        if( count($records) == 0 ) {
-            $mform ->addElement('static', 'nocriteriamessage', '', get_string('assessmentcriteria:nocriteria', self::$langkey ) ); // "No criteria"
-        }
-        // TODO based on per-criteria
-        $grades = range(0, 5);
+//         // Fetch the criteria for this assessment so we know how to identify them (we need the 
+//         // 'sort' field).
+//         $records = $DB->get_records( self::$tablename, array('peerassessmentid'=>''. $this->id) );
+//         if( count($records) == 0 ) {
+//             $mform ->addElement('static', 'nocriteriamessage', '', get_string('assessmentcriteria:nocriteria', self::$langkey ) ); // "No criteria"
+//         }
+//         // TODO based on per-criteria
+//         $grades = range(0, 5);
         
-        $criterianumber = 0;    // For visual display, not the actual criteria sort in the DB 
+//         $criterianumber = 0;    // For visual display, not the actual criteria sort in the DB 
         
-        foreach ($records as $id => $record) {
-            $criterianumber++;
-      //  for ($i = 0; $i < self::$numcriteria; $i++) {
+//         foreach ($records as $id => $record) {
+//             $criterianumber++;
+//       //  for ($i = 0; $i < self::$numcriteria; $i++) {
         
-            //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerassessment', $i+1)); // KM doesnt nest into a subheading
-            $field = 'static__idx_'. $record ->sort;
-            $mform->addElement('static', $field, '', get_string('assessmentcriteria:static', self::$langkey, $criterianumber) ); // "Criteria number 1"        
+//             //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerassessment', $i+1)); // KM doesnt nest into a subheading
+//             $field = 'static__idx_'. $record ->sort;
+//             $mform->addElement('static', $field, '', get_string('assessmentcriteria:static', self::$langkey, $criterianumber) ); // "Criteria number 1"        
         
-            // Field to display a single criteria description TODO make this smaller and readonly
-            $field = 'description__idx_' . $record ->sort . '_editor';
-            $mform->addElement('editor', $field,
-                    get_string('assessmentcriteria:description', self::$langkey, $criterianumber), '', array('size'=>'20'));
-            $mform->setType($field, PARAM_RAW);
-            $mform->addHelpButton($field,'assessmentcriteria:description', self::$langkey);
+//             // Field to display a single criteria description TODO make this smaller and readonly
+//             $field = 'description__idx_' . $record ->sort . '_editor';
+//             $mform->addElement('editor', $field,
+//                     get_string('assessmentcriteria:description', self::$langkey, $criterianumber), '', array('size'=>'20'));
+//             $mform->setType($field, PARAM_RAW);
+//             $mform->addHelpButton($field,'assessmentcriteria:description', self::$langkey);
             
-            // 
-            // Use the callback to get a list of peer ids (they are moodle DB user id) and add in grading fields to assess each peer, pass the criteria's sort as a parameter
-            call_user_func_array( $gradepeersform, array($record ->sort));
+//             // 
+//             // Use the callback to add UI elements. 
+//             // get a list of peer ids (they are moodle DB user id) and add in grading fields to assess each peer, pass the criteria's sort as a parameter
+//             call_user_func_array( $gradepeersform, array($record ->sort));
             
-// //             $mform->addElement('static', 'description', get_string('description', 'exercise'),
-// //                 get_string('descriptionofexercise', 'exercise', $COURSE->students));
+// // //             $mform->addElement('static', 'description', get_string('description', 'exercise'),
+// // //                 get_string('descriptionofexercise', 'exercise', $COURSE->students));
             
-//             // A space to accept the grade, going to depend on the grading type.
-//             // TODO will need a grade description??
-//             $field = 'grade__idx_'. $record ->sort . '_' .$peeruserid;
-//             $mform->addElement('select', $field, get_string('assessmentcriteria:grade', self::$langkey), $grades);
-//             $mform->setDefault($field, $default);
-//             $mform->setType($field, PARAM_ALPHA);
-//             $mform->addHelpButton($field, 'assessmentcriteria:grade', self::$langkey);
-// //            $mform->disabledIf('grade', 'value1', 'eq|noteq', 'value2');
-// //             $mform->addRule($field, $strrequired, 'required', null, 'client');
-// //             $mform->setAdvanced('grade');
+// //             // A space to accept the grade, going to depend on the grading type.
+// //             // TODO will need a grade description??
+// //             $field = 'grade__idx_'. $record ->sort . '_' .$peeruserid;
+// //             $mform->addElement('select', $field, get_string('assessmentcriteria:grade', self::$langkey), $grades);
+// //             $mform->setDefault($field, $default);
+// //             $mform->setType($field, PARAM_ALPHA);
+// //             $mform->addHelpButton($field, 'assessmentcriteria:grade', self::$langkey);
+// // //            $mform->disabledIf('grade', 'value1', 'eq|noteq', 'value2');
+// // //             $mform->addRule($field, $strrequired, 'required', null, 'client');
+// // //             $mform->setAdvanced('grade');
 
         
-// //             $field = 'weight__idx_'.$i;
-// //             $mform->addElement('select', $field,
-// //                 get_string('assessmentcriteria:weight', self::$langkey, $i+1), range(0, 5));
-// //             $mform->setDefault($field, 1);
-// //             $mform->addHelpButton($field,'assessmentcriteria:weight', self::$langkey);
-        }
-    }
+// // //             $field = 'weight__idx_'.$i;
+// // //             $mform->addElement('select', $field,
+// // //                 get_string('assessmentcriteria:weight', self::$langkey, $i+1), range(0, 5));
+// // //             $mform->setDefault($field, 1);
+// // //             $mform->addHelpButton($field,'assessmentcriteria:weight', self::$langkey);
+//         }
+//     }
 
-  /**
-   * Collect any data about the criteria, grades and feedback awarded (if any) to peers and add to $data so
-   * it populates the form.
-   */
-    public function add_submission_form_set_data($data) {
+//   /**
+//    * Collect any data about the criteria, grades and feedback awarded (if any) to peers and add to $data so
+//    * it populates the form.
+//    */
+//     public function add_submission_form_set_data($data) {
         
-        global $DB;
-        global $USER;
+//         global $DB;
+//         global $USER;
         
-        error_log("calling add_submission_form_set_data setdata with " . print_r($data, true)  );
+//         error_log("calling add_submission_form_set_data setdata with " . print_r($data, true)  );
         
-        // Get fixed information about the criteria. 
-        $criteria = $DB ->get_records(self::$tablename, array('peerassessmentid'=> $this->id) );
+//         // Get fixed information about the criteria. 
+//         $criteria = $DB ->get_records(self::$tablename, array('peerassessmentid'=> $this->id) );
         
-        foreach ($criteria as $id => $record) {
+//         foreach ($criteria as $id => $record) {
         
-            error_log( "found criteria record for peerassessment# " . $record->peerassessmentid . " ". print_r($record, true) );
-            $data ->{'description__idx_'. $record ->sort . '_editor'} = array('text'=>$record->description, 'format'=> $record->descriptionformat);
-        }
+//             error_log( "found criteria record for peerassessment# " . $record->peerassessmentid . " ". print_r($record, true) );
+//             $data ->{'description__idx_'. $record ->sort . '_editor'} = array('text'=>$record->description, 'format'=> $record->descriptionformat);
+//         }
         
-        // Now get all the grades and feedback for each criteria this user has already awarded to their peers.
-        // Transfer into the $data so it populates the UI
-        $mygrades = $DB->get_records('peerassessment_peers', array('peerassessment' => $this->id,
-            'gradedby' => $USER->id), '', 'id,sort,gradefor,feedback,grade');
+//         // Now get all the grades and feedback for each criteria this user has already awarded to their peers.
+//         // Transfer into the $data so it populates the UI
+//         $mygrades = $DB->get_records('peerassessment_peers', array('peerassessment' => $this->id,
+//             'gradedby' => $USER->id), '', 'id,sort,gradefor,feedback,grade');
         
-        foreach( $mygrades as $grade) {
-            $data ->{'grade__idx_'. $grade ->sort }[$grade->gradefor] = $grade ->grade;
-            $data ->{'feedback__idx_'. $grade ->sort }[$grade->gradefor] = $grade ->feedback;
+//         foreach( $mygrades as $grade) {
+//             $data ->{'grade__idx_'. $grade ->sort }[$grade->gradefor] = $grade ->grade;
+//             $data ->{'feedback__idx_'. $grade ->sort }[$grade->gradefor] = $grade ->feedback;
             
-        }
+//         }
 
-    }
+//     }
 
 }

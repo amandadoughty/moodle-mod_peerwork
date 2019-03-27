@@ -15,3 +15,24 @@
 	padding: 10px 20px;
 	text-align: left;
 }
+
+
+
+
+
+
+.mod-peerassessment-submissions-table table {
+	background-color: red;
+	width: 80%;
+	 border: 1px solid black; 
+}
+
+
+.mod-peerassessment-submissions-table td {
+	background-color: red;
+}
+
+.mod-peerassessment-submissions-table caption {
+		background-color: yellow;
+}
+

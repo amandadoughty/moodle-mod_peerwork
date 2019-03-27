@@ -21,17 +21,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(__DIR__. '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/forms/add_submission_form.php');
+require_once($CFG->dirroot . '/mod/peerassessment/forms/submissions_form.php');
 require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
 require_once($CFG->dirroot . '/mod/peerassessment/forms/confirm_form.php');
 require_once($CFG->dirroot . '/mod/peerassessment/renderer.php');
 
 
-$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$n = optional_param('n', 0, PARAM_INT); // Peerassessment instance ID - it should be named as the first character of the module.
+$id = optional_param('id', 0, PARAM_INT); 	// Course_module ID, or
+$n = optional_param('n', 0, PARAM_INT); 	// Peerassessment instance ID - it should be named as the first character of the module.
 
 if ($id) {
     $cm = get_coursemodule_from_id('peerassessment', $id, 0, false, MUST_EXIST);
@@ -61,7 +61,7 @@ $event->trigger();
 
 // Print the page header.
 
-$PAGE->set_url('/mod/peerassessment/submit.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/peerassessment/submissions.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($peerassessment->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
@@ -81,16 +81,17 @@ $submission = $DB->get_record('peerassessment_submission', array('assignment' =>
 // Check if I already graded my peers.
 $myassessments = $DB->get_records('peerassessment_peers', array('peerassessment' => $peerassessment->id, 'gradedby' => $USER->id));
 
-$mform = new mod_peerassessment_add_submission_form(new moodle_url('submit.php'), array('id' => $id, 'fileupload' => true, 'peers'
+// Visualise.
+$mform = new mod_peerassessment_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => true, 'peers'
     => $membersgradeable, 'fileoptions' => peerassessment_get_fileoptions($peerassessment)));
 /*
 if (!$submission) {
     //form for new submission
-    $mform = new mod_peerassessment_add_submission_form(new moodle_url('submit.php'), array('id' => $id, 'fileupload' => true,
+    $mform = new mod_peerassessment_add_submission_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => true,
     'peers' => $membersgradeable,'fileoptions'=>peerassessment_get_fileoptions($peerassessment)));
 } else if ($submission && !$myassessments) {
     //form for peer grading only, show file already submited
-    $mform = new mod_peerassessment_add_submission_form(new moodle_url('submit.php'), array('id' => $id, 'fileupload' => false,
+    $mform = new mod_peerassessment_add_submission_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => false,
     'peers' => $membersgradeable,'fileoptions'=>peerassessment_get_fileoptions($peerassessment)));
 } else {
     throw new coding_exception('Wrong state');

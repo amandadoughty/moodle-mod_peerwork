@@ -33,7 +33,7 @@
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/forms/add_submission_form.php');
+require_once($CFG->dirroot . '/mod/peerassessment/forms/submissions_form.php');
 require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
 require_once($CFG->libdir . '/gradelib.php');
 
@@ -235,7 +235,7 @@ if (!$myassessments || $edit == true) {
     // Check if there are any files at the time of opening the form.
     $files = peerassessment_submission_files($context, $group);
 
-    $mform = new mod_peerassessment_add_submission_form(new moodle_url('submit.php'), array('id' => $id, 'files' => count($files),
+    $mform = new mod_peerassessment_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'files' => count($files),
         'fileupload' => true, 'peers' => $membersgradeable, 'fileoptions' => peerassessment_get_fileoptions($peerassessment)));
     $mform->set_data($entry);
     $mform->display();

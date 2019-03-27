@@ -24,7 +24,7 @@
 require_once( dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/forms/add_submission_form.php');
+require_once($CFG->dirroot . '/mod/peerassessment/forms/submissions_form.php');
 require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
 require_once($CFG->dirroot . '/mod/peerassessment/forms/grade_form.php');
 
@@ -58,14 +58,14 @@ $PAGE->set_context($context);
 require_capability('mod/peerassessment:grade', $context);
 
 $mform = new mod_peerassessment_grade_form();
-$draftitemid = file_get_submitted_draft_itemid('feedback_files');
-file_prepare_draft_area($draftitemid, $context->id, 'mod_peerassessment', 'feedback_files',
-    $groupid, peerassessment_get_fileoptions($peerassessment));
+// $draftitemid = file_get_submitted_draft_itemid('feedback_files');
+// file_prepare_draft_area($draftitemid, $context->id, 'mod_peerassessment', 'feedback_files',
+//     $groupid, peerassessment_get_fileoptions($peerassessment));
 
-$data = array('id' => $id, 'groupid' => $groupid, 'feedback_files' => $draftitemid);
+$data = array('id' => $id, 'groupid' => $groupid); //, 'feedback_files' => $draftitemid
 if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
-    $data['feedback']['text'] = $submission->feedbacktext;
-    $data['feedback']['format'] = $submission->feedbackformat;
+//     $data['feedback']['text'] = "KM" . $submission->feedbacktext;
+//     $data['feedback']['format'] = $submission->feedbackformat;
     $data['grade'] = $submission->grade;
 }
 $mform->set_data($data);
@@ -137,55 +137,68 @@ echo $OUTPUT->box('Status: ' . $status->text);
 $submissionfiles = peerassessment_submission_files($context, $group);
 echo $OUTPUT->box('Submission: ' . implode(',', $submissionfiles) . $OUTPUT->help_icon('submissiongrading', 'peerassessment'));
 
-// Create a tabulation of the peers and the grades awarded and received. 
-$t = new html_table();
-$t->attributes['class'] = 'userenrolment';
-$t->id = 'mod-peerassessment-summary-table';
-$t->head[] = '';
-$grades = peerassessment_get_peer_grades($peerassessment, $group, $members);
 
-// Add Averages 1 line.
-$indaverages = array('<b>Average</b>');
+$grades = peerassessment_get_peer_grades($peerassessment, $group, $members, false);
 
-// PUTTING IN METHOD GET_GRADE.
 
-foreach ($members as $member) {
-    $t->head[] = fullname($member);
-    $row = new html_table_row();;
+// get the criteria, in sort order
+$sorts = array_keys( $grades->grades ); 
+error_log("details sorts=" . print_r($grades,true) );
 
-        // $src = $OUTPUT->pix_url('help');
-        // $alt = 'alt';
-        // $attributes = array('src'=>$src, 'alt'=>$alt, 'class'=>'iconhelp');
-        // $output = html_writer::empty_tag('img', $attributes);
-
-    $row->cells = array();
-    $row->cells[] = fullname($member);
-
-    foreach ($members as $peer) {
-        $feedbacktext = '';
-        if ($grades->feedback[$member->id][$peer->id] != '-') {
-            $feedbacktext = print_collapsible_region($grades->feedback[$member->id][$peer->id], 'peerassessment-feedback',
-                'peerassessment-feedback-' . $member->id . '-' . $peer->id,
-                shorten_text($grades->feedback[$member->id][$peer->id], 20), '', true, true);
-        }
-        $row->cells[] = $grades->grades[$member->id][$peer->id] . $feedbacktext;
-
-    }
-    $t->data[] = $row;
-    // Add Averages 2 lines.
-    $indaverage = peerassessment_get_individualaverage($peerassessment, $group, $member);
+foreach( $sorts as $sort ) {
+    // Create a tabulation of the peers and the grades awarded and received. 
+    $t = new html_table();
+    $t->attributes['class'] = 'userenrolment';
+    $t->id = 'mod-peerassessment-summary-table';
+    $t->head[] = '';
     
-    $indaverages[] = '<b>' . $indaverage . '</b>';
+    //error_log("details got grades=" . print_r($grades,true));
+    
+    // Add Averages 1 line.
+    $indaverages = array('<b>Average</b>');
+    
+    // PUTTING IN METHOD GET_GRADE.
+    
+    foreach ($members as $member) {
+        $t->head[] = fullname($member);
+        $row = new html_table_row();;
+    
+            // $src = $OUTPUT->pix_url('help');
+            // $alt = 'alt';
+            // $attributes = array('src'=>$src, 'alt'=>$alt, 'class'=>'iconhelp');
+            // $output = html_writer::empty_tag('img', $attributes);
+    
+        $row->cells = array();
+        $row->cells[] = fullname($member);
+    
+        foreach ($members as $peer) {
+            $feedbacktext = '';     // dont display feedback for now
+            if( array_key_exists( $member->id, $grades->grades[$sort] ) &&  array_key_exists( $peer->id, $grades->grades[$sort][$member->id])) {
+                $row->cells[] = $grades->grades[$sort][$member->id][$peer->id]. $feedbacktext;
+            } else {
+                $row->cells[] = '-';
+            }
+    
+        }
+        $t->data[] = $row;
+        // Add Averages 2 lines.
+        $indaverage = peerassessment_get_individualaverage($peerassessment, $group, $member);
+        
+        $indaverages[] = '<b>' . $indaverage . '</b>';
+    }
+    
+    // Add Averages 1 line.
+    $t->data[] = $indaverages;
+    
+    echo html_writer::table($t);
 }
 
-// Add Averages 1 line.
-$t->data[] = $indaverages;
 
-echo html_writer::table($t);
 
 // Add Averages 2 lines.
 $gravg = peerassessment_get_groupaverage($peerassessment, $group);
 echo $OUTPUT->box("Group Average grade: $gravg " . $OUTPUT->help_icon('groupaverage', 'peerassessment'));
+
 
 // If graded then show grade for submission and adjusted grades for each peer.
 if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
@@ -209,13 +222,16 @@ if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
     }
     echo html_writer::table($t);
     echo $OUTPUT->box_end();
+    
+    
 
-    echo $OUTPUT->box_start();
-    echo $OUTPUT->heading("Feedback ". $OUTPUT->help_icon('teacherfeedback', 'peerassessment'), 3);
-    echo $OUTPUT->box($submission->feedbacktext);
-    $feedbackfiles = peerassessment_feedback_files($context, $group);
-    echo $OUTPUT->box('Feedback files: ' . implode(',', $feedbackfiles));
-    echo $OUTPUT->box_end();
+//  TODO not using feedback for now    
+//     echo $OUTPUT->box_start();
+//     echo $OUTPUT->heading("Feedback ". $OUTPUT->help_icon('teacherfeedback', 'peerassessment'), 3);
+//     echo $OUTPUT->box($submission->feedbacktext);
+//     $feedbackfiles = peerassessment_feedback_files($context, $group);
+//     echo $OUTPUT->box('Feedback files: ' . implode(',', $feedbackfiles));
+//     echo $OUTPUT->box_end();
 }
 
 $mform->display();
