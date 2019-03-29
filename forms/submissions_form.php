@@ -76,7 +76,7 @@ class mod_peerassessment_submissions_form extends moodleform
         $peerassess = get_coursemodule_from_id('peerassessment', $this->_customdata['id']);
         $pac = new peerassessment_criteria( $peerassess ->instance );
  
-        $mform->createElement('html', '<div class="mod_peerassessment_criteria">' );
+        $mform->createElement('html', '<div class="mod-peerassessment-summary-table">' );
         foreach( $pac ->getCriteria() as $criteria ) {
 
             // Criteria description
@@ -116,84 +116,84 @@ class mod_peerassessment_submissions_form extends moodleform
         $this->add_action_buttons(false);
     }
     
-    /**
-     * This callback function is called by peerassessment_criteria::add_submission_form_definition() to add in multiple UI elements to allow a user
-     * to assess their peers. 
-     *
-     * @param int $criteriasort the peerassessment_criteria::sort field in DB 
-     */
-    public function callback($criteriasort) {
-        global $OUTPUT;
-        die;
+//     /**
+//      * This callback function is called by peerassessment_criteria::add_submission_form_definition() to add in multiple UI elements to allow a user
+//      * to assess their peers. 
+//      *
+//      * @param int $criteriasort the peerassessment_criteria::sort field in DB 
+//      */
+//     public function callback($criteriasort) {
+//         global $OUTPUT;
+//         die;
         
-        error_log( "calling callback for peers on this assessment " . print_r($this->_customdata,true) );
+//         error_log( "calling callback for peers on this assessment " . print_r($this->_customdata,true) );
         
-        $mform = $this->_form;
-        $peers = $this->_customdata['peers'];
-        $grades = range(0, 5); // TODO respect criteria definition of grade.
+//         $mform = $this->_form;
+//         $peers = $this->_customdata['peers'];
+//         $grades = range(0, 5); // TODO respect criteria definition of grade.
 
-        // Create a table, users (peers) as rows.
-        $t = new html_table();
-        $t->attributes['class'] = 'userenrolment';
-        $t->id = 'mod-peerassessment-summary-table';
-        $t->head = array('name', 'grade', 'feedback'); // TODO lang
+//         // Create a table, users (peers) as rows.
+//         $t = new html_table();
+//         $t->attributes['class'] = 'userenrolment';
+//         $t->id = 'mod-peerassessment-summary-table';
+//         $t->head = array('name', 'grade', 'feedback'); // TODO lang
         
         
-        foreach ($peers as $peer) {
-            $row = new html_table_row();
+//         foreach ($peers as $peer) {
+//             $row = new html_table_row();
 
-            $id = '[' . $peer->id . ']';
+//             $id = '[' . $peer->id . ']';
 
-            // Create field to collect a grade 
-            $field = 'grade__idx_'. $criteriasort . $id;
-            $gradeinput = $mform->createElement('select', $field, get_string('grade', 'peerassessment'), $grades);
-            //$gradeinput ->setDefault(3);
-            // $mform->setType("grade$id", PARAM_ALPHA);
-            // $mform->addHelpButton('grade', 'langkey_help', 'peerassessment');
-            // $mform->disabledIf('grade', 'value1', 'eq|noteq', 'value2');
-//            $mform->addRule($field, get_string('required'), 'required', null, 'client',false,true);
-            // $mform->setAdvanced('grade');
+//             // Create field to collect a grade 
+//             $field = 'grade__idx_'. $criteriasort . $id;
+//             $gradeinput = $mform->createElement('select', $field, get_string('grade', 'peerassessment'), $grades);
+//             //$gradeinput ->setDefault(3);
+//             // $mform->setType("grade$id", PARAM_ALPHA);
+//             // $mform->addHelpButton('grade', 'langkey_help', 'peerassessment');
+//             // $mform->disabledIf('grade', 'value1', 'eq|noteq', 'value2');
+// //            $mform->addRule($field, get_string('required'), 'required', null, 'client',false,true);
+//             // $mform->setAdvanced('grade');
             
-//             $field = 'feedback__idx_' . $criteriasort . $id;
-//             $feedbackinput = $mform->createElement('textarea', $field, get_string('feedback', 'peerassessment'),
-//                 array('rows' => 1, 'cols' => 40));
-//             // $mform->setType('feedback', PARAM_RAW);
-//             // $mform->setDefault('feedback', 'defult string value for the textarea');
-//             // $mform->addHelpButton('feedback', 'langkey_help', 'peerassessment');
-//             // $mform->disabledIf('feedback', 'value1', 'eq|noteq', 'value2');
-//             // $mform->addRule($field, get_string('required'), 'required', null, 'client',false,true);
-//             // $mform->setAdvanced('feedback');
+// //             $field = 'feedback__idx_' . $criteriasort . $id;
+// //             $feedbackinput = $mform->createElement('textarea', $field, get_string('feedback', 'peerassessment'),
+// //                 array('rows' => 1, 'cols' => 40));
+// //             // $mform->setType('feedback', PARAM_RAW);
+// //             // $mform->setDefault('feedback', 'defult string value for the textarea');
+// //             // $mform->addHelpButton('feedback', 'langkey_help', 'peerassessment');
+// //             // $mform->disabledIf('feedback', 'value1', 'eq|noteq', 'value2');
+// //             // $mform->addRule($field, get_string('required'), 'required', null, 'client',false,true);
+// //             // $mform->setAdvanced('feedback');
             
 
-            $row->cells = array( fullname($peer),
-                                 $gradeinput->toHtml()
-            );
-            $t->data[] = $row;
-        }
-        $mform->addElement('html', html_writer::table($t) );
+//             $row->cells = array( fullname($peer),
+//                                  $gradeinput->toHtml()
+//             );
+//             $t->data[] = $row;
+//         }
+//         $mform->addElement('html', html_writer::table($t) );
 
-//             foreach ($peers as $peer) {
-//                 $mform->addElement('html', '<div id="kevin" >'); // might give us change to layout with CSS
+// //             foreach ($peers as $peer) {
+// //                 $mform->addElement('html', '<div id="kevin" >'); // might give us change to layout with CSS
                 
-//                 $id = '[' . $peer->id . ']';
+// //                 $id = '[' . $peer->id . ']';
                 
-//                 $mform->addElement('static', 'label2', fullname($peer));
+// //                 $mform->addElement('static', 'label2', fullname($peer));
                     
-//                 // Create field to collect a grade
-//                 $field = 'grade__idx_'. $criteriasort . $id;
-//                 $mform->addElement('select', $field, get_string('grade', 'peerassessment'), $grades);
-//                 $mform ->setDefaults($field,3);
-//                 $mform->addRule($field, get_string('required'), 'required', null, 'client');
+// //                 // Create field to collect a grade
+// //                 $field = 'grade__idx_'. $criteriasort . $id;
+// //                 $mform->addElement('select', $field, get_string('grade', 'peerassessment'), $grades);
+// //                 $mform ->setDefaults($field,3);
+// //                 $mform->addRule($field, get_string('required'), 'required', null, 'client');
     
-//                 // Field to collect a bit of feeedback on a peer
-//                 $field = 'feedback__idx_' . $criteriasort . $id;
-//                 $mform->addElement('textarea', $field, get_string('feedback', 'peerassessment'),
-//                     array('rows' => 1, 'cols' => 40));
+// //                 // Field to collect a bit of feeedback on a peer
+// //                 $field = 'feedback__idx_' . $criteriasort . $id;
+// //                 $mform->addElement('textarea', $field, get_string('feedback', 'peerassessment'),
+// //                     array('rows' => 1, 'cols' => 40));
                 
-//                 $mform->addElement('html', '</div>');
-//             }
+// //                 $mform->addElement('html', '</div>');
+// //             }
 
-    }
+//     }
     
     
     /**

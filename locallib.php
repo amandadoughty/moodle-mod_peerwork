@@ -634,7 +634,7 @@ function peerassessment_get_indsd($peerassessment, $group, $user) {
 }
 
 /**
- * Get the final awarded grade of the student.
+ * Get the final awarded grade of the student according to the algorithm.
  */
 function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
     global $DB;

@@ -94,12 +94,11 @@ class mod_peerassessment_renderer extends plugin_renderer_base {
 
         if (isset($data['igraded'])) {
             $row = new html_table_row();
-            $cell1 = new html_table_cell('Peer grades');
+            $cell1 = new html_table_cell('Total grades awarded');
 
             $users = '';
             foreach ($membersgradeable as $member) {
-                $users .= '<p>' . fullname($member) . ': ' . $data['igraded']->grade[$member->id] .
-                ' (' . $data['igraded']->feedback[$member->id] . ')</p>';
+                $users .= '<p>' . fullname($member) . ': ' . $data['igraded']->grade[$member->id] . '</p>';
             }
 
             $cell2 = new html_table_cell($users);

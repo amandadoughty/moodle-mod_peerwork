@@ -26,9 +26,10 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/formslib.php');
 
 /**
- * Creates UI elements for the tutor to give an overall grade.
+ * Creates UI elements for the tutor to enter an overall grade to a submission.
+ * Called from and data provided by details.php
  */
-class mod_peerassessment_grade_form extends moodleform
+class mod_peerassessment_details_form extends moodleform
 {
     public static $fileoptions = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,
         'accepted_types' => '*', 'return_types' => null);
@@ -46,14 +47,33 @@ class mod_peerassessment_grade_form extends moodleform
 
         $mform->addElement('hidden', 'groupid');
         $mform->setType('groupid', PARAM_INT);
-
-        $mform->addElement('text', 'grade', "Grade out of 100", array('maxlength' => 15, 'size' => 10));
+        
+        ////////////////////////////////////////////////////////////////////////////////////////
+        $mform->addElement('header', 'mod_peerassessment_details', 'Details' );  
+        $mform->addElement('static', 'groupname', 'Group' ); // Filled from $data['groupname']
+        $mform->addElement('static', 'status', 'Status' );
+        
+        ////////////////////////////////////////////////////////////////////////////////////////
+        $mform->addElement('header', 'mod_peerassessment_peers', 'Peer submission and grades' );  
+        $mform->addElement('static', 'submission', get_string('submission', 'peerassessment'));
+        $mform->addHelpButton('submission', 'submission', 'peerassessment');
+        
+        $mform->addElement('static', 'peergradesawarded', "");	// This gets replaced with a table of grades peers have awarded.
+        
+        
+        ////////////////////////////////////////////////////////////////////////////////////////
+        $mform->addElement('header', 'mod_peerassessment_grading', 'Tutor grading' );
+        $mform->addElement('text', 'grade', "Group grade out of 100", array('maxlength' => 15, 'size' => 10));
         $mform->setType('grade', PARAM_INT);
         // $mform->setDefault('grade', 'defult string value for the textarea');
         // $mform->addHelpButton('grade', 'langkey_help', 'peerassessment');
         // $mform->disabledIf('grade', 'value1', 'eq|noteq', 'value2');
         // $mform->addRule('grade', $strrequired, 'required', null, 'client');
         // $mform->setAdvanced('grade');
+        
+        $mform->addElement('static', 'finalgrades', "");	// becomes a HTML table
+        $mform->addHelpButton('finalgrades', 'finalgrades', 'peerassessment');
+
 
         $editoroptions = array();
         $mform->addElement('editor', 'feedback', get_string('feedback', 'peerassessment'), '', $editoroptions);
@@ -70,9 +90,42 @@ class mod_peerassessment_grade_form extends moodleform
         // $mform->addRule('feedback_files', $strrequired, 'required', null, 'client');
         // $mform->setAdvanced('feedback_files');
 
+
+        
+        
         $this->add_action_buttons();
     }
 
+    public function set_data($data) {
+    	
+    	if( array_key_exists('finalgrades', $data) ) {
+    		
+//     		$t = new html_table();
+//     		$t->attributes['class'] = 'userenrolment';
+//     		$t->id = 'mod-peerassessment-summary-table';
+//     		$t->head = array('Name', 'Final Grade');
+    		
+//     		foreach ($data['finalgrades'] as $member) {
+//     			$row = new html_table_row();
+//     			// TODO also add grade from gradebook in case it's overwritten,
+//     			$t->data[] = array(fullname($member), $peermarks[$member->id]->final_grade);
+    			
+//     			$t->data[] = array(fullname($member), );
+    			
+//     			$row->cells[] = fullname($member);
+//     			$row->cells[] = peerassessment_get_grade($peerassessment, $group, $member)
+//     		}
+//     		//echo html_writer::table($t);
+    		
+
+    		
+    	} else {    		
+    		$data['finalgrades'] = "this is some empty text"; 
+    	}
+    	
+    	return parent::set_data($data);
+    }
+    
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 

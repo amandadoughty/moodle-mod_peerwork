@@ -26,55 +26,112 @@ require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerassessment/forms/submissions_form.php');
 require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/forms/grade_form.php');
+require_once($CFG->dirroot . '/mod/peerassessment/forms/details_form.php');
 
 /**
- * This provides a teacher with a summary view of the assessment, who has submitted and given feedback.
- * @var unknown $id
+ * This provides a teacher with a summary view of the assessment for a group, detailing who has submitted.
  */
 
 $id = required_param('id', PARAM_INT);
 $groupid = required_param('groupid', PARAM_INT);
 
-$cm = get_coursemodule_from_id('peerassessment', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+$cm             = get_coursemodule_from_id('peerassessment', $id, 0, false, MUST_EXIST);
+$course         = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $peerassessment = $DB->get_record('peerassessment', array('id' => $cm->instance), '*', MUST_EXIST);
-$submission = $DB->get_record('peerassessment_submission', array('assignment' => $peerassessment->id, 'groupid' => $groupid));
-$members = groups_get_members($groupid);
-$group = $DB->get_record('groups', array('id' => $groupid), '*', MUST_EXIST);
-$status = peerassessment_get_status($peerassessment, $group);
+$submission     = $DB->get_record('peerassessment_submission', array('assignment' => $peerassessment->id, 'groupid' => $groupid));
+$members        = groups_get_members($groupid);
+$group          = $DB->get_record('groups', array('id' => $groupid), '*', MUST_EXIST);
+$status         = peerassessment_get_status($peerassessment, $group);
 
+
+
+// Print the standard page header and check access rights.
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-
-// Print the page header.
-
 $PAGE->set_url('/mod/peerassessment/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($peerassessment->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
-
-// If teacher then display statuses for all groups.
 require_capability('mod/peerassessment:grade', $context);
 
-$mform = new mod_peerassessment_grade_form();
-// $draftitemid = file_get_submitted_draft_itemid('feedback_files');
-// file_prepare_draft_area($draftitemid, $context->id, 'mod_peerassessment', 'feedback_files',
-//     $groupid, peerassessment_get_fileoptions($peerassessment));
 
+// Start the form, initialise with some data.
 $data = array('id' => $id, 'groupid' => $groupid); //, 'feedback_files' => $draftitemid
+
+
+$mform = new mod_peerassessment_details_form();
 if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
 //     $data['feedback']['text'] = "KM" . $submission->feedbacktext;
 //     $data['feedback']['format'] = $submission->feedbackformat;
     $data['grade'] = $submission->grade;
 }
+$data['groupname'] = $group->name;
+$data['status'] = $status->text;
+$submissionfiles = peerassessment_submission_files($context, $group);
+$data['submission'] = implode(',', $submissionfiles); // creates <a href HTML
+
+
+// Get the peer grades awarded so far, then for each criteria
+// output a HTML tabulation of the peers and the grades awarded and received.
+// TODO instead of HTML fragment can we build this with form elments?
+$grades = peerassessment_get_peer_grades($peerassessment, $group, $members, false);
+$pac = new peerassessment_criteria( $peerassessment->id );
+$data['peergradesawarded'] = '';
+foreach( $pac ->getCriteria() as $criteria ) {
+	
+	$sort = $criteria->sort;
+
+	$t = new html_table();
+	$t->attributes['class'] = 'userenrolment';
+	$t->id = 'mod-peerassessment-summary-table';
+	$t->head[] = '';
+	$t->caption = $criteria ->description;
+	
+	foreach ($members as $member) {
+		$t->head[] = fullname($member);
+		$row = new html_table_row();
+		$row->cells = array();
+		$row->cells[] = fullname($member);
+		
+		foreach ($members as $peer) {
+			if( array_key_exists( $member->id, $grades->grades[$sort] ) &&  array_key_exists( $peer->id, $grades->grades[$sort][$member->id])) {
+				$row->cells[] = $grades->grades[$sort][$member->id][$peer->id];
+			} else {
+				$row->cells[] = '-';
+			}
+			
+		}
+		$t->data[] = $row;
+	}
+	$data['peergradesawarded'] .= html_writer::table($t); // Write the table for this criterion into the 
+}
+
+
+// If assignment has been graded then show grades for submission and allow adjusted grades for each peer.
+$finalgrades = array(); // Becomes userid => grade 
+if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
+	foreach ($members as $member) {
+		$data['finalgrades'] = "Grades are available"; //array(fullname($member), peerassessment_get_grade($peerassessment, $group, $member));
+	}
+}
+
+
+
+
+
+
+
 $mform->set_data($data);
+
+
 if ($mform->is_cancelled()) {
     // Form cancelled, redirect.
     redirect(new moodle_url('view.php', array('id' => $cm->id)));
     return;
 } else if (($data = $mform->get_data())) {
-    // Form has been submitted.
+	//
+    // Form has been submitted, save form values to database then redirect to re-display form.
+    //
     if (!$submission) {
         $submission = new stdClass();
         $submission->assignment = $peerassessment->id;
@@ -96,13 +153,12 @@ if ($mform->is_cancelled()) {
     }
 
     // Update grades for every group member.
-    $members = groups_get_members($group->id);
     foreach ($members as $member) {
         peerassessment_update_grades($peerassessment, $member->id);
     }
     // Save the file submitted.
     file_save_draft_area_files($draftitemid, $context->id, 'mod_peerassessment', 'feedback_files',
-        $group->id, mod_peerassessment_grade_form::$fileoptions);
+        $group->id, mod_peerassessment_details_form::$fileoptions);
 
     $params = array(
                 'objectid' => $submission->id,
@@ -121,6 +177,9 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)));
 }
 
+// 
+// Form should now be setup to display, so do the output.
+//
 $params = array(
                 'objectid' => $cm->id,
                 'context' => $context,
@@ -131,109 +190,5 @@ $event = \mod_peerassessment\event\submission_grade_form_viewed::create($params)
 $event->trigger();
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading("Group " . $group->name);
-echo $OUTPUT->box('Status: ' . $status->text);
-
-$submissionfiles = peerassessment_submission_files($context, $group);
-echo $OUTPUT->box('Submission: ' . implode(',', $submissionfiles) . $OUTPUT->help_icon('submissiongrading', 'peerassessment'));
-
-
-$grades = peerassessment_get_peer_grades($peerassessment, $group, $members, false);
-
-
-// get the criteria, in sort order
-$sorts = array_keys( $grades->grades ); 
-error_log("details sorts=" . print_r($grades,true) );
-
-foreach( $sorts as $sort ) {
-    // Create a tabulation of the peers and the grades awarded and received. 
-    $t = new html_table();
-    $t->attributes['class'] = 'userenrolment';
-    $t->id = 'mod-peerassessment-summary-table';
-    $t->head[] = '';
-    
-    //error_log("details got grades=" . print_r($grades,true));
-    
-    // Add Averages 1 line.
-    $indaverages = array('<b>Average</b>');
-    
-    // PUTTING IN METHOD GET_GRADE.
-    
-    foreach ($members as $member) {
-        $t->head[] = fullname($member);
-        $row = new html_table_row();;
-    
-            // $src = $OUTPUT->pix_url('help');
-            // $alt = 'alt';
-            // $attributes = array('src'=>$src, 'alt'=>$alt, 'class'=>'iconhelp');
-            // $output = html_writer::empty_tag('img', $attributes);
-    
-        $row->cells = array();
-        $row->cells[] = fullname($member);
-    
-        foreach ($members as $peer) {
-            $feedbacktext = '';     // dont display feedback for now
-            if( array_key_exists( $member->id, $grades->grades[$sort] ) &&  array_key_exists( $peer->id, $grades->grades[$sort][$member->id])) {
-                $row->cells[] = $grades->grades[$sort][$member->id][$peer->id]. $feedbacktext;
-            } else {
-                $row->cells[] = '-';
-            }
-    
-        }
-        $t->data[] = $row;
-        // Add Averages 2 lines.
-        $indaverage = peerassessment_get_individualaverage($peerassessment, $group, $member);
-        
-        $indaverages[] = '<b>' . $indaverage . '</b>';
-    }
-    
-    // Add Averages 1 line.
-    $t->data[] = $indaverages;
-    
-    echo html_writer::table($t);
-}
-
-
-
-// Add Averages 2 lines.
-$gravg = peerassessment_get_groupaverage($peerassessment, $group);
-echo $OUTPUT->box("Group Average grade: $gravg " . $OUTPUT->help_icon('groupaverage', 'peerassessment'));
-
-
-// If graded then show grade for submission and adjusted grades for each peer.
-if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
-
-    echo $OUTPUT->box_start();
-    echo $OUTPUT->heading("Final grades ". $OUTPUT->help_icon('finalgrades', 'peerassessment'), 3);
-    echo $OUTPUT->box_start();
-    echo $OUTPUT->box("Grade by teacher: $submission->grade");
-    echo $OUTPUT->box_end();
-
-    $t = new html_table();
-    $t->attributes['class'] = 'userenrolment';
-    $t->id = 'mod-peerassessment-summary-table';
-    $t->head = array('Name', 'Grade');
-    foreach ($members as $member) {
-        // TODO also add grade from gradebook in case it's overwritten,
-        // $t->data[] = array(fullname($member), $peermarks[$member->id]->final_grade);
-
-        $t->data[] = array(fullname($member), peerassessment_get_grade($peerassessment, $group, $member));
-
-    }
-    echo html_writer::table($t);
-    echo $OUTPUT->box_end();
-    
-    
-
-//  TODO not using feedback for now    
-//     echo $OUTPUT->box_start();
-//     echo $OUTPUT->heading("Feedback ". $OUTPUT->help_icon('teacherfeedback', 'peerassessment'), 3);
-//     echo $OUTPUT->box($submission->feedbacktext);
-//     $feedbackfiles = peerassessment_feedback_files($context, $group);
-//     echo $OUTPUT->box('Feedback files: ' . implode(',', $feedbackfiles));
-//     echo $OUTPUT->box_end();
-}
-
 $mform->display();
-
 echo $OUTPUT->footer();
