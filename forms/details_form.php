@@ -71,8 +71,8 @@ class mod_peerassessment_details_form extends moodleform
         // $mform->addRule('grade', $strrequired, 'required', null, 'client');
         // $mform->setAdvanced('grade');
         
-        $mform->addElement('static', 'finalgrades', "");	// becomes a HTML table
-        $mform->addHelpButton('finalgrades', 'finalgrades', 'peerassessment');
+        $mform->addElement('static', 'finalgrades', "Calculated grades");	// becomes a HTML table
+        //$mform->addHelpButton('finalgrades', 'finalgrades', 'peerassessment');
 
 
         $editoroptions = array();
@@ -90,39 +90,50 @@ class mod_peerassessment_details_form extends moodleform
         // $mform->addRule('feedback_files', $strrequired, 'required', null, 'client');
         // $mform->setAdvanced('feedback_files');
 
-
-        
         
         $this->add_action_buttons();
     }
 
+    /**
+     * Called from details.php to populate the form from existing data.
+     */
     public function set_data($data) {
+    	global $OUTPUT;
+ 
+    	error_log("set_data " . print_r($data['finalgrades'] , true ) );
     	
     	if( array_key_exists('finalgrades', $data) ) {
     		
-//     		$t = new html_table();
-//     		$t->attributes['class'] = 'userenrolment';
-//     		$t->id = 'mod-peerassessment-summary-table';
-//     		$t->head = array('Name', 'Final Grade');
+    		$t = new html_table();
+    		$t->attributes['class'] = 'userenrolment';
+    		$t->id = 'mod-peerassessment-summary-table';
+    		$t->head = array(	'Name', 
+    							get_string('contibutionscore', 'peerassessment'). $OUTPUT->help_icon('contibutionscore', 'peerassessment'),
+    							'Calculated grade', 
+    							"Revised grade");
     		
-//     		foreach ($data['finalgrades'] as $member) {
-//     			$row = new html_table_row();
-//     			// TODO also add grade from gradebook in case it's overwritten,
-//     			$t->data[] = array(fullname($member), $peermarks[$member->id]->final_grade);
+    		foreach ($data['finalgrades'] as $member) {
+    			$row = new html_table_row();
+    			// TODO also add grade from gradebook in case it's overwritten ??
     			
-//     			$t->data[] = array(fullname($member), );
-    			
-//     			$row->cells[] = fullname($member);
-//     			$row->cells[] = peerassessment_get_grade($peerassessment, $group, $member)
-//     		}
-//     		//echo html_writer::table($t);
-    		
+    			$default = $member['calcgrade'];
 
+    			$row->cells[] = $member['fullname']; 
+    			$row->cells[] = $member['contribution'];
+    			$row->cells[] = $member['calcgrade'];
+    			$row->cells[] = $this->_form ->createElement('text', 'grade_'.$member['memberid'], '', array('maxlength' => 15, 'size' => 10)) ->toHtml();
+    			
+    			// not working $this->_form ->setDefault('grade_'.$member['memberid'], $default );
+    			
+    			$t->data[] = $row;
+    		}
+    		$data['finalgrades'] = html_writer::table($t);
     		
     	} else {    		
-    		$data['finalgrades'] = "this is some empty text"; 
+    		$data['finalgrades'] = ""; 
     	}
     	
+
     	return parent::set_data($data);
     }
     

@@ -65,6 +65,11 @@ $string['moderation'] = 'Mark moderation';
 $string['moderation_help'] = 'Average grades which differ more than this number from the group average will be moderated .';
 $string['defaultmoderation'] = 'Default Mark Moderation';
 
+
+$string['contibutionscore'] = "Contribution";
+$string['contibutionscore_help'] = "This is the webPA score which is the relative contribution made by group members";
+
+
 $string['multiplyby'] = 'This is the multiplier used to calculate the final mark';
 $string['multiplyby_help'] = 'This is the number used to multiply the average by to get the final mark moderation.';
 $string['defaultmultiplyby'] = 'Default Multiplier';

@@ -658,7 +658,29 @@ function peerassessment_get_grade($peerassessment, $group, stdClass $member) {
 }
 
 /**
- * Return a final grade for the member using the webpa algorithm.
+ * Get the final awarded score of the student according to the algorithm.
+ * The score is the 'raw', pre-weighted value from the algorithm
+ */
+function peerassessment_get_score($peerassessment, $group, stdClass $member) {
+	global $DB;
+	
+	// Can't calculate grade if student does not belong to any group.
+	if (!$group) {
+		return null;
+	}
+	
+	if($peerassessment->calculationtype == PEERASSESSMENT_WEBPA) {
+		$score = peerassessment_get_webpa_score($peerassessment, $group, $member);
+	} else {
+		return null;
+	}
+	
+	return $score;
+}
+
+
+/**
+ * Return the final grade for the member using the webpa algorithm.
  * 
  * @return number or null if unable to calculate
  */
@@ -673,6 +695,24 @@ function peerassessment_get_webpa_grade($peerassessment, $group, stdClass $membe
     $algorithm = new WebPAAlgorithm($peerassessment, $group);
     $algorithm ->calculate();
     return $algorithm ->getGrade($member);  
+}
+
+/**
+* Return the intermediate score for the member using the webpa algorithm.
+*
+* @return number or null if unable to calculate
+*/
+function peerassessment_get_webpa_score($peerassessment, $group, stdClass $member) {
+	global $CFG, $DB;
+	
+	// Can't calculate grade if student does not belong to any group.
+	if (!$group) {
+		return null;
+	}
+	
+	$algorithm = new WebPAAlgorithm($peerassessment, $group);
+	$algorithm ->calculate();
+	return $algorithm ->getScore($member);
 }
 
 /**

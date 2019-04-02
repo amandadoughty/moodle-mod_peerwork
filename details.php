@@ -107,20 +107,20 @@ foreach( $pac ->getCriteria() as $criteria ) {
 }
 
 
-// If assignment has been graded then show grades for submission and allow adjusted grades for each peer.
+// If assignment has been graded then pass the required data to create a table showing calculated grades. 
 $finalgrades = array(); // Becomes userid => grade 
 if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
-	foreach ($members as $member) {
-		$data['finalgrades'] = "Grades are available"; //array(fullname($member), peerassessment_get_grade($peerassessment, $group, $member));
+	$data['finalgrades'] = array();
+	
+	foreach ($members as $member) { 
+		$gradebook = 99;	//TODO current (if any) gradebook grade
+		$data['finalgrades'][] = array(	'memberid'=>$member->id, 
+										'contribution' => peerassessment_get_score($peerassessment, $group, $member), 
+										'fullname'=>fullname($member), 
+										'calcgrade'=>peerassessment_get_grade($peerassessment, $group, $member), 
+										'finalgrade'=>$gradebook );
 	}
 }
-
-
-
-
-
-
-
 $mform->set_data($data);
 
 
@@ -146,6 +146,7 @@ if ($mform->is_cancelled()) {
     // add final grade here
     //$submission->finalgrade = peerassessment_get_grade($peerassessment, $group, $member);
 
+    //error_log("details.php submitting form with " . print_r($submission,true) );
     if (isset($submission->id)) {
         $DB->update_record('peerassessment_submission', $submission);
     } else {
