@@ -89,11 +89,16 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->setType('maxfiles', PARAM_INT);
         $mform->addHelpButton('maxfiles', 'maxfiles', 'peerassessment');
 
-        $calculations = array(PEERASSESSMENT_SIMPLE => PEERASSESSMENT_SIMPLE, PEERASSESSMENT_OUTLIER => PEERASSESSMENT_OUTLIER, PEERASSESSMENT_WEBPA => PEERASSESSMENT_WEBPA);
-        $mform->addElement('select', 'calculationtype', get_string('calculationtype', 'peerassessment'), $calculations);
-        $mform->setType('calculationtype', PARAM_TEXT);
-        $mform->setDefault('calculationtype', PEERASSESSMENT_SIMPLE);
-        $mform->addHelpButton('calculationtype', 'calculationtype', 'peerassessment');
+        //
+        // The allowed calculation types. Allow for future variations but for now lock to webPA algorithm.
+        $calculations = array(PEERASSESSMENT_WEBPA => PEERASSESSMENT_WEBPA);
+        $mform->addElement('select', 'setup.calculationtype', get_string('setup.calculationtype', 'peerassessment'), $calculations);
+        $mform->setType('setup.calculationtype', PARAM_TEXT);
+        $mform->setDefault('setup.calculationtype', PEERASSESSMENT_WEBPA);
+        $mform->addHelpButton('setup.calculationtype', 'setup.calculationtype', 'peerassessment');
+        
+        
+        
         // Cant change the formula once a grade has been awarded. Why?
 // TODO temp disable for dev purposes.        
 //         if (($this->current->id) && has_been_graded($peerassessment)) {
