@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2019022102;      // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2019040301;      // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2015111600;      // Requires this Moodle version
 $plugin->cron      = 0;               // Period for cron to check this plugin (secs)
 $plugin->component = 'mod_peerassessment'; // To check on upgrade, that plugin sits in correct place

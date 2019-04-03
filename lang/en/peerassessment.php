@@ -51,11 +51,14 @@ $string['duedate_help'] = 'This is when the peer assessment is due. Submissions 
 $string['maxfiles'] = 'Maximum number of uploaded files';
 $string['maxfiles_help'] = 'The maximum number of files the group will be able to upload for their submission.';
 
-$string['calculationtype'] = 'Type of calculation used to formulate final grade';
-$string['calculationtype_help'] = 'Choose the formula used to calculate a users grade. <br/>
-Simple is the default, original calculation. It totals the marks awarded by peers and uses those to decide the proportion of the tutors final grade to award. Simple does not calculate standard deviation.<br />
-Outlier includes a standard deviation moderation.';
-$string['defaultcalculationtype'] = 'Default Calculation Type';
+$string['setup.calculationtype'] = 'Type of calculation used to formulate final grade';
+$string['setup.calculationtype_help'] = 'Choose the formula used to calculate a users grade. <br/> WebPA is the algorithm developed by Loughborough University that is based on the <i>relative</i> (rather than absolute) peer marks.';
+
+//Simple is the default, original calculation. It totals the marks awarded by peers and uses those to decide the proportion of the tutors final grade to award. Simple does not calculate standard deviation.<br />
+//Outlier includes a standard deviation moderation.';
+
+
+//$string['defaultcalculationtype'] = 'Default Calculation Type';
 
 $string['standard_deviation'] = 'Maximum standard deviation to not be classed an outlier';
 $string['standard_deviation_help'] = 'Average grades more than this standard deviation will be classed outliers and will be moderated.';
