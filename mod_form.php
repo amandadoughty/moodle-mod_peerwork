@@ -124,11 +124,13 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $pac = new peerassessment_criteria( $this->current->id );
         $pac ->definition($mform);
 
+        
+        //
+        // Choose which groups to be using in this peerwork
         $mform->addElement('header', 'groupsubmissionsettings', get_string('groupsubmissionsettings', 'peerassessment'));
 
         $groupings = groups_get_all_groupings($COURSE->id);
         $options = array();
-        $options[0] = get_string('none');
         foreach ($groupings as $grouping) {
             $options[$grouping->id] = $grouping->name;
         }
