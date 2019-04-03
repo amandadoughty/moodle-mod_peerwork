@@ -66,7 +66,7 @@ class peerassessment_criteria  {
      * part of setting up the assessment form - called from mod_form.php:definition()
      * Define the field elements, modified from workshop/form/accumulative/edit_form.php that allow for the assessments criteria settings to be specified.
      * The major section is "Assessment criteria settings"
-     * TODO like to group the criteria better (box or expandable) maybe use AMD to 
+     * TODO like to group the criteria better (box or expandable) maybe use AMD 
      */
     public function definition( &$mform ) {
                
@@ -92,18 +92,41 @@ class peerassessment_criteria  {
             $mform->setType($field, PARAM_RAW);
             $mform->addHelpButton($field,'assessmentcriteria:description', self::$langkey);
         
-            // Adds the dropdown of "Scoring Type" etc and appropriate options automatically.
-            $field = 'grade__idx_'.$i;
-            $mform->addElement('modgrade', $field,
-                get_string('assessmentcriteria:scoretype',self::$langkey, $i+1), true );
-            $mform->setDefault($field, 10);
+            // Add "Scoring Type" which allows choice of how to score this criteria.
+            // This becomes the 'grade' field which decides if its a scale or point in  peerassessment_criteria table.
+            // Currently only consider using scales. @see set_data() 
+            $field = 'gradetype_idx_'.$i;
+            $mform->addElement('hidden', $field );
+            $mform->setType($field, PARAM_ALPHANUMEXT );
+            $mform->setDefault($field, 'scale');
+            
+            $scales = array();
+            if ($scales = grade_scale::fetch_all_global()) {
+            	foreach($scales as $scale) {
+            		$scales[ $scale->id ] = $scale->name;
+            	}
+            }
+           
+            $field = 'grade_idx_'.$i;
+            $mform->addElement('select', $field, get_string('assessmentcriteria:scoretype',self::$langkey), $scales );
+            $mform->setType($field, PARAM_INT);
             $mform->addHelpButton($field,'assessmentcriteria:scoretype', self::$langkey);
-             
+            
 
+//             $e = $mform->createElement('modgrade', $field,
+//                 get_string('assessmentcriteria:scoretype',self::$langkey, $i+1), true );
+//             $mform ->addElement( $e );
+//             $mform->setDefault($field, 10);
+
+             
+           // $this->maxgradeformelement =
+
+            // For now all the criteria are weighted equally, future may allow weightings.
+            // This becomes 'weight' in peerassesment_criteria table.
             $field = 'weight__idx_'.$i;
-            $mform->addElement('select', $field,
-                get_string('assessmentcriteria:weight', self::$langkey, $i+1), range(0, 5));
+            $mform->addElement('hidden', $field);
             $mform->setDefault($field, 1);
+            $mform->setType($field, PARAM_INT);
             $mform->addHelpButton($field,'assessmentcriteria:weight', self::$langkey);
         }
     }
@@ -111,7 +134,7 @@ class peerassessment_criteria  {
     /**
      * Settings
      * Collect criteria (if any) from the database, interpret and populate the datastructure used to initialise the form
-     * when tutor defines the criteria.
+     * when tutor defines the criteria in the assessment.
      * Called by the mod_form.php::set_data() as part of its populating the form.
      * @param unknown $data
      */
@@ -129,16 +152,14 @@ class peerassessment_criteria  {
 
             if( $record->grade == 0 ) {
                 // If grade equals 0, 'None' then no grading is possible for this dimension, just comments
-                $data ->{'grade__idx_'. $record ->sort } = 0;
+                $data ->{'grade_idx_'. $record ->sort } = 0;
             } else if ( $record->grade < 0 ) { 
-                // The criteria uses a scale. -2 =  "Default competence", -1 = "Connected ways" held in table 'scale'
-                //                 $diminfo[$dimid]->min = 1;
-                //                 $diminfo[$dimid]->max = count(explode(',', $dimrecord->scale));
-                // TODO 
-                $data ->{'grade__idx_'. $record ->sort  } = $record ->grade;
+                // -ve values in table signify using a scale for the criteria; @see moodle db table 'scale'
+                $data ->{'grade_idx_'. $record ->sort } = 0 - $record ->grade;	// Needs to be back to a positive index for chosing from select dropdown.
+                $data ->{'gradetype_idx_'. $record ->sort } = 'scale';
             } else {
                 // So we are using a points from 0 ->grade
-                $data ->{'grade__idx_'. $record ->sort } = $record ->grade;
+                $data ->{'grade_idx_'. $record ->sort } = $record ->grade;
             }
             
             $data ->{'weight__idx_'. $record ->sort } = $record ->weight;
@@ -149,8 +170,8 @@ class peerassessment_criteria  {
     
     /**
      * Settings
-     * Called from lib.php::peerassessment_update_instance() which is called automatically when the settings form is saved.
-     * This saves the criteria into its own $tablename
+     * Called automatically from lib.php::peerassessment_update_instance() and peerassessment_add_instance() when the settings form is saved.
+     * The main settings will already be saved, this intercepts and saves the criteria into self::$tablename
      * 
      * @param stdClass $peerassessment
      * @return boolean
@@ -170,18 +191,16 @@ class peerassessment_criteria  {
         foreach( $records as $record ) {
             
             $i = $record ->sort;
-            error_log("updated settings " . print_r( $peerassessment ->{'description__idx_'.$i.'_editor'}['text'] ,true) );
-            
             $record ->description = $peerassessment ->{'description__idx_'.$i. '_editor'}['text'];
             $record ->descriptionformat = $peerassessment ->{'description__idx_'.$i.'_editor'}['format'];
-            $record ->grade = $peerassessment ->{'grade__idx_'. $i };
+            $record ->grade = $this ->set_grade_for_db( $peerassessment ->{'gradetype_idx_'. $i }, $peerassessment ->{'grade_idx_'. $i } );
             $record ->weight = $peerassessment ->{'weight__idx_'.$i };
             if( ! $DB->update_record(self::$tablename, $record) ) {
                 return false;
             }            
             unset( $track[$i] ); // We've seen this and updated. Take off list.
         }
-        // So the fields left must be new data. Try and only add records with meaningful data.
+        // So the fields left must be new data. Try and only add records with meaningful data and avoid empty criteria.
         try {
             $transaction = $DB->start_delegated_transaction();
             
@@ -189,15 +208,15 @@ class peerassessment_criteria  {
                 if( !empty( $peerassessment ->{'description__idx_'.$i.'_editor'}['text'] ) ) {
                     error_log( "adding settings $i " . $peerassessment ->{'description__idx_'.$i.'_editor'}['text'] );
                     
-                    $criteria = new stdClass();
-                    $criteria ->peerassessmentid = $peerassessment->id;
-                    $criteria ->sort = $i;
-                    $criteria ->description = $peerassessment ->{'description__idx_'.$i.'_editor'}['text'];
-                    $criteria ->descriptionformat = $peerassessment ->{'description__idx_'.$i.'_editor'}['format'];
-                    $criteria ->grade = $peerassessment ->{'grade__idx_'. $i  };
-                    $criteria ->weight = $peerassessment ->{'weight__idx_'.$i };
+                    $record= new stdClass();
+                    $record->peerassessmentid = $peerassessment->id;
+                    $record->sort = $i;
+                    $record->description = $peerassessment ->{'description__idx_'.$i.'_editor'}['text'];
+                    $record->descriptionformat = $peerassessment ->{'description__idx_'.$i.'_editor'}['format'];
+                    $record->grade = $this ->set_grade_for_db( $peerassessment ->{'gradetype_idx_'. $i }, $peerassessment ->{'grade_idx_'. $i } );
+                    $record->weight = $peerassessment ->{'weight__idx_'.$i };
                     
-                    $newid = $DB ->insert_record(self::$tablename,$criteria, true );
+                    $newid = $DB ->insert_record(self::$tablename,$record, true );
                     // error_log("just inserted $newid");
                 }          
             }
@@ -208,6 +227,22 @@ class peerassessment_criteria  {
         }
 
         return true;
+    }
+    
+    /**
+     * DB table peerassessment_criteria stores the type of scoring for each criteria as a number. -ve numbers means its a scale drawn from the scales table.
+     * However the form will send back +ve numbers so we also look at the hidden field 'gradetype_idx' to decide how we store in the DB.
+     */
+    private function set_grade_for_db( $gradetype, $grade ) {
+    	
+    	$ret = 'scale';
+    	
+    	if( $gradetype == 'scale' ) {
+    		$ret = 0 - abs( $grade );
+    	} else {
+    		$ret = $grade;
+    	}
+    	return $ret;
     }
     
 //     /*************************************************************************************

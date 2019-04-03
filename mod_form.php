@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once( __DIR__ . '/locallib.php');
 require_once( __DIR__ . '/classes/peerassessment_criteria.php');
+require_once($CFG->libdir . '/gradelib.php' );
 
 /**
  * Module instance settings form. This is the form that allows the teacher to
@@ -150,6 +151,7 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         // NW - DO I NEED TO ADD THIS??  Add admin defaults.
         $this->apply_admin_defaults();
 
+        // Goes to lib.php/peerassessment_add_instance() etal
         $this->add_action_buttons();
     }
     
