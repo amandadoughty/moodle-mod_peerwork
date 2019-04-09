@@ -18,21 +18,33 @@
 
 
 
-
-
-
-.mod-peerassessment-submissions-table table {
-	background-color: red;
-	width: 80%;
-	 border: 1px solid black; 
+/** classes **/
+/** vertical 'gap' into which the rotated text fits **/
+div.form-group[data-groupname="mod_peerassessment_scaleheader"] {
+		height: 100px;
 }
 
-
-.mod-peerassessment-submissions-table td {
-	background-color: red;
+/** rotated text of the scale items , keep width same as  div.form-group height (so it fits when rotated) and radio button width **/
+div.form-group[data-groupname="mod_peerassessment_scaleheader"] div[data-fieldtype="group"] > span {
+		background-color: orange;
+		float: left;
+		transform: rotate(270deg);
+		transform-origin: center center 0;
+		width:100px;
+		height:100px;
+  		text-align: left;
+  		font-weight: bold;
 }
 
-.mod-peerassessment-submissions-table caption {
+/** each radio button **/
+div[data-fieldtype="group"] label.form-check-label {
 		background-color: yellow;
+		text-align: center;
+		width:100px;
 }
 
+div.mod_peerassessment_criteriaheader {
+		background-color: aqua;
+		font-size: large;
+				
+}
