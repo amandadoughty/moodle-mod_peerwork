@@ -85,10 +85,11 @@ class mod_peerassessment_mod_form extends moodleform_mod {
         $mform->setType('allowlatesubmissions', PARAM_BOOL);
         $mform->addHelpButton('allowlatesubmissions', 'allowlatesubmissions', 'peerassessment');
 
-        $choices = array(1 => 1, 2, 3, 4, 5);
-        $mform->addElement('select', 'maxfiles', get_string('maxfiles', 'peerassessment'), $choices);
+        // How many submission files to be allowed. Zero means dont offer a file upload at all.
+        $choices = array(0 =>0, 1, 2, 3, 4, 5);
+        $mform->addElement('select', 'maxfiles', get_string('setup.maxfiles', 'peerassessment'), $choices);
         $mform->setType('maxfiles', PARAM_INT);
-        $mform->addHelpButton('maxfiles', 'maxfiles', 'peerassessment');
+        $mform->addHelpButton('maxfiles', 'setup.maxfiles', 'peerassessment');
 
         //
         // The allowed calculation types. Allow for future variations but for now lock to webPA algorithm.

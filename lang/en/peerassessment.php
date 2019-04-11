@@ -42,14 +42,19 @@ $string['assessment'] = 'assessment';
 $string['assignment'] = 'Assignment';
 $string['selfgrading'] = 'Self grading';
 $string['duedate'] = 'Due date';
-$string['submission'] = 'Submission';
+
+$string['submission'] = 'Submission(s)';
 $string['submission_help'] = 'File(s) submitted by the group. <strong>Note:</strong> The maximum number of files can be adjusted in the peer assessment settings.';
+$string['nothingsubmitted'] = 'Nothing submitted yet.';
+
 $string['feedbackfiles'] = 'Feedback Files';
 $string['selfgrading_help'] = 'If enabled, students will be able to give themselves a peer grade and feedback, along with the other members of their group. This will then be counted towards their and the overall groups peer grade averages.';
 $string['duedate_help'] = 'This is when the peer assessment is due. Submissions will still be allowed after this date (if enabled).<br />
 <strong>Note:</strong> All student file submissions and peer grading will become uneditable to the students after grading.';
-$string['maxfiles'] = 'Maximum number of uploaded files';
-$string['maxfiles_help'] = 'The maximum number of files the group will be able to upload for their submission.';
+
+$string['setup.maxfiles'] = 'Maximum number of uploaded files';
+$string['setup.maxfiles_help'] = 'The maximum number of files the group will be able to upload for their submission.<br/>' .
+'Setting to zero will remove the file upload ability completely.';
 
 $string['setup.calculationtype'] = 'Type of calculation used to formulate final grade';
 $string['setup.calculationtype_help'] = 'Choose the formula used to calculate a users grade. <br/> WebPA is the algorithm developed by Loughborough University that is based on the <i>relative</i> (rather than absolute) peer marks.';

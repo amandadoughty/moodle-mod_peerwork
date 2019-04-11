@@ -67,8 +67,8 @@ if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
 }
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
-$submissionfiles = peerassessment_submission_files($context, $group);
-$data['submission'] = implode(',', $submissionfiles); // creates <a href HTML
+$submissionfiles = peerassessment_submission_files($context, $group);	// creates <a href HTML
+$data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', 'peerassessment') : implode('<br/>', $submissionfiles); 
 
 
 // Get the peer grades awarded so far, then for each criteria
@@ -103,7 +103,7 @@ foreach( $pac ->getCriteria() as $criteria ) {
 		}
 		$t->data[] = $row;
 	}
-	$data['peergradesawarded'] .= html_writer::table($t); // Write the table for this criterion into the 
+	$data['peergradesawarded'] .= html_writer::table($t); // Write the table for this criterion into the HTML placeholder element.
 }
 
 

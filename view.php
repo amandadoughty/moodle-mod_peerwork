@@ -159,7 +159,7 @@ if (has_capability('mod/peerassessment:grade', $context)) {
 } else { // end of teacher only output
 	/**
 	 * 
-	 * Student output that allows submission and grading of peers 
+	 * Student output displays summary of submissions amde so far and provides a button to start editing.
 	 * 
 	 */
 
@@ -219,9 +219,9 @@ if (has_capability('mod/peerassessment:grade', $context)) {
 	
 	        // Feedback.
 	        $data['feedback'] = $submission->feedbacktext;
-	        $data['feedback_files'] = peerassessment_feedback_files($context, $group);
+	        $data['feedback_files'] = peerassessment_feedback_files($context, $group);	        
 	    }
-	
+	    
 	    $summary = new peerassessment_summary($group, $data, $membersgradeable, $peerassessment, $status->text .
 	        ' Not editable because: ' . $isopen->text);
 	    echo $output->render($summary);
@@ -231,13 +231,14 @@ if (has_capability('mod/peerassessment:grade', $context)) {
 	    die();
 	}
 	
-	// Sending feedback & grades is compulsory, file attachment is not
+	// File attachment is not compulsory
 	// therefore we enforce the submission form if the above is not submitted.
+	$foptions = peerassessment_get_fileoptions($peerassessment);
 	if (!$myassessments || $edit == true) {
 	
 	    $draftitemid = null;
-	    file_prepare_draft_area($draftitemid, $context->id, 'mod_peerassessment', 'submission', $mygroup,
-	        peerassessment_get_fileoptions($peerassessment));
+	    
+	    file_prepare_draft_area($draftitemid, $context->id, 'mod_peerassessment', 'submission', $mygroup, $foptions);
 	
 	    $entry = new stdClass();
 	    // Add the draftitemid to the form, so that 'file_get_submitted_draft_itemid' can retrieve it.
@@ -248,12 +249,12 @@ if (has_capability('mod/peerassessment:grade', $context)) {
 	        $entry->grade = $data->grade;
 	        $entry->feedback = $data->feedback;
 	    }
-	
+
 	    // Check if there are any files at the time of opening the form.
 	    $files = peerassessment_submission_files($context, $group);
 	
 	    $mform = new mod_peerassessment_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'files' => count($files),
-	        'fileupload' => true, 'peers' => $membersgradeable, 'fileoptions' => peerassessment_get_fileoptions($peerassessment)));
+	    		'fileupload' => $foptions['maxfiles'] > 0, 'peers' => $membersgradeable, 'fileoptions' => $foptions ));
 	    $mform->set_data($entry);
 	    $mform->display();
 	
@@ -276,6 +277,7 @@ if (has_capability('mod/peerassessment:grade', $context)) {
 	        $data['feedback'] = $submission->feedbacktext;
 	        $data['feedback_files'] = peerassessment_feedback_files($context, $group);
 	    }
+	    $data['maxfiles'] = $foptions['maxfiles'];
 	    $summary = new peerassessment_summary($group, $data, $membersgradeable, $peerassessment, $status->text .
 	        '<p>Editable because: ' . $isopen->text . '</p>');
 	    echo $output->render($summary);
