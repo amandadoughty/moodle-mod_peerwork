@@ -52,6 +52,7 @@ class peerassessment_criteria  {
     
     /**
      * Get the criteria created for this peerassesment, making sure we have the array in field=sort order.
+     * @return DB records from  peerassessment_criteria, one record per criteria on this assessment.
      */
     public function getCriteria() {
         global $DB;
@@ -230,12 +231,13 @@ class peerassessment_criteria  {
     }
     
     /**
+     * Convert the type of grade ('scale'|'number') and grade integer into an integer for storage in DB.
      * DB table peerassessment_criteria stores the type of scoring for each criteria as a number. -ve numbers means its a scale drawn from the scales table.
      * However the form will send back +ve numbers so we also look at the hidden field 'gradetype_idx' to decide how we store in the DB.
      */
     private function set_grade_for_db( $gradetype, $grade ) {
     	
-    	$ret = 'scale';
+    	$ret = 1;
     	
     	if( $gradetype == 'scale' ) {
     		$ret = 0 - abs( $grade );
@@ -244,6 +246,7 @@ class peerassessment_criteria  {
     	}
     	return $ret;
     }
+    
     
 //     /*************************************************************************************
 //      * SUBMISSION FORM
