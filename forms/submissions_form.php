@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/formslib.php');
 require_once( __DIR__ . '/../classes/peerassessment_criteria.php');
 require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->libdir . '/grade/grade_scale.php');
 
 /**
  * This form is the layout for a student grading their peers. Contains a file submission area where files can be submitted on behalf of the group
@@ -84,8 +85,7 @@ class mod_peerassessment_submissions_form extends moodleform
             // Criteria description
         	$field = 'criteriadescription_'.$criteria->sort;
         	$mform->addElement('html', '<div class="mod_peerassessment_criteriaheader">'. $criteria->description . '</div>' );
-            
-        	
+                    	
         	error_log("scale used for criteria ". $criteria->sort . " = " .  $criteria ->grade );
         	$scale = $scales[ abs($criteria ->grade) ];
             $scaleitems = $scale->load_items();
@@ -98,25 +98,23 @@ class mod_peerassessment_submissions_form extends moodleform
             }
             $mform->addGroup($scalenumbers, "mod_peerassessment_scaleheader", '', array(' '), false );
 
-
 			// Create array of radio buttons for this criteria and for each peer too allow grading of peers.                      
             foreach ($peers as $peer) {
             	$unique = $criteria->sort .'[' . $peer->id . ']';	// create a unique string for this group eg 0[23]
 
                 $radioarray=array();
-                $attributes = array();
+                $attributes = '';
                 $field = 'grade_idx_'. $unique;  		// grade_idx_0[28] all radios in group need same name that say which criteria and which peer it refers to.
                 foreach( $scaleitems as $k => $v ) {   
-                	
-                	$r = $mform->createElement('radio', $field, '', '', $k, $attributes);
-                	$radioarray[] = $r;
-                	
+                	$radioarray[] = $mform->createElement('radio', $field, '', '', $k, $attributes);             	
                 }
+                // $radioarray[] = $mform->createElement('radio', 'grade_idx_99', '', '', 99, ['checked']);      // hidden default, means nothing selected initially.
                 /** returned from form as:-
                  *    	[grade_idx_0] => Array( [28] => 0, [23] => 4, [13] => 3 )
                  *		[grade_idx_1] => Array( [28] => 0, [23] => 0, [13] => 1 )
                  */
-                $mform->addGroup($radioarray, $field, fullname($peer), array(''), false); 
+                $mform->addGroup($radioarray, 'grade_idx_'.$unique, fullname($peer), array(''), false); 
+                //$mform->setDefault('grade_idx_'.$unique, 99); 	// not working
             }
 
         	$field = 'criteriadescription_'.$criteria->sort;
@@ -135,28 +133,39 @@ class mod_peerassessment_submissions_form extends moodleform
      * @return unknown
      */
     public function set_data($data) {
-        global $DB, $USER;
-        
-        //error_log("set_data custom data files  " . print_r( $this->_customdata, true ) );
-       
-       // Convert the stored module id into the peerassessment activity
-       //Collect the criteria data for this peerassessment and add into $data.
-       $peerassess = get_coursemodule_from_id('peerassessment', $this->_customdata['id']);
-        
-        // Get information about each criteria and grades awarded to peers and add to the form data
-        $pac = new peerassessment_criteria( $peerassess ->instance );
-        foreach( $pac ->getCriteria() as $id => $record ) {
-            
-            // Now get all the grades and feedback for this criteria that this user has already awarded to their peers.
-            // Transfer into the $data so it populates the UI
-            $mygrades = $DB->get_records('peerassessment_peers', array('peerassessment' => $record->peerassessmentid,
-            		'gradedby' => $USER->id, 'sort' => $record->sort ), '', 'id,sort,gradefor,feedback,grade');
-
-            foreach( $mygrades as $grade) {
-            	$data ->{'grade_idx_'. $grade ->sort }[$grade->gradefor] = $grade ->grade;
-            }
-        }
-        return parent::set_data($data);
+		global $DB, $USER;
+		
+		// error_log("set_data _customdata = " . print_r( $this->_customdata, true ) );
+		// error_log("set_data data = " . print_r( $data, true ) );
+		
+		// Convert the stored module id into the peerassessment activity
+		// Collect the criteria data for this peerassessment and add into $data.
+		$peerassess = get_coursemodule_from_id ( 'peerassessment', $this->_customdata ['id'] );
+		
+		// Get information about each criteria and grades awarded to peers and add to the form data
+		$pac = new peerassessment_criteria ( $peerassess->instance );
+		
+		foreach ( $pac->getCriteria () as $id => $record ) {
+			
+			// Now get all the grades and feedback for this criteria that this user has already awarded to their peers.
+			// Transfer into the $data so it populates the UI
+			$mygrades = $DB->get_records ( 'peerassessment_peers', array (
+					'peerassessment' => $record->peerassessmentid,
+					'gradedby' => $USER->id,
+					'sort' => $record->sort 
+			), '', 'id,sort,gradefor,feedback,grade' );
+			
+// 			if (count ( $mygrades ) == 0) {
+// 				error_log ( "set_data setting default on  = " . $record->sort );
+// 				$data->{'grade_idx_' . $grade->sort } [13] = 4;
+// 				$data->{'grade_idx_' . $grade->sort } [28] = 4;
+// 			}
+			foreach ( $mygrades as $grade ) {
+				error_log ( "set_data grade = " . print_r ( $grade, true ) );
+				$data->{'grade_idx_' . $grade->sort } [$grade->gradefor] = $grade->grade;
+			}
+		}
+		return parent::set_data ( $data );
     }
 
     
