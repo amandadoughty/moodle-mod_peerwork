@@ -91,12 +91,13 @@ class mod_peerassessment_submissions_form extends moodleform
             $scaleitems = $scale->load_items();
             error_log("scale items are " . print_r($scaleitems,true) ); 
             
-            // Header using the items in the scale, wrapping with a span allows the css to rotate the text
+            // Header using the items in the scale, use the same label and span as the radio buttons to match radio button layout.
             $scalenumbers = array();
             foreach( $scaleitems as $k => $v ) {
-            	$scalenumbers[] = $mform->createElement('html', "<span class=\"mod_peerassessment_scaleheader\">$v</span>");
+            	//$scalenumbers[] = $mform->createElement('html', "<div class=\"mod_peerassessment_scaleheader\">$v</div>");
+            	$scalenumbers[] = $mform->createElement('html', '<label class="form-check-inline form-check-label fitem">'.$v.'</label><span style="display: none;"></span>' );    
             }
-            $mform->addGroup($scalenumbers, "mod_peerassessment_scaleheader", '', array(' '), false );
+            $mform->addGroup($scalenumbers, "mod_peerassessment_scaleheader", '', array(''), false );
 
 			// Create array of radio buttons for this criteria and for each peer too allow grading of peers.                      
             foreach ($peers as $peer) {
