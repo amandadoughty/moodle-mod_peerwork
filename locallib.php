@@ -35,6 +35,7 @@ define('PEERASSESSMENT_FROMDATE_NOT_USED', 0);
 define('PEERASSESSMENT_FROMDATE_OK', 1);
 define('PEERASSESSMENT_FROMDATE_BEFORE', 2);
 
+// Identify the grading algorithm for each criteria. identifier => text to display
 define('PEERASSESSMENT_SIMPLE', 'simple');
 define('PEERASSESSMENT_OUTLIER', 'outlier');
 define('PEERASSESSMENT_WEBPA', 'webpa');
@@ -847,6 +848,11 @@ function peerassessment_fillup() {
 
 }
 
+/**
+ * Create HTML links to files that have been submitted to the assignment.
+ * Used by view.php and details.php
+ * @return string[] array of formated <A href= strings, possibly empty array
+ */
 function peerassessment_submission_files($context, $group) {
     $allfiles = array();
     $fs = get_file_storage();

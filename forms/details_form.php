@@ -58,7 +58,7 @@ class mod_peerassessment_details_form extends moodleform
         $mform->addElement('static', 'submission', get_string('submission', 'peerassessment'));
         $mform->addHelpButton('submission', 'submission', 'peerassessment');
         
-        $mform->addElement('static', 'peergradesawarded', "");	// This gets replaced with a table of grades peers have awarded.
+        $mform->addElement('static', 'peergradesawarded', "");	// This gets replaced in details.php with a table of grades peers have awarded.
         
         
         ////////////////////////////////////////////////////////////////////////////////////////

@@ -21,6 +21,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Called to respond to the student submitting data with the submissions_form.php form.
+ * Saves data into database.
+ */
 require_once(__DIR__. '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
