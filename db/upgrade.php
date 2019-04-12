@@ -157,6 +157,36 @@ function xmldb_peerassessment_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017030609, 'peerassessment');
     }
     
+    
+//     if ($oldversion < XXXXXXXXXX) {
+    	
+//     	// Define table peerassessment_presets to be created.
+//     	$table = new xmldb_table('peerassessment_presets');
+    	
+//     	// Adding fields to table peerassessment_presets.
+//     	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+//     	$table->add_field('peerassessmentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+//     	$table->add_field('sort', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+//     	$table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
+//     	$table->add_field('descriptionformat', XMLDB_TYPE_INTEGER, '3', null, null, null, '0');
+//     	$table->add_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+//     	$table->add_field('weight', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '1');
+    	
+//     	// Adding keys to table peerassessment_presets.
+//     	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    	
+//     	// Conditionally launch create table for peerassessment_presets.
+//     	if (!$dbman->table_exists($table)) {
+//     		$dbman->create_table($table);
+//     	}
+    	
+//     	// Peerassessment savepoint reached.
+//     	upgrade_mod_savepoint(true, XXXXXXXXXX, 'peerassessment');
+//     }
+    
+    
+    
+    
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
