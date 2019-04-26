@@ -90,7 +90,7 @@ class peerassessment_criteria  {
 //             $mform->addElement('hidden', 'criteria_sort'.$i);
 //             $mform->setType('criteria_sort'.$i, PARAM_INT);
         
-            $field = 'criteria_sort'.$i.'_editor';
+            $field = peerassessment_criteria::makefield('E',$i);
             $mform->addElement('editor', $field,
                 get_string('assessmentcriteria:description', self::$langkey, $i+1), '', $descriptionopts);
             $mform->setType($field, PARAM_RAW);
@@ -99,7 +99,7 @@ class peerassessment_criteria  {
             // Add "Scoring Type" which allows choice of how to score this criteria.
             // This becomes the 'grade' field which decides if its a scale or point in  peerassessment_criteria table.
             // Currently only consider using scales. @see set_data() 
-            $field = 'gradetype_sort'.$i;
+            $field = peerassessment_criteria::makefield('T',$i);
             $mform->addElement('hidden', $field );
             $mform->setType($field, PARAM_ALPHANUMEXT );
             $mform->setDefault($field, 'scale');
@@ -111,7 +111,7 @@ class peerassessment_criteria  {
             	}
             }
            
-            $field = 'grade_sort'.$i;
+            $field = peerassessment_criteria::makefield('S',$i);
             $mform->addElement('select', $field, get_string('assessmentcriteria:scoretype',self::$langkey), $scales );
             $mform->setType($field, PARAM_INT);
             $mform->addHelpButton($field,'assessmentcriteria:scoretype', self::$langkey);
@@ -127,7 +127,7 @@ class peerassessment_criteria  {
 
             // For now all the criteria are weighted equally, future may allow weightings. currently hidden.
             // This becomes 'weight' in peerassesment_criteria table.
-            $field = 'weight_sort'.$i;
+            $field =  peerassessment_criteria::makefield('W',$i);
             $mform->addElement('hidden', $field);
             $mform->setDefault($field, 1);
             $mform->setType($field, PARAM_INT);
@@ -150,26 +150,43 @@ class peerassessment_criteria  {
         foreach ($records as $id => $record) {
             
             //error_log( "found criteria record for peerassessment#$id"  . print_r($record, true) );
+        	$i = $record ->sort;
 
-            $data ->{'criteria_sort'. $record ->sort . '_editor'} = array('text'=>$record->description, 'format'=> $record->descriptionformat);
+        	$data ->{ peerassessment_criteria::makefield('E',$i) } = array('text'=>$record->description, 'format'=> $record->descriptionformat);
 
             if( $record->grade == 0 ) {
                 // If grade equals 0, 'None' then no grading is possible for this dimension, just comments
-                $data ->{'grade_sort'. $record ->sort } = 0;
+            	$data ->{ peerassessment_criteria::makefield('S',$i) } = 0;
             } else if ( $record->grade < 0 ) { 
                 // -ve values in table signify using a scale for the criteria; @see moodle db table 'scale'
-                $data ->{'grade_sort'. $record ->sort } = 0 - $record ->grade;	// Needs to be back to a positive index for chosing from select dropdown.
-                $data ->{'gradetype_sort'. $record ->sort } = 'scale';
+            	$data ->{ peerassessment_criteria::makefield('S',$i) } = 0 - $record ->grade;	// Needs to be back to a positive index for chosing from select dropdown.
+                $data ->{ peerassessment_criteria::makefield('T',$i) } = 'scale';
             } else {
                 // So we are using a points from 0 ->grade
-                $data ->{'grade_sort'. $record ->sort } = $record ->grade;
+            	$data ->{ peerassessment_criteria::makefield('S',$i) } = $record ->grade;
             }
             
-            $data ->{'weight_sort'. $record ->sort } = $record ->weight;
+            $data ->{ peerassessment_criteria::makefield('W',$i) } = $record ->weight;
         }
     }
-    
-  //  public function get_scoretype_on_criteria
+
+    /**
+     * Utility function to make sure form field names are constructed consistently.
+     * @param string $f a unique field key, internal to this code.
+     * @param integer $i sort field from database; used to identify which criteria we are refeing to.
+     * @return string
+     */
+	public static function makefield($f,$i) {
+		$r = '';
+		switch( $f ) {
+			case 'E': $r = 'criteria_sort'.$i. '_editor'; break;
+			case 'T': $r = 'gradetype_sort'.$i; break;
+			case 'S': $r = 'grade_sort'.$i; break;
+			case 'W': $r = 'weight_sort'.$i; break;
+			default: die( "trying to create an unknown field in the form; this shouldnt happen; the code needs fixing.");
+		}
+		return $r;
+	}
     
     /**
      * Settings
@@ -193,11 +210,13 @@ class peerassessment_criteria  {
         
         foreach( $records as $record ) { // Update records that already exist in the DB.
             
-            $i = $record ->sort;
-            $record ->description = $peerassessment ->{'criteria_sort'.$i. '_editor'}['text'];
-            $record ->descriptionformat = $peerassessment ->{'criteria_sort'.$i.'_editor'}['format'];
-            $record ->grade = $this ->set_grade_for_db( $peerassessment ->{'gradetype_sort'. $i }, $peerassessment ->{'grade_sort'. $i } );
-            $record ->weight = $peerassessment ->{'weight_sort'.$i };
+        	$i = $record ->sort; 
+        	$f = peerassessment_criteria::makefield('E',$i);
+            $record ->description = $peerassessment ->{$f}['text'];
+            $record ->descriptionformat = $peerassessment ->{$f}['format'];
+            $record ->grade = $this ->set_grade_for_db( $peerassessment ->{ peerassessment_criteria::makefield('T',$i) },
+            											$peerassessment ->{ peerassessment_criteria::makefield('S',$i) } );
+            $record ->weight = $peerassessment ->{ peerassessment_criteria::makefield('W',$i) };
             if( ! $DB->update_record(self::$tablename, $record) ) {
                 return false;
             }            
@@ -208,16 +227,18 @@ class peerassessment_criteria  {
             $transaction = $DB->start_delegated_transaction();
             
             foreach( array_keys($track) as $i) {
-                if( !empty( $peerassessment ->{'criteria_sort'.$i.'_editor'}['text'] ) ) {
+            	if( !empty( $peerassessment ->{ peerassessment_criteria::makefield('E',$i) }['text'] ) ) {
                     //error_log( "adding settings $i " . $peerassessment ->{'criteria_sort'.$i.'_editor'}['text'] );
                     
                     $record= new stdClass();
                     $record->peerassessmentid = $peerassessment->id;
                     $record->sort = $i;
-                    $record->description = $peerassessment ->{'criteria_sort'.$i.'_editor'}['text'];
-                    $record->descriptionformat = $peerassessment ->{'criteria_sort'.$i.'_editor'}['format'];
-                    $record->grade = $this ->set_grade_for_db( $peerassessment ->{'gradetype_sort'. $i }, $peerassessment ->{'grade_sort'. $i } );
-                    $record->weight = $peerassessment ->{'weight_sort'.$i };
+                    $f = peerassessment_criteria::makefield('E',$i);
+                    $record->description = $peerassessment ->{$f}['text'];
+                    $record->descriptionformat = $peerassessment ->{$f}['format'];
+                    $record->grade = $this ->set_grade_for_db( $peerassessment ->{ peerassessment_criteria::makefield('T',$i) },
+                                                               $peerassessment ->{ peerassessment_criteria::makefield('S',$i) } );
+                    $record->weight = $peerassessment ->{ peerassessment_criteria::makefield('W',$i) };
                     
                     $newid = $DB ->insert_record(self::$tablename,$record, true );
                     // error_log("just inserted $newid");
