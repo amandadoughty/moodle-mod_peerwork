@@ -21,6 +21,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * All the automagically called functions
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once('locallib.php');
@@ -52,7 +56,7 @@ function peerassessment_supports($feature) {
 }
 
 /**
- * Saves a new instance of the peerassessment definition into the database
+ * Saves a new instance of the peerassessment definition into the database. Called automagically when submitting the mod_form form.
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -67,8 +71,12 @@ function peerassessment_add_instance(stdClass $peerassessment, mod_peerassessmen
     global $DB;
 
     $peerassessment->timecreated = time();
-
     $peerassessment->id = $DB->insert_record('peerassessment', $peerassessment);
+    
+    // Now save all the criteria.
+    $pac = new peerassessment_criteria( $peerassessment->id );
+    $pac ->update_instance($peerassessment);
+    
     peerassessment_grade_item_update($peerassessment);
 
     return $peerassessment->id;
