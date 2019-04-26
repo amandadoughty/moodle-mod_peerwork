@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
 
 
     $calculations = array('simple' => 'simple', 'outlier' => 'outlier');
-    $settings->add(new admin_setting_configselect('peerassessment/calculationtype', get_string('calculationtype', 'peerassessment'),
+    $settings->add(new admin_setting_configselect('peerassessment/calculationtype', get_string('setup.calculationtype', 'peerassessment'),
         get_string('defaultcalculationtype', 'peerassessment'), 'simple', $calculations));
 
     $settings->add(new admin_setting_configtext('peerassessment/standard_deviation',

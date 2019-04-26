@@ -97,20 +97,19 @@
       </KEYS>
     </TABLE>
     <!--  KM added table to store available criteria presets -->
-    <TABLE NAME="peerassessment_presets" COMMENT="Preset criteria">
+	 <TABLE NAME="peerassessment_presets" COMMENT="Sets of ready made criteria">
 		<FIELDS>
-	        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-	        <FIELD NAME="peerassessmentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="peer assessment ID"/>
-	        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Defines the sequence order to display the criteria within the assessment form"/>
-	        <FIELD NAME="description" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false" COMMENT="The description and purpose of the criteria displayed to students"/>
-	        <FIELD NAME="descriptionformat" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the description field"/>
-	        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"  COMMENT="If greater than 0, then the value is maximum grade on a scale 0..grade. If lesser than 0, then its absolute value is the id of a record in scale table. If equals 0, then no grading is possible for this criteria just commenting"/>
-			<FIELD NAME="weight" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT="The weight of the criteria used in the algorithm"/>
+			<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+			<FIELD NAME="setid" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="Set, used to identify a coherent set of criteria"/>
+			<FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Defines the sequence order to display the criteria within the assessment form"/>
+			<FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The description and purpose of the criteria displayed to students"/>
+			<FIELD NAME="descriptionformat" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the description field"/>
+			<FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If greater than 0, then the value is maximum grade on a scale 0..grade. If lesser than 0, then its absolute value is the id of a record in scale table. If equals 0, then no grading is possible for this criteria just commenting"/>
+			<FIELD NAME="weight" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="The weight of the criteria used in the algorithm"/>
 		</FIELDS>
 		<KEYS>
-			<KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-		    <KEY NAME="peerassessment_fk" TYPE="foreign" FIELDS="peerassessmentid" REFTABLE="peerassessment" REFFIELDS="id"/>
+			<KEY 	NAME="primary" TYPE="primary" FIELDS="id"/>
 		</KEYS>
-		</TABLE>
+	</TABLE>
   </TABLES>
 </XMLDB>
