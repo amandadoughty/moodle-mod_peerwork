@@ -39,6 +39,7 @@ class peerassessment_criteria  {
 	 * DB table these criteria are stored in.
 	 */
     protected static $tablename = 'peerassessment_criteria';
+    protected static $tablename2 = 'peerassessment_presets';
     /**
      * The criteria are numbered 0 to $numcriteria-1
      * @var integer
@@ -67,6 +68,27 @@ class peerassessment_criteria  {
     }
     
     /**
+     * Get the set of preset criteria, making sure we have the array in field=sort order.
+     * @return DB records from  peerassessment_preset, one record per criteria on this assessment.
+     */
+    public function getPresetCriteria($setid=0) {
+    	global $DB;
+    	
+    	$d = array();
+    	if( $setid == 0 ) {	// we are looking for the set descriptors.
+    		$d = array('sort' => -1);
+    	} else {
+    		$d = array('setid' => $setid);
+    	}
+    	$records = $DB ->get_records(self::$tablename2, $d );
+    	error_log("getPresetCriteria setid=$setid found ". print_r($records,true) );
+    	
+    	// return in field=sort order, using a php array sorting function
+    	uasort($records, function($a, $b) { if ($a->sort == $b->sort) {return 0;} return ($a->sort < $b->sort) ? -1 : 1; } );
+    	return $records;
+    }
+    
+    /**
      * part of setting up the assessment form - called from mod_form.php:definition()
      * Define the field elements, modified from workshop/form/accumulative/edit_form.php that allow for the assessments criteria settings to be specified.
      * The major section is "Assessment criteria settings"
@@ -81,11 +103,24 @@ class peerassessment_criteria  {
         
         $descriptionopts    = 'descriptionopts';        // wysiwyg fields options
         
+        // A select dropdown of available presets
+        $field = 'preset';
+        $presets = array();
+        $records = $this ->getPresetCriteria(); // No parameter triggers getting the descriptors for the sets
+        foreach( $records as $record ) {
+        	$presets[$record->setid] = $record->description;
+        }
+        error_log("preassessment_criteria loading preset " . print_r($presets,true) );
+        $mform->addElement('select', $field, get_string('assessmentcriteria:usepreset',self::$langkey), $presets );
+        $mform->setType($field, PARAM_INT);
+        $mform->addHelpButton($field,'assessmentcriteria:usepreset', self::$langkey);
+        
+        
         for ($i = 0; $i < self::$numcriteria; $i++) {
         
             //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerassessment', $i+1)); // KM doesnt nest into a subheading
-            $field = 'dimension'.$i;
-            $mform->addElement('static', $field, '', get_string('assessmentcriteria:static', self::$langkey, $i+1) );
+//             $field = 'dimension'.$i;
+//             $mform->addElement('static', $field, '', get_string('assessmentcriteria:static', self::$langkey, $i+1) );
 
 //             $mform->addElement('hidden', 'criteria_sort'.$i);
 //             $mform->setType('criteria_sort'.$i, PARAM_INT);
@@ -136,17 +171,17 @@ class peerassessment_criteria  {
     }
 
     /**
-     * Save settings to DB.
+     * Populate form settings from DB.
      * Collect criteria (if any) from the database, interpret and populate the datastructure used to initialise the form
      * when tutor defines the criteria in the assessment.
      * Called by the mod_form.php::set_data() as part of its populating the form.
      * @param unknown $data
+     * @param boolean $prepopulate if >0 refers to a predefined set of criteria, use those in preference.
      */
     public function set_data($data) {
-        global $DB;
-        
-        $records = $this ->getCriteria();
-        
+                     
+        $records = $this ->getCriteria();  
+        // so now we have some criteria records
         foreach ($records as $id => $record) {
             
             //error_log( "found criteria record for peerassessment#$id"  . print_r($record, true) );
@@ -254,7 +289,7 @@ class peerassessment_criteria  {
     }
     
     /**
-     * Convert the type of grade ('scale'|'number') and grade integer into an integer for storage in DB.
+     * Utility function to convert the type of grade ('scale'|'number') and grade integer into an integer for storage in DB.
      * DB table peerassessment_criteria stores the type of scoring for each criteria as a number. -ve numbers means its a scale drawn from the scales table.
      * However the form will send back +ve numbers so we also look at the hidden field 'gradetype_sort' to decide how we store in the DB.
      */

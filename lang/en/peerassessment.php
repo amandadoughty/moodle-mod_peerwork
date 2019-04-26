@@ -108,16 +108,17 @@ $string['peerassessment:view'] = 'View peer assessment content';
 
 // Criteria strings
 $string['assessmentcriteria:header'] = 'Assessment criteria settings'; 
-$string['assessmentcriteria:static'] = 'Criteria number {$a}';
-$string['assessmentcriteria:description'] = 'Criteria description';
+$string['assessmentcriteria:usepreset'] = 'Load a standard set of criteria';
+$string['assessmentcriteria:description'] = 'Criteria {$a} description';
 $string['assessmentcriteria:scoretype'] = 'Scoring Type';
 $string['assessmentcriteria:weight'] = 'Weight';
 $string['assessmentcriteria:modgradetypescale'] = "Likert";
 
-$string['assessmentcriteria:description_help'] = 'TODO';
-$string['assessmentcriteria:scoretype_help'] = 'TODO';
-$string['assessmentcriteria:weight_help'] = 'TODO';
+$string['assessmentcriteria:description_help'] = 'Use this to concisely describe the purpose of this criteria';
+$string['assessmentcriteria:scoretype_help'] = 'Choose the scale by which this criteria is to be graded';
+$string['assessmentcriteria:weight_help'] = 'TODO not yet used';
 $string['assessmentcriteria:nocriteria'] = 'No Criteria have been set for this assignment.';
+$string['assessmentcriteria:usepreset_help'] = 'Choose a preset to <b>overwrite</b> any existing criteria. This wont take final effect until the form is saved.';
 
 
 $string['groupsubmissionsettings'] = 'Group submission settings';
