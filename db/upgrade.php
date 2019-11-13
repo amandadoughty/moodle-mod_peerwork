@@ -78,5 +78,19 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111303, 'peerwork');
     }
 
+    if ($oldversion < 2019111304) {
+
+        // Define table peerwork_presets to be dropped.
+        $table = new xmldb_table('peerwork_presets');
+
+        // Conditionally launch drop table for peerwork_presets.
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111304, 'peerwork');
+    }
+
     return true;
 }
