@@ -24,11 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-
-    $calculations = array('simple' => 'simple', 'outlier' => 'outlier');
-    $settings->add(new admin_setting_configselect('peerwork/calculationtype', get_string('setup.calculationtype', 'peerwork'),
-        get_string('defaultcalculationtype', 'peerwork'), 'simple', $calculations));
-
+if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('peerwork/standard_deviation',
         get_string('standard_deviation', 'peerwork'), get_string('defaultstandard_deviation', 'peerwork'), '1.15'));
 
@@ -38,3 +34,4 @@ defined('MOODLE_INTERNAL') || die;
     $multiplybyvalues = array(3 => 3, 4 => 4, 5 => 5);
     $settings->add(new admin_setting_configselect('peerwork/multiplyby', get_string('multiplyby', 'peerwork'),
         get_string('multiplyby', 'peerwork'), 4, $multiplybyvalues));
+}

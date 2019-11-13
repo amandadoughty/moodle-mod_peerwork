@@ -34,11 +34,6 @@ define('peerwork_FROMDATE_NOT_USED', 0);
 define('peerwork_FROMDATE_OK', 1);
 define('peerwork_FROMDATE_BEFORE', 2);
 
-// Identify the grading algorithm for each criteria. identifier => text to display
-define('peerwork_SIMPLE', 'simple');
-define('peerwork_OUTLIER', 'outlier');
-define('peerwork_WEBPA', 'webpa');
-
 require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerwork/classes/algorithms/WebPAAlgorithm.php');
 
@@ -87,7 +82,7 @@ function peerwork_get_mygroup($courseid, $userid, $groupingid = 0, $die = true) 
 }
 
 /**
- * Gets the status, one of peerwork_STATUS_*  
+ * Gets the status, one of peerwork_STATUS_*
  * @param $peerwork
  * @param int $group returns only groups in the specified grouping.
  */
@@ -251,7 +246,7 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     $grades = array();
     $feedback = array();
 
-    foreach ($peers as $peer) {    
+    foreach ($peers as $peer) {
         $grades[$peer->sort][$peer->gradedby][$peer->gradefor] = $peer->grade;
         $feedback[$peer->sort][$peer->gradedby][$peer->gradefor] = $peer->feedback;
     }
@@ -442,21 +437,13 @@ function peerwork_get_groupaverage($peerwork, $group) {
         return null;
     }
 
-    if ($peerwork->calculationtype == peerwork_SIMPLE) {
-        $groupaverage = peerwork_get_simplegravg($peerwork, $group);
-    } else if ($peerwork->calculationtype == peerwork_OUTLIER) {
-        $groupaverage = peerwork_get_adjustedgravg($peerwork, $group);
-    } else {
-        return null;
-    }
-
-    return $groupaverage;
+    return null;
 }
 
 
 /**
  * Get simple group average ie total marks awarded divided by number in group. Rounded to two decimal places.
- * May return NAN (if $count was zero) which the caller should handle. 
+ * May return NAN (if $count was zero) which the caller should handle.
  * @param $peerwork
  * @param $group
  */
@@ -487,7 +474,7 @@ function peerwork_get_adjustedgravg($peerwork, $group) {
     $count = 0;
     $groupaverage = 0;
 
-    $members = groups_get_members($group->id); 
+    $members = groups_get_members($group->id);
     foreach ($members as $member) {
         $standarddev = peerwork_get_indsd($peerwork, $group, $member);
         $indaverage = peerwork_get_simpleindavg($peerwork, $group, $member);
@@ -532,15 +519,7 @@ function peerwork_get_individualaverage($peerwork, $group, stdClass $member) {
         return null;
     }
 
-    if ($peerwork->calculationtype == peerwork_SIMPLE) {
-        $average = peerwork_get_simpleindavg($peerwork, $group, $member);
-    } else if ($peerwork->calculationtype == peerwork_OUTLIER) {
-        $average = peerwork_get_adjustedindavg($peerwork, $group, $member);
-    } else {
-        return null;
-    }
-
-    return $average;
+    return null;
 }
 
 
@@ -644,16 +623,7 @@ function peerwork_get_grade($peerwork, $group, stdClass $member) {
         return null;
     }
 
-    if ($peerwork->calculationtype == peerwork_SIMPLE) {
-        $grade = peerwork_get_simple_grade($peerwork, $group, $member);
-    } else if ($peerwork->calculationtype == peerwork_OUTLIER) {
-        $grade = peerwork_get_outlier_adjusted_grade($peerwork, $group, $member);
-    } else if($peerwork->calculationtype == peerwork_WEBPA) {
-        $grade = peerwork_get_webpa_grade($peerwork, $group, $member);
-    } else {
-        return null;
-    }
-
+    $grade = peerwork_get_webpa_grade($peerwork, $group, $member);
     return $grade;
 }
 
@@ -663,38 +633,33 @@ function peerwork_get_grade($peerwork, $group, stdClass $member) {
  */
 function peerwork_get_score($peerwork, $group, stdClass $member) {
 	global $DB;
-	
+
 	// Can't calculate grade if student does not belong to any group.
 	if (!$group) {
 		return null;
 	}
-	
-	if($peerwork->calculationtype == peerwork_WEBPA) {
-		$score = peerwork_get_webpa_score($peerwork, $group, $member);
-	} else {
-		return null;
-	}
-	
+
+	$score = peerwork_get_webpa_score($peerwork, $group, $member);
 	return $score;
 }
 
 
 /**
  * Return the final grade for the member using the webpa algorithm.
- * 
+ *
  * @return number or null if unable to calculate
  */
 function peerwork_get_webpa_grade($peerwork, $group, stdClass $member) {
     global $CFG, $DB;
-      
+
     // Can't calculate grade if student does not belong to any group.
     if (!$group) {
         return null;
     }
-    
+
     $algorithm = new WebPAAlgorithm($peerwork, $group);
     $algorithm ->calculate();
-    return $algorithm ->getGrade($member);  
+    return $algorithm ->getGrade($member);
 }
 
 /**
@@ -704,12 +669,12 @@ function peerwork_get_webpa_grade($peerwork, $group, stdClass $member) {
 */
 function peerwork_get_webpa_score($peerwork, $group, stdClass $member) {
 	global $CFG, $DB;
-	
+
 	// Can't calculate grade if student does not belong to any group.
 	if (!$group) {
 		return null;
 	}
-	
+
 	$algorithm = new WebPAAlgorithm($peerwork, $group);
 	$algorithm ->calculate();
 	return $algorithm ->getScore($member);
@@ -718,11 +683,11 @@ function peerwork_get_webpa_score($peerwork, $group, stdClass $member) {
 /**
  * Perform the calculation of a users final grade using the 'simple' calculation.
  * This seems to give very strange results @see issue#3
- * 
+ *
  * @return number
  */
 function peerwork_get_simple_grade($peerwork, $group, stdClass $member) {
-    global $CFG, $DB;    
+    global $CFG, $DB;
     $thisperson = $member;
 
     $peermarks = array();
@@ -736,7 +701,7 @@ function peerwork_get_simple_grade($peerwork, $group, stdClass $member) {
     $multiplier = 5;
     $gravg = peerwork_get_simplegravg($peerwork, $group);
     $submission = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id, 'groupid' => $group->id));
-  
+
     if (empty($submission) || !isset($submission->grade) || is_nan($gravg) ) {
         return '-';
     }
@@ -749,7 +714,7 @@ function peerwork_get_simple_grade($peerwork, $group, stdClass $member) {
         $psia = peerwork_get_simpleindavg($peerwork, $group, $member);
         $peermarks[$member->id]->indaverage = $psia;
         $peermarks[$member->id]->final_grade = $submission->grade + (($peermarks[$member->id]->indaverage - $gravg) * $multiplier);
-        
+
         error_log("peerwork_get_simple_grade psia = " . print_r($psia,true) );
         error_log("peerwork_get_simple_grade " . print_r($peermarks[$member->id],true) );
     }
@@ -769,9 +734,9 @@ function peerwork_get_simple_grade($peerwork, $group, stdClass $member) {
 
 /**
  * Description
- * @param type $peerwork 
- * @param type $group 
- * @param stdClass $member 
+ * @param type $peerwork
+ * @param type $group
+ * @param stdClass $member
  * @return type
  */
 function peerwork_get_outlier_adjusted_grade($peerwork, $group, stdClass $member) {
@@ -883,7 +848,7 @@ function peerwork_feedback_files($context, $group) {
 
 /**
  * Total all the grades awarded by the $user to other members of the group.
- * Return a structure that can be used to visualise the progress made in providing marks to peers in the group. 
+ * Return a structure that can be used to visualise the progress made in providing marks to peers in the group.
  */
 function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
     global $DB;
@@ -891,17 +856,17 @@ function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
     $data = new stdClass(); // data->grade[member] data->feedback[member]
     $data ->grade = array();
     $data ->feedback = array();
-    
+
     $mygrades = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id,
         'gradedby' => $user->id), '', 'id,sort,gradefor,feedback,grade');
-    
+
     foreach( $mygrades as $grade) {
-        
+
         $peerid = $grade ->gradefor;
         @$data->grade[$peerid] += $grade->grade; // @suppress "Undefined index" error reports
         @$data->feedback[$peerid] |= $grade->feedback;
     }
-    
+
     // Make sure all the peers have an entry in the returning data array.
     foreach ($membersgradeable as $member) {
         if ( !array_key_exists( $member->id, $data ->grade ) ) {
@@ -954,7 +919,7 @@ function peerwork_teachers($context) {
 }
 /**
  * Student has provided some grades on their peers using the add_submission_form, save into database and trigger events.
- * 
+ *
  * @param unknown $peerwork
  * @param unknown $submission - database record in stdClass
  * @param unknown $group
@@ -969,10 +934,10 @@ function peerwork_teachers($context) {
 function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable) {
     global $USER, $DB;
 
-    
+
     error_log( "calling peerwork_save peerwork=" . print_r($peerwork,true) . "  submission=". print_r($submission,true) . "  group=" . print_r($group,true) . "  data=" . print_r($data,true) );
 
-    
+
     // Form has been submitted, commit, display confirmation and redirect.
     // Create submission record if none yet.
     if (!$submission) {
@@ -1009,7 +974,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
         $event->trigger();
     }
 
-    
+
     // Save the file submitted.
     // Check if the file is different or the same.
     $fs = get_file_storage();
@@ -1112,9 +1077,9 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
         $sorts[] = $record->sort;
     }
 //    error_log("peerwork_save() criteria=" . print_r($criterias,true) . " sort=". print_r($sorts, true));
- 
+
     foreach ($sorts as $key => $sort) {
-    
+
         foreach ($membersgradeable as $member) {
 
             $peer = new stdClass();
@@ -1124,9 +1089,9 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             $peer->gradedby = $USER->id;
             $peer->gradefor = $member->id;
             $peer->timecreated = time();
-                       
+
             $field = 'grade_idx_'. $sort;	// eg grade_idx_0 matches field setup at submissions_form.php $grpname
-            error_log("looking for ". print_r( $data->{$field}, true) ); 
+            error_log("looking for ". print_r( $data->{$field}, true) );
             if (isset($data->{$field}[$peer->gradefor]) ) {
                 $peer->grade = $data->{$field}[$peer->gradefor];
             } else {

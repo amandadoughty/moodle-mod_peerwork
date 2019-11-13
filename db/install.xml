@@ -21,7 +21,6 @@
         <FIELD NAME="allowlatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="treat0asgrade" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="moderation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="2" SEQUENCE="false"/>
-        <FIELD NAME="calculationtype" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="standard_deviation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="1.15" SEQUENCE="false"/>
         <FIELD NAME="completiongradedpeers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether completion requires peers to be graded"/>
       </FIELDS>

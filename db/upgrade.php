@@ -63,6 +63,20 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111302, 'peerwork');
     }
 
+    if ($oldversion < 2019111303) {
+
+        // Define field calculationtype to be dropped from peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('calculationtype');
+
+        // Conditionally launch drop field calculationtype.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111303, 'peerwork');
+    }
 
     return true;
 }

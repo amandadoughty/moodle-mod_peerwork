@@ -84,22 +84,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->setType('maxfiles', PARAM_INT);
         $mform->addHelpButton('maxfiles', 'setup.maxfiles', 'peerwork');
 
-        //
-        // The allowed calculation types. Allow for future variations but for now lock to webPA algorithm.
-        $calculations = array(peerwork_WEBPA => peerwork_WEBPA);
-        $mform->addElement('select', 'setup.calculationtype', get_string('setup.calculationtype', 'peerwork'), $calculations);
-        $mform->setType('setup.calculationtype', PARAM_TEXT);
-        $mform->setDefault('setup.calculationtype', peerwork_WEBPA);
-        $mform->addHelpButton('setup.calculationtype', 'setup.calculationtype', 'peerwork');
-
-
-
-        // Cant change the formula once a grade has been awarded. Why?
-// TODO temp disable for dev purposes.
-//         if (($this->current->id) && has_been_graded($peerwork)) {
-//             $mform->freeze('calculationtype');
-//         }
-
         // $mform->addElement('text', 'multiplyby', get_string('multiplyby', 'peerwork'), array('size' => '10'));
         // $mform->setType('multiplyby', PARAM_INT);
         // // $mform->addRule('multiplyby', null, 'required', null, 'client');
@@ -122,11 +106,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // KM add in the fields to specify assessment criteria, using a separate class to isolate change.
         $pac = new peerwork_criteria( $this->current->id );
         $pac ->definition($mform);
-
-// TODO Why is this been done twice??
-//         if (($this->current->id) && has_been_graded($peerwork)) {
-//             $mform->freeze('calculationtype');
-//         }
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
