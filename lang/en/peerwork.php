@@ -42,7 +42,8 @@ $string['feedback'] = 'Feedback to group';
 $string['peers'] = 'Grade your peers';
 $string['assessment'] = 'assessment';
 $string['assignment'] = 'Assignment';
-$string['selfgrading'] = 'Self grading';
+$string['selfgrading'] = 'Allow students to self-grade along with peers';
+$string['selfgrading_help'] = 'Enabling this setting will allow students to score themselves alongside their peers. This score will be included in the final grade calculations.';
 $string['duedate'] = 'Due date';
 
 $string['submission'] = 'Submission(s)';

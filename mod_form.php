@@ -65,12 +65,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // Adding the rest of peerwork settings, spreading all them into this fieldset,
         // or adding more fieldsets ('header' elements) if needed for better logic.
         $mform->addElement('header', 'peerworkfieldset', get_string('peerworkfieldset', 'peerwork'));
-        $mform->addElement('advcheckbox', 'selfgrading', get_string('selfgrading', 'peerwork'));
-        $mform->setType('selfgrading', PARAM_BOOL);
-        $mform->addHelpButton('selfgrading', 'selfgrading', 'peerwork');
-        // $mform->disabledIf('selfgrading', 'value1', 'eq|noteq', 'value2');
-        // $mform->addRule('selfgrading', $strrequired, 'required', null, 'client');
-        // $mform->setAdvanced('selfgrading');
 
         $mform->addElement('date_time_selector', 'fromdate', get_string('fromdate', 'peerwork'), array('optional' => true));
         $mform->setDefault('fromdate', time());
@@ -120,6 +114,10 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->setType('treat0asgrade', PARAM_BOOL);
         $mform->setDefault('treat0asgrade', true);
         $mform->addHelpButton('treat0asgrade', 'treat0asgrade', 'peerwork');
+
+        $mform->addElement('selectyesno', 'selfgrading', get_string('selfgrading', 'peerwork'));
+        $mform->setType('selfgrading', PARAM_BOOL);
+        $mform->addHelpButton('selfgrading', 'selfgrading', 'peerwork');
 
         // KM add in the fields to specify assessment criteria, using a separate class to isolate change.
         $pac = new peerwork_criteria( $this->current->id );
