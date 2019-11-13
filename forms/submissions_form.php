@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -24,7 +23,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
-require_once( __DIR__ . '/../classes/peerassessment_criteria.php');
+require_once( __DIR__ . '/../classes/peerwork_criteria.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->libdir . '/grade/grade_scale.php');
 
@@ -34,10 +33,10 @@ require_once($CFG->libdir . '/grade/grade_scale.php');
  * 
  * Each criteria is presented and for each one a space for grading peers is provided. 
  * 
- * Data is provided into $this->_customdata sent in the CTOR  new mod_peerassessment_submissions_form(...) calls in submissions.php and view.php
+ * Data is provided into $this->_customdata sent in the CTOR  new mod_peerwork_submissions_form(...) calls in submissions.php and view.php
  *
  */
-class mod_peerassessment_submissions_form extends moodleform
+class mod_peerwork_submissions_form extends moodleform
 {
 
     // Public static $fileoptions = array('mainfile' => '', 'subdirs' => 0, 'maxbytes' => -1,
@@ -62,21 +61,21 @@ class mod_peerassessment_submissions_form extends moodleform
         }
         
         if ($this->_customdata['fileupload']) {
-            $mform->addElement('header', 'peerssubmission', get_string('assignment', 'peerassessment'));
-            $mform->addElement('filemanager', 'submission', get_string('assignment', 'peerassessment'),
+            $mform->addElement('header', 'peerssubmission', get_string('assignment', 'peerwork'));
+            $mform->addElement('filemanager', 'submission', get_string('assignment', 'peerwork'),
                 null, $this->_customdata['fileoptions']);
-            $mform->addHelpButton('submission', 'submission', 'peerassessment');
+            $mform->addHelpButton('submission', 'submission', 'peerwork');
             // $mform->disabledIf('submission', 'value1', 'eq|noteq', 'value2');
             // $mform->addRule('submission', $strrequired, 'required', null, 'client');
             // $mform->setAdvanced('submission');
         }
 
         // Create a section with all the criteria. Creates a <fieldset class="clearfix collapsible" id="id_peerstobegraded">
-        $mform->addElement('header', 'peerstobegraded', get_string('peers', 'peerassessment')); // "Grade your peers"
+        $mform->addElement('header', 'peerstobegraded', get_string('peers', 'peerwork')); // "Grade your peers"
         $peers = $this->_customdata['peers'];
         
-        $peerassess = get_coursemodule_from_id('peerassessment', $this->_customdata['id']);
-        $pac = new peerassessment_criteria( $peerassess ->instance );
+        $peerassess = get_coursemodule_from_id('peerwork', $this->_customdata['id']);
+        $pac = new peerwork_criteria( $peerassess ->instance );
  
         $scales = grade_scale::fetch_all_global(); // HARDCODE this locks us to using scales only.
         
@@ -84,7 +83,7 @@ class mod_peerassessment_submissions_form extends moodleform
 
             // Criteria description
         	$field = 'criteriadescription_'.$criteria->sort;
-        	$mform->addElement('html', '<div class="mod_peerassessment_criteriaheader">'. $criteria->description . '</div>' );
+        	$mform->addElement('html', '<div class="mod_peerwork_criteriaheader">'. $criteria->description . '</div>' );
                     	
         	error_log("scale used for criteria ". $criteria->sort . " = " .  $criteria ->grade );
         	$scale = $scales[ abs($criteria ->grade) ];
@@ -94,10 +93,10 @@ class mod_peerassessment_submissions_form extends moodleform
             // Header using the items in the scale, use the same label and span as the radio buttons to match radio button layout.
             $scalenumbers = array();
             foreach( $scaleitems as $k => $v ) {
-            	//$scalenumbers[] = $mform->createElement('html', "<div class=\"mod_peerassessment_scaleheader\">$v</div>");
+            	//$scalenumbers[] = $mform->createElement('html', "<div class=\"mod_peerwork_scaleheader\">$v</div>");
             	$scalenumbers[] = $mform->createElement('html', '<label class="form-check-inline form-check-label fitem">'.$v.'</label><span style="display: none;"></span>' );    
             }
-            $mform->addGroup($scalenumbers, "mod_peerassessment_scaleheader", '', array(''), false );
+            $mform->addGroup($scalenumbers, "mod_peerwork_scaleheader", '', array(''), false );
 
 			// Create array of radio buttons for this criteria and for each peer too allow grading of peers.                      
             foreach ($peers as $peer) {
@@ -139,19 +138,19 @@ class mod_peerassessment_submissions_form extends moodleform
 		// error_log("set_data _customdata = " . print_r( $this->_customdata, true ) );
 		// error_log("set_data data = " . print_r( $data, true ) );
 		
-		// Convert the stored module id into the peerassessment activity
-		// Collect the criteria data for this peerassessment and add into $data.
-		$peerassess = get_coursemodule_from_id ( 'peerassessment', $this->_customdata ['id'] );
+		// Convert the stored module id into the peerwork activity
+		// Collect the criteria data for this peerwork and add into $data.
+		$peerassess = get_coursemodule_from_id ( 'peerwork', $this->_customdata ['id'] );
 		
 		// Get information about each criteria and grades awarded to peers and add to the form data
-		$pac = new peerassessment_criteria ( $peerassess->instance );
+		$pac = new peerwork_criteria ( $peerassess->instance );
 		
 		foreach ( $pac->getCriteria () as $id => $record ) {
 			
 			// Now get all the grades and feedback for this criteria that this user has already awarded to their peers.
 			// Transfer into the $data so it populates the UI
-			$mygrades = $DB->get_records ( 'peerassessment_peers', array (
-					'peerassessment' => $record->peerassessmentid,
+			$mygrades = $DB->get_records ( 'peerwork_peers', array (
+					'peerwork' => $record->peerworkid,
 					'gradedby' => $USER->id,
 					'sort' => $record->sort 
 			), '', 'id,sort,gradefor,feedback,grade' );

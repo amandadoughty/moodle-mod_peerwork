@@ -17,11 +17,11 @@
 /**
  * The submissions_exported event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
 /**
@@ -40,17 +40,17 @@ class submissions_exported extends \core\event\base {
     }
 
     public static function get_name() {
-        return get_string('eventsubmissions_exported', 'mod_peerassessment');
+        return get_string('eventsubmissions_exported', 'mod_peerwork');
     }
 
     public function get_description() {
-        return "The user with id '{$this->userid}' exported the submissions for the 'peerassessment'
+        return "The user with id '{$this->userid}' exported the submissions for the 'peerwork'
         activity with course module id '{$this->contextinstanceid}'.";
     }
 
     public function get_url() {
         return new \moodle_url(
-            '/mod/peerassessment/exportxls.php',
+            '/mod/peerwork/exportxls.php',
             array(
                 'id' => $this->contextinstanceid
                 )

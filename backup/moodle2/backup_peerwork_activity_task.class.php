@@ -15,16 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 // Because it exists (must).
-require_once($CFG->dirroot . '/mod/peerassessment/backup/moodle2/backup_peerassessment_stepslib.php');
+require_once($CFG->dirroot . '/mod/peerwork/backup/moodle2/backup_peerwork_stepslib.php');
 
-class backup_peerassessment_activity_task extends backup_activity_task {
+class backup_peerwork_activity_task extends backup_activity_task {
 
     /**
      * Define (add) particular settings this activity can have
@@ -37,7 +36,7 @@ class backup_peerassessment_activity_task extends backup_activity_task {
      * Define (add) particular steps this activity can have
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_peerassessment_activity_structure_step('peerassessment_structure', 'peerassessment.xml'));
+        $this->add_step(new backup_peerwork_activity_structure_step('peerwork_structure', 'peerwork.xml'));
     }
 
     /**

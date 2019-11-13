@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -24,6 +23,6 @@
 /**
  * Custom uninstallation procedure
  */
-function xmldb_peerassessment_uninstall() {
+function xmldb_peerwork_uninstall() {
     return true;
 }

@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,7 +28,7 @@ require_once($CFG->libdir . '/formslib.php');
  * Creates UI elements for the tutor to enter an overall grade to a submission.
  * Called from and data provided by details.php
  */
-class mod_peerassessment_details_form extends moodleform
+class mod_peerwork_details_form extends moodleform
 {
     public static $fileoptions = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,
         'accepted_types' => '*', 'return_types' => null);
@@ -49,43 +48,43 @@ class mod_peerassessment_details_form extends moodleform
         $mform->setType('groupid', PARAM_INT);
         
         ////////////////////////////////////////////////////////////////////////////////////////
-        $mform->addElement('header', 'mod_peerassessment_details', 'Details' );  
+        $mform->addElement('header', 'mod_peerwork_details', 'Details' );  
         $mform->addElement('static', 'groupname', 'Group' ); // Filled from $data['groupname']
         $mform->addElement('static', 'status', 'Status' );
         
         ////////////////////////////////////////////////////////////////////////////////////////
-        $mform->addElement('header', 'mod_peerassessment_peers', 'Peer submission and grades' );  
-        $mform->addElement('static', 'submission', get_string('submission', 'peerassessment'));
-        $mform->addHelpButton('submission', 'submission', 'peerassessment');
+        $mform->addElement('header', 'mod_peerwork_peers', 'Peer submission and grades' );  
+        $mform->addElement('static', 'submission', get_string('submission', 'peerwork'));
+        $mform->addHelpButton('submission', 'submission', 'peerwork');
         
         $mform->addElement('static', 'peergradesawarded', "");	// This gets replaced in details.php with a table of grades peers have awarded.
         
         
         ////////////////////////////////////////////////////////////////////////////////////////
-        $mform->addElement('header', 'mod_peerassessment_grading', 'Tutor grading' );
+        $mform->addElement('header', 'mod_peerwork_grading', 'Tutor grading' );
         $mform->addElement('text', 'grade', "Group grade out of 100", array('maxlength' => 15, 'size' => 10));
         $mform->setType('grade', PARAM_INT);
         // $mform->setDefault('grade', 'defult string value for the textarea');
-        // $mform->addHelpButton('grade', 'langkey_help', 'peerassessment');
+        // $mform->addHelpButton('grade', 'langkey_help', 'peerwork');
         // $mform->disabledIf('grade', 'value1', 'eq|noteq', 'value2');
         // $mform->addRule('grade', $strrequired, 'required', null, 'client');
         // $mform->setAdvanced('grade');
         
         $mform->addElement('static', 'finalgrades', "Calculated grades");	// becomes a HTML table
-        //$mform->addHelpButton('finalgrades', 'finalgrades', 'peerassessment');
+        //$mform->addHelpButton('finalgrades', 'finalgrades', 'peerwork');
 
 
         $editoroptions = array();
-        $mform->addElement('editor', 'feedback', get_string('feedback', 'peerassessment'), '', $editoroptions);
+        $mform->addElement('editor', 'feedback', get_string('feedback', 'peerwork'), '', $editoroptions);
         $mform->setType('feedback', PARAM_CLEANHTML);
-        // $mform->addHelpButton('feedback', 'langkey_help', 'peerassessment');
+        // $mform->addHelpButton('feedback', 'langkey_help', 'peerwork');
         // $mform->disabledIf('feedback', 'value1', 'eq|noteq', 'value2');
         // $mform->addRule('feedback', $strrequired, 'required', null, 'client');
         // $mform->setAdvanced('feedback');
 
-        $mform->addElement('filemanager', 'feedback_files', get_string('feedbackfiles', 'peerassessment'),
+        $mform->addElement('filemanager', 'feedback_files', get_string('feedbackfiles', 'peerwork'),
             null, $this->_customdata['fileoptions']);
-        // $mform->addHelpButton('feedback_files', 'langkey_help', 'peerassessment');
+        // $mform->addHelpButton('feedback_files', 'langkey_help', 'peerwork');
         // $mform->disabledIf('feedback_files', 'value1', 'eq|noteq', 'value2');
         // $mform->addRule('feedback_files', $strrequired, 'required', null, 'client');
         // $mform->setAdvanced('feedback_files');
@@ -106,9 +105,9 @@ class mod_peerassessment_details_form extends moodleform
     		
     		$t = new html_table();
     		$t->attributes['class'] = 'userenrolment';
-    		$t->id = 'mod-peerassessment-summary-table';
+    		$t->id = 'mod-peerwork-summary-table';
     		$t->head = array(	'Name', 
-    							get_string('contibutionscore', 'peerassessment'). $OUTPUT->help_icon('contibutionscore', 'peerassessment'),
+    							get_string('contibutionscore', 'peerwork'). $OUTPUT->help_icon('contibutionscore', 'peerwork'),
     							'Calculated grade', 
     							"Revised grade");
     		

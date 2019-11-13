@@ -1,4 +1,4 @@
-# mod_peerassessment
+# mod_peerwork
 
 About
 =====
@@ -53,7 +53,7 @@ Supported Versions
 Installation instructions
 =========================
 
-1. Copy the peerassessment directory to the mod directory of the Moodle instance
+1. Copy the peerwork directory to the mod directory of the Moodle instance
 2. Log into your Moodle as administrator, or if logged in visit the Notifications 
    page
 3. You should be prompted to upgrade your Moodle to install the module

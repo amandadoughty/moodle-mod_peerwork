@@ -17,11 +17,11 @@
 /**
  * The submission_graded event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 defined('MOODLE_INTERNAL') || die();
 /**
  * The submission_graded event class.
@@ -45,23 +45,23 @@ class submission_graded extends \core\event\base {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
-        $this->data['objecttable'] = 'peerassessment_submission';
+        $this->data['objecttable'] = 'peerwork_submission';
     }
 
     public static function get_name() {
-        return get_string('eventsubmission_graded', 'mod_peerassessment');
+        return get_string('eventsubmission_graded', 'mod_peerwork');
     }
 
     public function get_description() {
         return "Grade group: (id={$this->other['groupid']}, groupname={$this->other['groupname']}).
         Grade: {$this->other['grade']} / 100 " .
-            "in the 'peerassessment' submission with " .
+            "in the 'peerwork' submission with " .
             "id '{$this->objectid}'.";
     }
 
     public function get_url() {
         return new \moodle_url(
-            '/mod/peerassessment/details.php',
+            '/mod/peerwork/details.php',
             array(
                 'id' => $this->contextinstanceid,
                 'groupid' => $this->other['groupid']

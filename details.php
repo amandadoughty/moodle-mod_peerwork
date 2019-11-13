@@ -15,18 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once( dirname(__FILE__) . '/../../config.php');
-require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
+require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/forms/submissions_form.php');
-require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/forms/details_form.php');
+require_once($CFG->dirroot . '/mod/peerwork/forms/submissions_form.php');
+require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
+require_once($CFG->dirroot . '/mod/peerwork/forms/details_form.php');
 
 /**
  * This provides a teacher with a summary view of the assessment for a group, detailing who has submitted.
@@ -35,47 +34,47 @@ require_once($CFG->dirroot . '/mod/peerassessment/forms/details_form.php');
 $id = required_param('id', PARAM_INT);
 $groupid = required_param('groupid', PARAM_INT);
 
-$cm             = get_coursemodule_from_id('peerassessment', $id, 0, false, MUST_EXIST);
+$cm             = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
 $course         = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$peerassessment = $DB->get_record('peerassessment', array('id' => $cm->instance), '*', MUST_EXIST);
-$submission     = $DB->get_record('peerassessment_submission', array('assignment' => $peerassessment->id, 'groupid' => $groupid));
+$peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
+$submission     = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id, 'groupid' => $groupid));
 $members        = groups_get_members($groupid);
 $group          = $DB->get_record('groups', array('id' => $groupid), '*', MUST_EXIST);
-$status         = peerassessment_get_status($peerassessment, $group);
+$status         = peerwork_get_status($peerwork, $group);
 
 
 
 // Print the standard page header and check access rights.
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-$PAGE->set_url('/mod/peerassessment/view.php', array('id' => $cm->id));
-$PAGE->set_title(format_string($peerassessment->name));
+$PAGE->set_url('/mod/peerwork/view.php', array('id' => $cm->id));
+$PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
-require_capability('mod/peerassessment:grade', $context);
+require_capability('mod/peerwork:grade', $context);
 
 
 // Start the form, initialise with some data.
 $data = array('id' => $id, 'groupid' => $groupid); //, 'feedback_files' => $draftitemid
 
 
-$mform = new mod_peerassessment_details_form();
-if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
+$mform = new mod_peerwork_details_form();
+if ($status->code == peerwork_STATUS_GRADED) {
 //     $data['feedback']['text'] = "KM" . $submission->feedbacktext;
 //     $data['feedback']['format'] = $submission->feedbackformat;
     $data['grade'] = $submission->grade;
 }
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
-$submissionfiles = peerassessment_submission_files($context, $group);	// creates <a href HTML
-$data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', 'peerassessment') : implode('<br/>', $submissionfiles); 
+$submissionfiles = peerwork_submission_files($context, $group);	// creates <a href HTML
+$data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', 'peerwork') : implode('<br/>', $submissionfiles); 
 
 
 // Get the peer grades awarded so far, then for each criteria
 // output a HTML tabulation of the peers and the grades awarded and received.
 // TODO instead of HTML fragment can we build this with form elments?
-$grades = peerassessment_get_peer_grades($peerassessment, $group, $members, false);
-$pac = new peerassessment_criteria( $peerassessment->id );
+$grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
+$pac = new peerwork_criteria( $peerwork->id );
 $data['peergradesawarded'] = '';
 foreach( $pac ->getCriteria() as $criteria ) {
 	
@@ -83,7 +82,7 @@ foreach( $pac ->getCriteria() as $criteria ) {
 
 	$t = new html_table();
 	$t->attributes['class'] = 'userenrolment';
-	$t->id = 'mod-peerassessment-summary-table';
+	$t->id = 'mod-peerwork-summary-table';
 	$t->head[] = '';
 	$t->caption = $criteria ->description;
 	
@@ -109,15 +108,15 @@ foreach( $pac ->getCriteria() as $criteria ) {
 
 // If assignment has been graded then pass the required data to create a table showing calculated grades. 
 $finalgrades = array(); // Becomes userid => grade 
-if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
+if ($status->code == peerwork_STATUS_GRADED) {
 	$data['finalgrades'] = array();
 	
 	foreach ($members as $member) { 
 		$gradebook = 99;	//TODO current (if any) gradebook grade
 		$data['finalgrades'][] = array(	'memberid'=>$member->id, 
-										'contribution' => peerassessment_get_score($peerassessment, $group, $member), 
+										'contribution' => peerwork_get_score($peerwork, $group, $member), 
 										'fullname'=>fullname($member), 
-										'calcgrade'=>peerassessment_get_grade($peerassessment, $group, $member), 
+										'calcgrade'=>peerwork_get_grade($peerwork, $group, $member), 
 										'finalgrade'=>$gradebook );
 	}
 }
@@ -134,7 +133,7 @@ if ($mform->is_cancelled()) {
     //
     if (!$submission) {
         $submission = new stdClass();
-        $submission->assignment = $peerassessment->id;
+        $submission->assignment = $peerwork->id;
         $submission->groupid = $group->id;
     }
     $submission->grade = $data->grade;
@@ -144,22 +143,22 @@ if ($mform->is_cancelled()) {
     $submission->feedbackformat = $data->feedback['format'];
 
     // add final grade here
-    //$submission->finalgrade = peerassessment_get_grade($peerassessment, $group, $member);
+    //$submission->finalgrade = peerwork_get_grade($peerwork, $group, $member);
 
     //error_log("details.php submitting form with " . print_r($submission,true) );
     if (isset($submission->id)) {
-        $DB->update_record('peerassessment_submission', $submission);
+        $DB->update_record('peerwork_submission', $submission);
     } else {
-        $submission->id = $DB->insert_record('peerassessment_submission', $submission);
+        $submission->id = $DB->insert_record('peerwork_submission', $submission);
     }
 
     // Update grades for every group member.
     foreach ($members as $member) {
-        peerassessment_update_grades($peerassessment, $member->id);
+        peerwork_update_grades($peerwork, $member->id);
     }
     // Save the file submitted.
-    file_save_draft_area_files($draftitemid, $context->id, 'mod_peerassessment', 'feedback_files',
-        $group->id, mod_peerassessment_details_form::$fileoptions);
+    file_save_draft_area_files($draftitemid, $context->id, 'mod_peerwork', 'feedback_files',
+        $group->id, mod_peerwork_details_form::$fileoptions);
 
     $params = array(
                 'objectid' => $submission->id,
@@ -171,8 +170,8 @@ if ($mform->is_cancelled()) {
                     )
             );
 
-    $event = \mod_peerassessment\event\submission_graded::create($params);
-    $event->add_record_snapshot('peerassessment_submission', $submission);
+    $event = \mod_peerwork\event\submission_graded::create($params);
+    $event->add_record_snapshot('peerwork_submission', $submission);
     $event->trigger();
 
     redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)));
@@ -187,7 +186,7 @@ $params = array(
                 'other' => array('groupid' => $group->id)
             );
 
-$event = \mod_peerassessment\event\submission_grade_form_viewed::create($params);
+$event = \mod_peerwork\event\submission_grade_form_viewed::create($params);
 $event->trigger();
 
 echo $OUTPUT->header();

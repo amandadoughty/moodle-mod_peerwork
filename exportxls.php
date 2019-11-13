@@ -15,24 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
+require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/forms/add_submission_form.php');
-require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
+require_once($CFG->dirroot . '/mod/peerwork/forms/add_submission_form.php');
+require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->libdir . '/excellib.class.php');
 
 $id = required_param('id', PARAM_INT);
-$cm = get_coursemodule_from_id('peerassessment', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$peerassessment = $DB->get_record('peerassessment', array('id' => $cm->instance), '*', MUST_EXIST);
+$peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
 
-$groupingid = $peerassessment->submissiongroupingid;
+$groupingid = $peerwork->submissiongroupingid;
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
@@ -40,10 +39,10 @@ $params = array(
         'context' => $context
     );
 
-$event = \mod_peerassessment\event\submissions_exported::create($params);
+$event = \mod_peerwork\event\submissions_exported::create($params);
 $event->trigger();
 
-require_capability('mod/peerassessment:grade', $context);
+require_capability('mod/peerwork:grade', $context);
 
 $header = array(
     'Student',
@@ -63,21 +62,21 @@ $allgroups = groups_get_all_groups($course->id, 0, $groupingid);
 foreach ($allgroups as $group) {
 
     $groupid = $group->id;
-    $membersgradeable = peerassessment_get_peers($course, $peerassessment, $groupingid, $groupid);
-    $submission = $DB->get_record('peerassessment_submission',
-            array('assignment' => $peerassessment->id, 'groupid' => $groupid));
+    $membersgradeable = peerwork_get_peers($course, $peerwork, $groupingid, $groupid);
+    $submission = $DB->get_record('peerwork_submission',
+            array('assignment' => $peerwork->id, 'groupid' => $groupid));
     $members = groups_get_members($groupid);
 
     foreach ($members as $member) {
         $row = array();
         $row[] = fullname($member);
         $row[] = $group->name;
-        $row[] = peerassessment_get_individualaverage($peerassessment, $group, $member);
-        $row[] = peerassessment_get_groupaverage($peerassessment, $group);
+        $row[] = peerwork_get_individualaverage($peerwork, $group, $member);
+        $row[] = peerwork_get_groupaverage($peerwork, $group);
         if (isset($submission->grade)) {
             $row[] = $submission->grade;
         }
-        $row[] = peerassessment_get_grade($peerassessment, $group, $member);
+        $row[] = peerwork_get_grade($peerwork, $group, $member);
         if (isset($submission->timegraded)) {
             $row[] = userdate($submission->timegraded);
         }
@@ -93,7 +92,7 @@ foreach ($allgroups as $group) {
 
 }
 
-$workbook = new MoodleExcelWorkbook(clean_filename($peerassessment->name.'-'.$peerassessment->id).'.xlsx', 'Excel2007');
+$workbook = new MoodleExcelWorkbook(clean_filename($peerwork->name.'-'.$peerwork->id).'.xlsx', 'Excel2007');
 
 $worksheet = $workbook->add_worksheet('All Grades');
 
@@ -110,20 +109,20 @@ for ($i = 0; $i < count($content); $i++) {
 foreach ($allgroups as $group) {
     $worksheet = $workbook->add_worksheet($group->name);
     $members = groups_get_members($group->id);
-    $membersgradeable = peerassessment_get_peers($course, $peerassessment, $groupingid, $group->id);
+    $membersgradeable = peerwork_get_peers($course, $peerwork, $groupingid, $group->id);
     $data = array();
     $header = array('Student');
     foreach ($members as $member) {
         $row = array(fullname($member));
         $header[] = 'Grade for ' . fullname($member);
         $header[] = 'Feedback for ' . fullname($member);
-        $grades = peerassessment_grade_by_user($peerassessment, $member, $membersgradeable);
+        $grades = peerwork_grade_by_user($peerwork, $member, $membersgradeable);
         foreach (groups_get_members($group->id) as $peer) {
             $row[] = $grades->grade[$peer->id];
             $row[] = html_to_text($grades->feedback[$peer->id]);
         }
-        $row[] = peerassessment_get_individualaverage($peerassessment, $group, $member);
-        $row[] = peerassessment_get_grade($peerassessment, $group, $member);
+        $row[] = peerwork_get_individualaverage($peerwork, $group, $member);
+        $row[] = peerwork_get_grade($peerwork, $group, $member);
         $data[] = $row;
     }
     $header[] = 'Average group score';

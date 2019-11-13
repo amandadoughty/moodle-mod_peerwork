@@ -15,19 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class mod_peerassessment_renderer extends plugin_renderer_base {
-    public function render_peerassessment_summary(peerassessment_summary $summary) {
+class mod_peerwork_renderer extends plugin_renderer_base {
+    public function render_peerwork_summary(peerwork_summary $summary) {
         $group = $summary->group;
         $data = $summary->data;
         $membersgradeable = $summary->membersgradeable;
-        $peerassessment = $summary->peerassessment;
-        $isopen = peerassessment_is_open($peerassessment, $group->id);
+        $peerwork = $summary->peerwork;
+        $isopen = peerwork_is_open($peerwork, $group->id);
         $status = $summary->status;
         $files = $data['files'];        
         if (isset($data['outstanding'])) {
@@ -54,32 +53,32 @@ class mod_peerassessment_renderer extends plugin_renderer_base {
         $users = rtrim($users, ',');
         if ($users) {
             if ($isopen->code) {
-                $text .= "<p>". get_string('userswhodidnotsubmitbefore', 'peerassessment', $users) . "</p>";
+                $text .= "<p>". get_string('userswhodidnotsubmitbefore', 'peerwork', $users) . "</p>";
             } else {
-                $text .= "<p>". get_string('userswhodidnotsubmitafter', 'peerassessment', $users) . "</p>";
+                $text .= "<p>". get_string('userswhodidnotsubmitafter', 'peerwork', $users) . "</p>";
             }
         } else {
-            $text .= get_string('allmemberssubmitted', 'peerassessment');
+            $text .= get_string('allmemberssubmitted', 'peerwork');
         }
 
         $cell2 = new html_table_cell($text);
         $row->cells = array($cell1, $cell2);
         $t->data[] = $row;
 
-        if ($peerassessment->duedate) {
+        if ($peerwork->duedate) {
             $row = new html_table_row();
             $cell1 = new html_table_cell('Due date');
-            $cell2 = new html_table_cell(userdate($peerassessment->duedate));
+            $cell2 = new html_table_cell(userdate($peerwork->duedate));
 
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
 
             $row = new html_table_row();
             $cell1 = new html_table_cell('Time remaining');
-            if ($peerassessment->duedate > time()) {
-                $cell2 = new html_table_cell(format_time($peerassessment->duedate - time()));
+            if ($peerwork->duedate > time()) {
+                $cell2 = new html_table_cell(format_time($peerwork->duedate - time()));
             } else {
-                $cell2 = new html_table_cell('(over due by ' . format_time($peerassessment->duedate - time()) .')');
+                $cell2 = new html_table_cell('(over due by ' . format_time($peerwork->duedate - time()) .')');
             }
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
@@ -88,7 +87,7 @@ class mod_peerassessment_renderer extends plugin_renderer_base {
         if( $data['maxfiles'] > 0 ) { 
         	$fcontent = implode('<br />', $files);
         	if( count($files) == 0 ) {
-        		$fcontent = get_string('nothingsubmitted', 'peerassessment' );
+        		$fcontent = get_string('nothingsubmitted', 'peerwork' );
         	}
         	
 	        $row = new html_table_row();
@@ -156,12 +155,12 @@ class mod_peerassessment_renderer extends plugin_renderer_base {
     }
 }
 
-class peerassessment_summary implements renderable {
-    public function __construct($group, $data, $membersgradeable, $peerassessment, $status = 'Draft (not submitted).') {
+class peerwork_summary implements renderable {
+    public function __construct($group, $data, $membersgradeable, $peerwork, $status = 'Draft (not submitted).') {
         $this->group = $group;
         $this->data = $data;
         $this->membersgradeable = $membersgradeable;
-        $this->peerassessment = $peerassessment;
+        $this->peerwork = $peerwork;
         $this->status = $status;
     }
 }

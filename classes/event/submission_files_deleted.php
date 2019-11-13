@@ -17,17 +17,17 @@
 /**
  * The submission__files_uploaded event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_peerassessment submission _files_uploaded event class.
+ * The mod_peerwork submission _files_uploaded event class.
  *
  * @property-read array $other {
  *      Extra information about the event.
@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  *      - string deletedlist: List of content hashes of deleted files.
  * }
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @since      Moodle 2.8
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -47,16 +47,16 @@ class submission_files_deleted extends \core\event\base {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'peerassessment_submission';
+        $this->data['objecttable'] = 'peerwork_submission';
     }
 
     public static function get_name() {
-        return get_string('eventsubmission_files_deleted', 'mod_peerassessment');
+        return get_string('eventsubmission_files_deleted', 'mod_peerwork');
     }
 
     public function get_url() {
         return new \moodle_url(
-            '/mod/peerassessment/view.php',
+            '/mod/peerwork/view.php',
             array(
                 'id' => $this->contextinstanceid
                 )
@@ -65,7 +65,7 @@ class submission_files_deleted extends \core\event\base {
 
     public function get_description() {
         $descriptionstring = "The user with id '$this->userid' deleted {$this->other['filedeletedcount']} file(s)." .
-            "in the peerassessment submission with id " .
+            "in the peerwork submission with id " .
             "'{$this->objectid}' <br/>" .
             " {$this->other['deletedlist']} ";
 

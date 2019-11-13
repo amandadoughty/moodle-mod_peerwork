@@ -11,7 +11,7 @@
 
 class WebPAAlgorithm {
     
-    protected $peerassessment;
+    protected $peerwork;
     protected $group;    
     static protected $intermediate_grades = array();   // [memberid] -> grade
     static protected $grades = array();                // [memberid] -> final awarded grade of modifier and weighting
@@ -25,10 +25,10 @@ class WebPAAlgorithm {
      *
      * @return  object  A new instance of this class.
      */
-    public function __construct($peerassessment, $group) {
+    public function __construct($peerwork, $group) {
         
 
-        $this-> peerassessment = $peerassessment;
+        $this-> peerwork = $peerwork;
         $this-> group = $group;
         
         // TODO if these have changed, mark the calculationdone invalid
@@ -49,10 +49,10 @@ class WebPAAlgorithm {
         if( self::$calculationdone ) { // Try and avoid recalculating grades 
             return true;
         }
-        //error_log("\n\n\npeerassessment WebPAAlgorithm calculating for group ..." . $this->group->name );
+        //error_log("\n\n\npeerwork WebPAAlgorithm calculating for group ..." . $this->group->name );
 
         // Get details of the submission, we can only give grades if the tutor has provided a grade. 
-        $submission = $DB->get_record('peerassessment_submission', array('assignment' => $this->peerassessment->id, 'groupid' => $this->group->id));
+        $submission = $DB->get_record('peerwork_submission', array('assignment' => $this->peerwork->id, 'groupid' => $this->group->id));
         if (empty($submission) || !isset($submission->grade) ) {
             return false;
         }
@@ -88,7 +88,7 @@ class WebPAAlgorithm {
         $members = groups_get_members($this->group->id); // Groups API
         $_calc_group_submitters = array();  // Count which members if this group submitted grades to their peers.
         foreach ($members as $member) {
-            $awarded = peerassessment_grade_by_user($this->peerassessment, $member, $members); // array of grades this member awarded to others
+            $awarded = peerwork_grade_by_user($this->peerwork, $member, $members); // array of grades this member awarded to others
             //error_log("member " . $member->id . " awarded " .  print_r($awarded,true));
             
             $total = 0;
@@ -121,7 +121,7 @@ class WebPAAlgorithm {
         $nonpa_group_mark = 0;//( (100-$this->_params['weighting']) /100 ) * $group_mark;
         
         error_log( $this->group->name  . " multifactor=$multi_factor  num_members=$num_members  num_submitted=$num_submitted" );
-        error_log("peerassessment WebPAAlgorithm  group_member_frac_scores_awarded=" . print_r($group_member_frac_scores_awarded,true) );
+        error_log("peerwork WebPAAlgorithm  group_member_frac_scores_awarded=" . print_r($group_member_frac_scores_awarded,true) );
        
         /* (5)
          * Get the Web-PA score = total fractional score awarded to a member * multiplication-factor
@@ -135,7 +135,7 @@ class WebPAAlgorithm {
             }
         }
         array_walk(self::$calc_total_marks_awarded, function(&$item1, $key, $prefix) { $item1 *= $prefix; }, $multi_factor );
-        error_log("peerassessment WebPAAlgorithm  calc_total_marks_awarded=" . print_r(self::$calc_total_marks_awarded,true) );
+        error_log("peerwork WebPAAlgorithm  calc_total_marks_awarded=" . print_r(self::$calc_total_marks_awarded,true) );
         
         /* (6)
          * Get the member's intermediate grade = Web-PA score * weighted-group-mark   (does not include penalties)
@@ -160,7 +160,7 @@ class WebPAAlgorithm {
      * @return float 
      */
     public function getGrade(stdClass $member) {
-        //error_log("peerassessment getGrade final grade for member= " . print_r($member->username,true) . " = " . self::$grades[$member->id]);
+        //error_log("peerwork getGrade final grade for member= " . print_r($member->username,true) . " = " . self::$grades[$member->id]);
         return self::$grades[$member->id];
     }
     

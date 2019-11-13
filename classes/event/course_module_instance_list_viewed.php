@@ -17,19 +17,19 @@
 /**
  * The course_module__instance_list_viewed event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_peerassessment course module instance list viewed event class.
+ * The mod_peerwork course module instance list viewed event class.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @since      Moodle 2.8
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

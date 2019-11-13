@@ -17,11 +17,11 @@
 /**
  * The submission_exported event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
 /**
@@ -43,22 +43,22 @@ class submission_exported extends \core\event\base {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_OTHER;
-        $this->data['objecttable'] = 'peerassessment_submission';
+        $this->data['objecttable'] = 'peerwork_submission';
     }
 
     public static function get_name() {
-        return get_string('eventsubmission_exported', 'mod_peerassessment');
+        return get_string('eventsubmission_exported', 'mod_peerwork');
     }
 
     public function get_description() {
         return "The user with id '{$this->userid}' exported the submissions for the " .
             "group with id '{$this->other['groupid']}' in the " .
-            "'peerassessment' activity with course module id '{$this->contextinstanceid}'.";
+            "'peerwork' activity with course module id '{$this->contextinstanceid}'.";
     }
 
     public function get_url() {
         return new \moodle_url(
-            '/mod/peerassessment/export.php',
+            '/mod/peerwork/export.php',
             array(
                 'id' => $this->contextinstanceid,
                 'groupid' => $this->other['groupid']

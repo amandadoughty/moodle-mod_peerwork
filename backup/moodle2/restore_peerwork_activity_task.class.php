@@ -15,16 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 // Because it exists (must).
-require_once($CFG->dirroot . '/mod/peerassessment/backup/moodle2/restore_peerassessment_stepslib.php');
+require_once($CFG->dirroot . '/mod/peerwork/backup/moodle2/restore_peerwork_stepslib.php');
 
-class restore_peerassessment_activity_task extends restore_activity_task
+class restore_peerwork_activity_task extends restore_activity_task
 {
 
     /**
@@ -38,8 +37,8 @@ class restore_peerassessment_activity_task extends restore_activity_task
      * Define (add) particular steps this activity can have
      */
     protected function define_my_steps() {
-        // peerassessment only has one structure step.
-        $this->add_step(new restore_peerassessment_activity_structure_step('peerassessment_structure', 'peerassessment.xml'));
+        // peerwork only has one structure step.
+        $this->add_step(new restore_peerwork_activity_structure_step('peerwork_structure', 'peerwork.xml'));
     }
 
     /**
@@ -49,7 +48,7 @@ class restore_peerassessment_activity_task extends restore_activity_task
     static public function define_decode_contents() {
         $contents = array();
 
-        $contents[] = new restore_decode_content('peerassessment', array('intro'), 'peerassessment');
+        $contents[] = new restore_decode_content('peerwork', array('intro'), 'peerwork');
 
         return $contents;
     }
@@ -61,8 +60,8 @@ class restore_peerassessment_activity_task extends restore_activity_task
     static public function define_decode_rules() {
         $rules = array();
 
-        // $rules[] = new restore_decode_rule('peerassessmentVIEWBYID', '/mod/peerassessment/view.php?id=$1', 'course_module');
-        // $rules[] = new restore_decode_rule('peerassessmentINDEX', '/mod/peerassessment/index.php?id=$1', 'course');
+        // $rules[] = new restore_decode_rule('peerworkVIEWBYID', '/mod/peerwork/view.php?id=$1', 'course_module');
+        // $rules[] = new restore_decode_rule('peerworkINDEX', '/mod/peerwork/index.php?id=$1', 'course');
 
         return $rules;
 
@@ -71,18 +70,18 @@ class restore_peerassessment_activity_task extends restore_activity_task
     /**
      * Define the restore log rules that will be applied
      * by the {@link restore_logs_processor} when restoring
-     * peerassessment logs. It must return one array
+     * peerwork logs. It must return one array
      * of {@link restore_log_rule} objects
      */
     static public function define_restore_log_rules() {
         $rules = array();
 
-        // $rules[] = new restore_log_rule('peerassessment', 'add', 'view.php?id={course_module}', '{peerassessment}');
-        // $rules[] = new restore_log_rule('peerassessment', 'update', 'view.php?id={course_module}', '{peerassessment}');
-        // $rules[] = new restore_log_rule('peerassessment', 'view', 'view.php?id={course_module}', '{peerassessment}');
-        // $rules[] = new restore_log_rule('peerassessment', 'choose', 'view.php?id={course_module}', '{peerassessment}');
-        // $rules[] = new restore_log_rule('peerassessment', 'choose again', 'view.php?id={course_module}', '{peerassessment}');
-        // $rules[] = new restore_log_rule('peerassessment', 'report', 'report.php?id={course_module}', '{peerassessment}');
+        // $rules[] = new restore_log_rule('peerwork', 'add', 'view.php?id={course_module}', '{peerwork}');
+        // $rules[] = new restore_log_rule('peerwork', 'update', 'view.php?id={course_module}', '{peerwork}');
+        // $rules[] = new restore_log_rule('peerwork', 'view', 'view.php?id={course_module}', '{peerwork}');
+        // $rules[] = new restore_log_rule('peerwork', 'choose', 'view.php?id={course_module}', '{peerwork}');
+        // $rules[] = new restore_log_rule('peerwork', 'choose again', 'view.php?id={course_module}', '{peerwork}');
+        // $rules[] = new restore_log_rule('peerwork', 'report', 'report.php?id={course_module}', '{peerwork}');
 
         return $rules;
     }
@@ -101,9 +100,9 @@ class restore_peerassessment_activity_task extends restore_activity_task
         $rules = array();
 
         // Fix old wrong uses (missing extension)
-        // $rules[] = new restore_log_rule('peerassessment', 'view all', 'index?id={course}', null,
+        // $rules[] = new restore_log_rule('peerwork', 'view all', 'index?id={course}', null,
         //     null, null, 'index.php?id={course}');
-        // $rules[] = new restore_log_rule('peerassessment', 'view all', 'index.php?id={course}', null);
+        // $rules[] = new restore_log_rule('peerwork', 'view all', 'index.php?id={course}', null);
 
         return $rules;
     }

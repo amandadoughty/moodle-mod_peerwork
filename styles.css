@@ -1,17 +1,17 @@
-#mod-peerassessment-summary-table .singlebutton {
+#mod-peerwork-summary-table .singlebutton {
     display: inline-block;
     margin-right: 4px;
 }
 
-#mod-peerassessment-summary-table .singlebutton input {
+#mod-peerwork-summary-table .singlebutton input {
     width: 70px;
 }
 
-#mod-peerassessment-summary-table td {
+#mod-peerwork-summary-table td {
 	padding: 0px 20px;
 }
 
-#mod-peerassessment-summary-table th {
+#mod-peerwork-summary-table th {
 	padding: 10px 20px;
 	text-align: left;
 }
@@ -20,12 +20,12 @@
 
 /** classes **/
 /** vertical 'gap' into which the rotated text fits **/
-div.form-group[data-groupname="mod_peerassessment_scaleheader"] {
+div.form-group[data-groupname="mod_peerwork_scaleheader"] {
 		/** height: 100px; **/
 }
 
 /** rotated text of the scale items , keep width same as  div.form-group height (so it fits when rotated) and radio button width **/
-div.form-group[data-groupname="mod_peerassessment_scaleheader"] div.mod_peerassessment_scaleheader {
+div.form-group[data-groupname="mod_peerwork_scaleheader"] div.mod_peerwork_scaleheader {
 		background-color: orange;
 		float: left;
 		/**
@@ -46,7 +46,7 @@ div[data-fieldtype="group"] label.form-check-label {
 		width:100px;
 }
 
-div.mod_peerassessment_criteriaheader {
+div.mod_peerwork_criteriaheader {
 		background-color: aqua;
 		font-size: large;
 				

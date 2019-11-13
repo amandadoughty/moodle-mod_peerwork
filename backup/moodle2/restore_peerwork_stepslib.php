@@ -15,13 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class restore_peerassessment_activity_structure_step extends restore_activity_structure_step
+class restore_peerwork_activity_structure_step extends restore_activity_structure_step
 {
 
     protected function define_structure() {
@@ -29,17 +28,17 @@ class restore_peerassessment_activity_structure_step extends restore_activity_st
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
 
-        $paths[] = new restore_path_element('peerassessment', '/activity/peerassessment');
+        $paths[] = new restore_path_element('peerwork', '/activity/peerwork');
         if ($userinfo) {
-            $paths[] = new restore_path_element('peerassessment_peer', '/activity/peerassessment/peers/peer');
-            $paths[] = new restore_path_element('peerassessment_submission', '/activity/peerassessment/submissions/submission');
+            $paths[] = new restore_path_element('peerwork_peer', '/activity/peerwork/peers/peer');
+            $paths[] = new restore_path_element('peerwork_submission', '/activity/peerwork/submissions/submission');
         }
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
 
-    protected function process_peerassessment($data) {
+    protected function process_peerwork($data) {
         global $DB;
 
         $data = (object)$data;
@@ -58,55 +57,55 @@ class restore_peerassessment_activity_structure_step extends restore_activity_st
             $data->submissiongroupingid = 0;
         }
 
-        // insert the peerassessment record
-        $newitemid = $DB->insert_record('peerassessment', $data);
+        // insert the peerwork record
+        $newitemid = $DB->insert_record('peerwork', $data);
         // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
     }
 
-    protected function process_peerassessment_peer($data) {
+    protected function process_peerwork_peer($data) {
         global $DB;
 
         $data = (object)$data;
         $oldid = $data->id;
 
-        $data->peerassessment = $this->get_new_parentid('peerassessment');
+        $data->peerwork = $this->get_new_parentid('peerwork');
         // $data->timecreated = $this->apply_date_offset($data->timecreated);
 
         $data->groupid = $this->get_mappingid('group', $data->groupid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
         $data->gradefor = $this->get_mappingid('user', $data->gradefor);
 
-        $newitemid = $DB->insert_record('peerassessment_peers', $data);
-        // $this->set_mapping('peerassessment_peers', $oldid, $newitemid);
+        $newitemid = $DB->insert_record('peerwork_peers', $data);
+        // $this->set_mapping('peerwork_peers', $oldid, $newitemid);
     }
 
-    protected function process_peerassessment_submission($data) {
+    protected function process_peerwork_submission($data) {
         global $DB;
 
         $data = (object)$data;
 
         $this->set_mapping('group_map', $data->groupid,  $this->get_mappingid('group', $data->groupid), true);
 
-        $data->assignment = $this->get_new_parentid('peerassessment');
+        $data->assignment = $this->get_new_parentid('peerwork');
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->groupid = $this->get_mappingid('group', $data->groupid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
 
-        // $data->optionid = $this->get_mappingid('peerassessment_option', $data->optionid);
+        // $data->optionid = $this->get_mappingid('peerwork_option', $data->optionid);
         // $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        $newitemid = $DB->insert_record('peerassessment_submission', $data);
+        $newitemid = $DB->insert_record('peerwork_submission', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder).
     }
 
     protected function after_execute() {
-        // Add peerassessment related files, no need to match by itemname (just internally handled context).
-        $this->add_related_files('mod_peerassessment', 'intro', null);
+        // Add peerwork related files, no need to match by itemname (just internally handled context).
+        $this->add_related_files('mod_peerwork', 'intro', null);
 
         // Add post related files, matching by itemname = 'forum_post'.
-        $this->add_related_files('mod_peerassessment', 'submission', 'group_map');
-        $this->add_related_files('mod_peerassessment', 'feedback_files', 'group_map');
+        $this->add_related_files('mod_peerwork', 'submission', 'group_map');
+        $this->add_related_files('mod_peerwork', 'feedback_files', 'group_map');
     }
 }

@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,11 +27,11 @@ $string['modulenameplural'] = 'Peer Assessments';
 $string['modulename_help'] = 'The Peer Assessment activity is a group assignment submission combined with peer grading.<br />
 For this activity, peer grading refers to the ability for students to assess the performance/contribution of their peer group, and if enabled, themselves, in relation to a group task. The group task is the file(s) submission component of the activity. The peer grading consists of a grade out of five and written comments on each student\'s performance.<br />
 Final overall grades for each individual student are then calculated from the differential of their individual and group peer grade averages, multiplied by five, and then added to or subtracted from the overall group submission grade (out of 100).';
-$string['peerassessment:addinstance'] = 'Add a Peerassessment activity';
-$string['peerassessmentfieldset'] = 'Peer assessment settings';
-$string['peerassessmentname'] = 'Peer assessment';
-$string['peerassessmentname_help'] = '<strong>Description</strong><br />In the description field you can add your peer assessment instructions. We advise that this should include all details of the assignment (word count, number of files and accepted file types) and guidance around your peer grading criteria (explain range and what to look for). You can also add links to module handbooks with reference to assessment guidelines. We also recommend including information on the support available to students should they have any problems submitting their group task.';
-$string['peerassessment'] = 'Peer Assessment';
+$string['peerwork:addinstance'] = 'Add a peerwork activity';
+$string['peerworkfieldset'] = 'Peer assessment settings';
+$string['peerworkname'] = 'Peer assessment';
+$string['peerworkname_help'] = '<strong>Description</strong><br />In the description field you can add your peer assessment instructions. We advise that this should include all details of the assignment (word count, number of files and accepted file types) and guidance around your peer grading criteria (explain range and what to look for). You can also add links to module handbooks with reference to assessment guidelines. We also recommend including information on the support available to students should they have any problems submitting their group task.';
+$string['peerwork'] = 'Peer Assessment';
 $string['pluginadministration'] = 'Peer Assessment administration';
 $string['pluginname'] = 'Peer Assessment';
 $string['grade'] = 'Grade';
@@ -63,7 +62,7 @@ $string['setup.calculationtype_help'] = 'Choose the formula used to calculate a 
 //Outlier includes a standard deviation moderation.';
 
 
-//$string['defaultcalculationtype'] = 'Default Calculation Type';
+$string['defaultcalculationtype'] = 'Default Calculation Type';
 
 $string['standard_deviation'] = 'Maximum standard deviation to not be classed an outlier';
 $string['standard_deviation_help'] = 'Average grades more than this standard deviation will be classed outliers and will be moderated.';
@@ -99,9 +98,9 @@ $string['teacherfeedback'] = 'Grader feedback';
 $string['teacherfeedback_help'] = 'This is the feedback given by the grader.';
 $string['latesubmissionsubject'] = 'Late submission';
 $string['latesubmissiontext'] = 'Late submission have been submitted in {$a->name} by {$a->user}.';
-$string['peerassessment:grade'] = 'Grade assignments and peer grades';
-$string['peerassessment:submit'] = 'Submit peer grades';
-$string['peerassessment:view'] = 'View peer assessment content';
+$string['peerwork:grade'] = 'Grade assignments and peer grades';
+$string['peerwork:submit'] = 'Submit peer grades';
+$string['peerwork:view'] = 'View peer assessment content';
 // $string['teamsubmission'] = 'Students submit in groups';
 // $string['teamsubmission_help'] = 'If enabled students will be divided into groups based on the default set of groups or a custom grouping. A group submission will be shared among group members and all members of the group will see each others changes to the submission.';
 
@@ -142,48 +141,48 @@ $string['downloadallsubmissions'] = 'Download all submissions';
 
 
 /*** EVENTS ***/
-$string['eventsubmission_viewed'] = 'peerassessment view submit assignment form';
-$string['eventsubmission_created'] = 'peerassessment submission created';
-$string['eventsubmission_updated'] = 'peerassessment submission updated';
-$string['eventsubmission_files_uploaded'] = 'peerassessment file upload';
-$string['eventsubmission_files_deleted'] = 'peerassessment file delete';
-$string['eventpeer_grade_created'] = 'peerassessment peer grade';
-$string['eventpeer_feedback_created'] = 'peerassessment peer feedback';
-$string['eventassessable_submitted'] = 'peerassessment submit';
-$string['eventsubmission_grade_form_viewed'] = 'peerassessment view grading form';
-$string['eventsubmission_graded'] = 'peerassessment grade';
-$string['eventsubmissions_downloaded'] = 'peerassessment download all';
-$string['eventsubmission_exported'] = 'peerassessment export';
-$string['eventsubmissions_exported'] = 'peerassessment export all';
+$string['eventsubmission_viewed'] = 'peerwork view submit assignment form';
+$string['eventsubmission_created'] = 'peerwork submission created';
+$string['eventsubmission_updated'] = 'peerwork submission updated';
+$string['eventsubmission_files_uploaded'] = 'peerwork file upload';
+$string['eventsubmission_files_deleted'] = 'peerwork file delete';
+$string['eventpeer_grade_created'] = 'peerwork peer grade';
+$string['eventpeer_feedback_created'] = 'peerwork peer feedback';
+$string['eventassessable_submitted'] = 'peerwork submit';
+$string['eventsubmission_grade_form_viewed'] = 'peerwork view grading form';
+$string['eventsubmission_graded'] = 'peerwork grade';
+$string['eventsubmissions_downloaded'] = 'peerwork download all';
+$string['eventsubmission_exported'] = 'peerwork export';
+$string['eventsubmissions_exported'] = 'peerwork export all';
 
 $string['multiplegroups'] = 'The following people belong to more than one group: {$a}. Their grades have not been updated.';
 $string['messageprovider:late_submission'] = 'Late submission';
 
-$string['privacy:metadata:peerassessment_submission'] = 'Information about the group submissions made in a Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:id'] = 'The ID of the user who has made a submission in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:assignment'] = 'The ID of the Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:userid'] = 'The ID of the user who has created a Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:timecreated'] = 'The time that the submission was submitted in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:timemodified'] = 'If the submission has been modified. The time that the submission was modified in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:status'] = 'Not used';
-$string['privacy:metadata:peerassessment_submission:groupid'] = 'The ID of the group who has made a submission in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:attemptnumber'] = 'The ID of the group who has made a submission in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:grade'] = 'The grade that the group submission was given by the lecturer in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:feedbacktext'] = 'The feedback text given to the group given by the lecturer who graded the group submission in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:feedbackformat'] = 'TRUE or NULL';
-$string['privacy:metadata:peerassessment_submission:timegraded'] = 'The time that the group submission was graded in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:gradedby'] = 'The ID of the lecturer who graded the group submission in Peer Assessment';
-$string['privacy:metadata:peerassessment_submission:finalgrade'] = 'Not used';
-$string['privacy:metadata:peerassessment_submission:groupaverage'] = 'Not used';
-$string['privacy:metadata:peerassessment_submission:individualaverage'] = 'Not used';
+$string['privacy:metadata:peerwork_submission'] = 'Information about the group submissions made in a Peer Assessment';
+$string['privacy:metadata:peerwork_submission:id'] = 'The ID of the user who has made a submission in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:assignment'] = 'The ID of the Peer Assessment';
+$string['privacy:metadata:peerwork_submission:userid'] = 'The ID of the user who has created a Peer Assessment';
+$string['privacy:metadata:peerwork_submission:timecreated'] = 'The time that the submission was submitted in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:timemodified'] = 'If the submission has been modified. The time that the submission was modified in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:status'] = 'Not used';
+$string['privacy:metadata:peerwork_submission:groupid'] = 'The ID of the group who has made a submission in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:attemptnumber'] = 'The ID of the group who has made a submission in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:grade'] = 'The grade that the group submission was given by the lecturer in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:feedbacktext'] = 'The feedback text given to the group given by the lecturer who graded the group submission in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:feedbackformat'] = 'TRUE or NULL';
+$string['privacy:metadata:peerwork_submission:timegraded'] = 'The time that the group submission was graded in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:gradedby'] = 'The ID of the lecturer who graded the group submission in Peer Assessment';
+$string['privacy:metadata:peerwork_submission:finalgrade'] = 'Not used';
+$string['privacy:metadata:peerwork_submission:groupaverage'] = 'Not used';
+$string['privacy:metadata:peerwork_submission:individualaverage'] = 'Not used';
 
-$string['privacy:metadata:peerassessment_peers'] = 'Information about the peer grades and feedback given in a Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:id'] = 'The ID of the feedback in Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:peerassessment'] = 'The ID of the Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:groupid'] = 'The ID of the group who has made a submission in Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:grade'] = 'The grade given to a group member by a group peer in Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:groupid'] = 'The ID of the group who has submitted in Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:gradedby'] = 'The ID of the user who has graded a peer in Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:gradefor'] = 'The ID of the user who has been graded by a peer in Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:feedback'] = 'The feedback given to a group member by a group peer in Peer Assessment';
-$string['privacy:metadata:peerassessment_peers:timecreated'] = 'The time that the submission was submitted in Peer Assessment';
+$string['privacy:metadata:peerwork_peers'] = 'Information about the peer grades and feedback given in a Peer Assessment';
+$string['privacy:metadata:peerwork_peers:id'] = 'The ID of the feedback in Peer Assessment';
+$string['privacy:metadata:peerwork_peers:peerwork'] = 'The ID of the Peer Assessment';
+$string['privacy:metadata:peerwork_peers:groupid'] = 'The ID of the group who has made a submission in Peer Assessment';
+$string['privacy:metadata:peerwork_peers:grade'] = 'The grade given to a group member by a group peer in Peer Assessment';
+$string['privacy:metadata:peerwork_peers:groupid'] = 'The ID of the group who has submitted in Peer Assessment';
+$string['privacy:metadata:peerwork_peers:gradedby'] = 'The ID of the user who has graded a peer in Peer Assessment';
+$string['privacy:metadata:peerwork_peers:gradefor'] = 'The ID of the user who has been graded by a peer in Peer Assessment';
+$string['privacy:metadata:peerwork_peers:feedback'] = 'The feedback given to a group member by a group peer in Peer Assessment';
+$string['privacy:metadata:peerwork_peers:timecreated'] = 'The time that the submission was submitted in Peer Assessment';

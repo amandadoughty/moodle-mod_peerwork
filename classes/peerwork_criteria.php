@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2018 Coventry University
  * @author     Kevin Moore <ac4581@coventry.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,37 +29,37 @@ defined('MOODLE_INTERNAL') || die();
  * Assessment criteria are specific points to be considered when a peer marks a submission and consist of
  * a description, an expected type of grade (likert, split100,...) for the students to give to each other and some feedback.
  * 
- * Criteria are held in the $tablename=peerassessment_criteria table:-
+ * Criteria are held in the $tablename=peerwork_criteria table:-
  *  descriptionformat: {0=moodle autoformat,1=editor, 2=plain text,3=HTML, 4=markdown}
  */
-class peerassessment_criteria  {
+class peerwork_criteria  {
 
 	/**
 	 * DB table these criteria are stored in.
 	 */
-    protected static $tablename = 'peerassessment_criteria';
-    protected static $tablename2 = 'peerassessment_presets';
+    protected static $tablename = 'peerwork_criteria';
+    protected static $tablename2 = 'peerwork_presets';
     /**
      * The criteria are numbered 0 to $numcriteria-1
      * @var integer
      */
     protected static $numcriteria = 3; // HARDCODE for now
     
-    protected $id; // the peereassessment id field from peerassessment table, used to lookup into peerassessment_criteria
+    protected $id; // the peereassessment id field from peerwork table, used to lookup into peerwork_criteria
     
-    protected static $langkey = 'peerassessment';
+    protected static $langkey = 'peerwork';
     
-    function __construct($peerassessmentid) {
-        $this->id = $peerassessmentid;
+    function __construct($peerworkid) {
+        $this->id = (int) $peerworkid;
     }
     
     /**
      * Get the criteria created for this peerassesment, making sure we have the array in field=sort order.
-     * @return DB records from  peerassessment_criteria, one record per criteria on this assessment.
+     * @return DB records from  peerwork_criteria, one record per criteria on this assessment.
      */
     public function getCriteria() {
         global $DB;
-        $records = $DB ->get_records(self::$tablename, array('peerassessmentid'=>$this->id ) );
+        $records = $DB ->get_records(self::$tablename, array('peerworkid'=>$this->id ) );
 
         // return in field=sort order, using a php array sorting function
         uasort($records, function($a, $b) { if ($a->sort == $b->sort) {return 0;} return ($a->sort < $b->sort) ? -1 : 1; } );        
@@ -69,7 +68,7 @@ class peerassessment_criteria  {
     
     /**
      * Get the set of preset criteria, making sure we have the array in field=sort order.
-     * @return DB records from  peerassessment_preset, one record per criteria on this assessment.
+     * @return DB records from  peerwork_preset, one record per criteria on this assessment.
      */
     public function getPresetCriteria($setid=0) {
     	global $DB;
@@ -96,7 +95,7 @@ class peerassessment_criteria  {
      */
     public function definition( &$mform ) {
                
-        $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerassessment'));
+        $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerwork'));
         $mform->addElement('hidden', 'norepeats', self::$numcriteria);
         $mform->setType('norepeats', PARAM_INT);
         $mform->setConstants(array('norepeats' => self::$numcriteria));     // value not to be overridden by submitted value
@@ -118,23 +117,23 @@ class peerassessment_criteria  {
         
         for ($i = 0; $i < self::$numcriteria; $i++) {
         
-            //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerassessment', $i+1)); // KM doesnt nest into a subheading
+            //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerwork', $i+1)); // KM doesnt nest into a subheading
 //             $field = 'dimension'.$i;
 //             $mform->addElement('static', $field, '', get_string('assessmentcriteria:static', self::$langkey, $i+1) );
 
 //             $mform->addElement('hidden', 'criteria_sort'.$i);
 //             $mform->setType('criteria_sort'.$i, PARAM_INT);
         
-            $field = peerassessment_criteria::makefield('E',$i);
+            $field = peerwork_criteria::makefield('E',$i);
             $mform->addElement('editor', $field,
                 get_string('assessmentcriteria:description', self::$langkey, $i+1), '', $descriptionopts);
             $mform->setType($field, PARAM_RAW);
             $mform->addHelpButton($field,'assessmentcriteria:description', self::$langkey);
         
             // Add "Scoring Type" which allows choice of how to score this criteria.
-            // This becomes the 'grade' field which decides if its a scale or point in  peerassessment_criteria table.
+            // This becomes the 'grade' field which decides if its a scale or point in  peerwork_criteria table.
             // Currently only consider using scales. @see set_data() 
-            $field = peerassessment_criteria::makefield('T',$i);
+            $field = peerwork_criteria::makefield('T',$i);
             $mform->addElement('hidden', $field );
             $mform->setType($field, PARAM_ALPHANUMEXT );
             $mform->setDefault($field, 'scale');
@@ -146,7 +145,7 @@ class peerassessment_criteria  {
             	}
             }
            
-            $field = peerassessment_criteria::makefield('S',$i);
+            $field = peerwork_criteria::makefield('S',$i);
             $mform->addElement('select', $field, get_string('assessmentcriteria:scoretype',self::$langkey), $scales );
             $mform->setType($field, PARAM_INT);
             $mform->addHelpButton($field,'assessmentcriteria:scoretype', self::$langkey);
@@ -162,7 +161,7 @@ class peerassessment_criteria  {
 
             // For now all the criteria are weighted equally, future may allow weightings. currently hidden.
             // This becomes 'weight' in peerassesment_criteria table.
-            $field =  peerassessment_criteria::makefield('W',$i);
+            $field =  peerwork_criteria::makefield('W',$i);
             $mform->addElement('hidden', $field);
             $mform->setDefault($field, 1);
             $mform->setType($field, PARAM_INT);
@@ -184,24 +183,24 @@ class peerassessment_criteria  {
         // so now we have some criteria records
         foreach ($records as $id => $record) {
             
-            //error_log( "found criteria record for peerassessment#$id"  . print_r($record, true) );
+            //error_log( "found criteria record for peerwork#$id"  . print_r($record, true) );
         	$i = $record ->sort;
 
-        	$data ->{ peerassessment_criteria::makefield('E',$i) } = array('text'=>$record->description, 'format'=> $record->descriptionformat);
+        	$data ->{ peerwork_criteria::makefield('E',$i) } = array('text'=>$record->description, 'format'=> $record->descriptionformat);
 
             if( $record->grade == 0 ) {
                 // If grade equals 0, 'None' then no grading is possible for this dimension, just comments
-            	$data ->{ peerassessment_criteria::makefield('S',$i) } = 0;
+            	$data ->{ peerwork_criteria::makefield('S',$i) } = 0;
             } else if ( $record->grade < 0 ) { 
                 // -ve values in table signify using a scale for the criteria; @see moodle db table 'scale'
-            	$data ->{ peerassessment_criteria::makefield('S',$i) } = 0 - $record ->grade;	// Needs to be back to a positive index for chosing from select dropdown.
-                $data ->{ peerassessment_criteria::makefield('T',$i) } = 'scale';
+            	$data ->{ peerwork_criteria::makefield('S',$i) } = 0 - $record ->grade;	// Needs to be back to a positive index for chosing from select dropdown.
+                $data ->{ peerwork_criteria::makefield('T',$i) } = 'scale';
             } else {
                 // So we are using a points from 0 ->grade
-            	$data ->{ peerassessment_criteria::makefield('S',$i) } = $record ->grade;
+            	$data ->{ peerwork_criteria::makefield('S',$i) } = $record ->grade;
             }
             
-            $data ->{ peerassessment_criteria::makefield('W',$i) } = $record ->weight;
+            $data ->{ peerwork_criteria::makefield('W',$i) } = $record ->weight;
         }
     }
 
@@ -225,20 +224,20 @@ class peerassessment_criteria  {
     
     /**
      * Settings
-     * Called automatically from lib.php::peerassessment_update_instance() and peerassessment_add_instance() when the settings form is saved.
+     * Called automatically from lib.php::peerwork_update_instance() and peerwork_add_instance() when the settings form is saved.
      * The main settings will already be saved, this intercepts and saves the criteria into self::$tablename
      * 
-     * @param stdClass $peerassessment
+     * @param stdClass $peerwork
      * @return boolean
      */
-    public function update_instance(stdClass $peerassessment) {
+    public function update_instance(stdClass $peerwork) {
         global $DB;
         
-        //error_log("starting to update_instance criteria with data " . print_r($peerassessment,true));
+        //error_log("starting to update_instance criteria with data " . print_r($peerwork,true));
         
-        // Get the existing (if any) criteria that are associated with this peerassessment indexed by 'id' field
+        // Get the existing (if any) criteria that are associated with this peerwork indexed by 'id' field
         // and update.
-        $records = $DB->get_records( self::$tablename, array('peerassessmentid'=>''.$peerassessment->id ) );
+        $records = $DB->get_records( self::$tablename, array('peerworkid'=>''.$peerwork->id ) );
         // error_log("update_instance existing records= " . print_r($records,true) );
 
         $track = range(0, self::$numcriteria-1);        
@@ -246,12 +245,12 @@ class peerassessment_criteria  {
         foreach( $records as $record ) { // Update records that already exist in the DB.
             
         	$i = $record ->sort; 
-        	$f = peerassessment_criteria::makefield('E',$i);
-            $record ->description = $peerassessment ->{$f}['text'];
-            $record ->descriptionformat = $peerassessment ->{$f}['format'];
-            $record ->grade = $this ->set_grade_for_db( $peerassessment ->{ peerassessment_criteria::makefield('T',$i) },
-            											$peerassessment ->{ peerassessment_criteria::makefield('S',$i) } );
-            $record ->weight = $peerassessment ->{ peerassessment_criteria::makefield('W',$i) };
+        	$f = peerwork_criteria::makefield('E',$i);
+            $record ->description = $peerwork ->{$f}['text'];
+            $record ->descriptionformat = $peerwork ->{$f}['format'];
+            $record ->grade = $this ->set_grade_for_db( $peerwork ->{ peerwork_criteria::makefield('T',$i) },
+            											$peerwork ->{ peerwork_criteria::makefield('S',$i) } );
+            $record ->weight = $peerwork ->{ peerwork_criteria::makefield('W',$i) };
             if( ! $DB->update_record(self::$tablename, $record) ) {
                 return false;
             }            
@@ -262,18 +261,18 @@ class peerassessment_criteria  {
             $transaction = $DB->start_delegated_transaction();
             
             foreach( array_keys($track) as $i) {
-            	if( !empty( $peerassessment ->{ peerassessment_criteria::makefield('E',$i) }['text'] ) ) {
-                    //error_log( "adding settings $i " . $peerassessment ->{'criteria_sort'.$i.'_editor'}['text'] );
+            	if( !empty( $peerwork ->{ peerwork_criteria::makefield('E',$i) }['text'] ) ) {
+                    //error_log( "adding settings $i " . $peerwork ->{'criteria_sort'.$i.'_editor'}['text'] );
                     
                     $record= new stdClass();
-                    $record->peerassessmentid = $peerassessment->id;
+                    $record->peerworkid = $peerwork->id;
                     $record->sort = $i;
-                    $f = peerassessment_criteria::makefield('E',$i);
-                    $record->description = $peerassessment ->{$f}['text'];
-                    $record->descriptionformat = $peerassessment ->{$f}['format'];
-                    $record->grade = $this ->set_grade_for_db( $peerassessment ->{ peerassessment_criteria::makefield('T',$i) },
-                                                               $peerassessment ->{ peerassessment_criteria::makefield('S',$i) } );
-                    $record->weight = $peerassessment ->{ peerassessment_criteria::makefield('W',$i) };
+                    $f = peerwork_criteria::makefield('E',$i);
+                    $record->description = $peerwork ->{$f}['text'];
+                    $record->descriptionformat = $peerwork ->{$f}['format'];
+                    $record->grade = $this ->set_grade_for_db( $peerwork ->{ peerwork_criteria::makefield('T',$i) },
+                                                               $peerwork ->{ peerwork_criteria::makefield('S',$i) } );
+                    $record->weight = $peerwork ->{ peerwork_criteria::makefield('W',$i) };
                     
                     $newid = $DB ->insert_record(self::$tablename,$record, true );
                     // error_log("just inserted $newid");
@@ -290,7 +289,7 @@ class peerassessment_criteria  {
     
     /**
      * Utility function to convert the type of grade ('scale'|'number') and grade integer into an integer for storage in DB.
-     * DB table peerassessment_criteria stores the type of scoring for each criteria as a number. -ve numbers means its a scale drawn from the scales table.
+     * DB table peerwork_criteria stores the type of scoring for each criteria as a number. -ve numbers means its a scale drawn from the scales table.
      * However the form will send back +ve numbers so we also look at the hidden field 'gradetype_sort' to decide how we store in the DB.
      */
     private function set_grade_for_db( $gradetype, $grade ) {
@@ -313,7 +312,7 @@ class peerassessment_criteria  {
 //     /**
 //      * Submission from student.
 //      * Add in fields to allow peers to submit their peer assessments of their peers to the marking criteria as set by tutor.
-//      * Called by mod_peerassessment_add_submission_form::definition()
+//      * Called by mod_peerwork_add_submission_form::definition()
 //      * @param unknown $mform
 //      */
 //     public function add_submission_form_definition( &$mform, $gradepeersform = array() ) {
@@ -322,7 +321,7 @@ class peerassessment_criteria  {
         
 //         // Fetch the criteria for this assessment so we know how to identify them (we need the 
 //         // 'sort' field).
-//         $records = $DB->get_records( self::$tablename, array('peerassessmentid'=>''. $this->id) );
+//         $records = $DB->get_records( self::$tablename, array('peerworkid'=>''. $this->id) );
 //         if( count($records) == 0 ) {
 //             $mform ->addElement('static', 'nocriteriamessage', '', get_string('assessmentcriteria:nocriteria', self::$langkey ) ); // "No criteria"
 //         }
@@ -335,7 +334,7 @@ class peerassessment_criteria  {
 //             $criterianumber++;
 //       //  for ($i = 0; $i < self::$numcriteria; $i++) {
         
-//             //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerassessment', $i+1)); // KM doesnt nest into a subheading
+//             //$mform->addElement('header', 'dimension'.$i, get_string('dimensionnumber', 'peerwork', $i+1)); // KM doesnt nest into a subheading
 //             $field = 'static__idx_'. $record ->sort;
 //             $mform->addElement('static', $field, '', get_string('assessmentcriteria:static', self::$langkey, $criterianumber) ); // "Criteria number 1"        
         
@@ -386,17 +385,17 @@ class peerassessment_criteria  {
 //         error_log("calling add_submission_form_set_data setdata with " . print_r($data, true)  );
         
 //         // Get fixed information about the criteria. 
-//         $criteria = $DB ->get_records(self::$tablename, array('peerassessmentid'=> $this->id) );
+//         $criteria = $DB ->get_records(self::$tablename, array('peerworkid'=> $this->id) );
         
 //         foreach ($criteria as $id => $record) {
         
-//             error_log( "found criteria record for peerassessment# " . $record->peerassessmentid . " ". print_r($record, true) );
+//             error_log( "found criteria record for peerwork# " . $record->peerworkid . " ". print_r($record, true) );
 //             $data ->{'description__idx_'. $record ->sort . '_editor'} = array('text'=>$record->description, 'format'=> $record->descriptionformat);
 //         }
         
 //         // Now get all the grades and feedback for each criteria this user has already awarded to their peers.
 //         // Transfer into the $data so it populates the UI
-//         $mygrades = $DB->get_records('peerassessment_peers', array('peerassessment' => $this->id,
+//         $mygrades = $DB->get_records('peerwork_peers', array('peerwork' => $this->id,
 //             'gradedby' => $USER->id), '', 'id,sort,gradefor,feedback,grade');
         
 //         foreach( $mygrades as $grade) {

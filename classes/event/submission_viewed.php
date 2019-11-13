@@ -17,11 +17,11 @@
 /**
  * The submission_viewed event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
 /**
@@ -41,17 +41,17 @@ class submission_viewed extends \core\event\base {
     }
 
     public static function get_name() {
-        return get_string('eventsubmission_viewed', 'mod_peerassessment');
+        return get_string('eventsubmission_viewed', 'mod_peerwork');
     }
 
     public function get_description() {
-        return "The user with id '{$this->userid}'' viewed the submission form for the 'peerassessment'
+        return "The user with id '{$this->userid}'' viewed the submission form for the 'peerwork'
         activity with course module id '{$this->contextinstanceid}'.";
     }
 
     public function get_url() {
         return new \moodle_url(
-            '/mod/peerassessment/view.php',
+            '/mod/peerwork/view.php',
             array(
                 'id' => $this->contextinstanceid
                 )

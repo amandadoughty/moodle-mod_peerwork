@@ -17,17 +17,17 @@
 /**
  * The peer_grade_created event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_peerassessment submission created event class.
+ * The mod_peerwork submission created event class.
  *
  * @property-read array $other {
  *      Extra information about the event.
@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  *      - string fullname: Name of graded user.
  * }
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @since      Moodle 2.8
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -47,16 +47,16 @@ class peer_grade_created extends \core\event\base {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'peerassessment_peers';
+        $this->data['objecttable'] = 'peerwork_peers';
     }
 
     public static function get_name() {
-        return get_string('eventpeer_grade_created', 'mod_peerassessment');
+        return get_string('eventpeer_grade_created', 'mod_peerwork');
     }
 
     public function get_url() {
         return new \moodle_url(
-            '/mod/peerassessment/view.php',
+            '/mod/peerwork/view.php',
             array(
                 'id' => $this->contextinstanceid
                 )

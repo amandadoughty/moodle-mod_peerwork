@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -24,18 +23,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute peerassessment upgrade from the given old version
+ * Execute peerwork upgrade from the given old version
  *
  * @param int $oldversion
  * @return bool
  */
-function xmldb_peerassessment_upgrade($oldversion) {
+function xmldb_peerwork_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
 
-    
-    
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
