@@ -31,7 +31,7 @@ $cm = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
 
-$groupingid = $peerwork->submissiongroupingid;
+$groupingid = $cm->groupingid;
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 

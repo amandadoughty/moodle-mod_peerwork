@@ -318,7 +318,8 @@ function peerwork_update_grades(stdClass $peerwork, $userid = 0, $nullifnone = t
 
     require_once($CFG->libdir . '/gradelib.php');
 
-    $groupingid = $peerwork->submissiongroupingid;
+    $cm = get_coursemodule_from_instance('peerwork', $peerwork->id, $peerwork->course, false, MUST_EXIST);
+    $groupingid = $cm->groupingid;
     $courseid = $peerwork->course;
     $error = array();
 
@@ -326,7 +327,6 @@ function peerwork_update_grades(stdClass $peerwork, $userid = 0, $nullifnone = t
         // Get all users in a course.
         // Maybe we should take all roles with archetype student.
         $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
-        $cm = get_coursemodule_from_instance('peerwork', $peerwork->id, $peerwork->course, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         $users = get_role_users($role->id, $context, true);
     } else {
@@ -445,7 +445,8 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     }
 
     $peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
-    $groupingid = $peerwork->submissiongroupingid;
+    $cm = get_coursemodule_from_instance('peerwork', $peerwork->id, $peerwork->course, false, MUST_EXIST);
+    $groupingid = $cm->groupingid;
     $itemid = (int)array_shift($args);
     $mygroup = peerwork_get_mygroup($course->id, $USER->id, $groupingid, false);
 

@@ -48,5 +48,21 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111301, 'peerwork');
     }
 
+    if ($oldversion < 2019111302) {
+
+        // Define field submissiongroupingid to be dropped from peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('submissiongroupingid');
+
+        // Conditionally launch drop field submissiongroupingid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111302, 'peerwork');
+    }
+
+
     return true;
 }

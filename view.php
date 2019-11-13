@@ -56,7 +56,7 @@ if ($id) {
     error('You must specify a course_module ID or an instance ID');
 }
 
-$groupingid = $peerwork->submissiongroupingid;
+$groupingid = $cm->groupingid;
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 

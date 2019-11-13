@@ -44,7 +44,7 @@ $params = array(
 $event = \mod_peerwork\event\submissions_downloaded::create($params);
 $event->trigger();
 
-$allgroups = groups_get_all_groups($course->id, 0, $groupingid);
+$allgroups = groups_get_all_groups($course->id, 0, $cm->groupingid);
 $allfiles = array();
 $fs = get_file_storage();
 $zip = new zip_archive();

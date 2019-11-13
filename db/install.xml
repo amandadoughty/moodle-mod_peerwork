@@ -23,7 +23,6 @@
         <FIELD NAME="moderation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="2" SEQUENCE="false"/>
         <FIELD NAME="calculationtype" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="standard_deviation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="1.15" SEQUENCE="false"/>
-        <FIELD NAME="submissiongroupingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="A grouping id to get groups for submissions"/>
         <FIELD NAME="completiongradedpeers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether completion requires peers to be graded"/>
       </FIELDS>
       <KEYS>

@@ -50,13 +50,6 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $data->duedate = $this->apply_date_offset($data->duedate);
         $data->fromdate = $this->apply_date_offset($data->fromdate);
 
-        if (!empty($data->submissiongroupingid)) {
-            $data->submissiongroupingid = $this->get_mappingid('grouping',
-            $data->submissiongroupingid);
-        } else {
-            $data->submissiongroupingid = 0;
-        }
-
         // insert the peerwork record
         $newitemid = $DB->insert_record('peerwork', $data);
         // immediately after inserting "activity" record, call this

@@ -125,21 +125,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $pac = new peerwork_criteria( $this->current->id );
         $pac ->definition($mform);
 
-
-        //
-        // Choose which groups to be using in this peerwork
-        $mform->addElement('header', 'groupsubmissionsettings', get_string('groupsubmissionsettings', 'peerwork'));
-
-        $groupings = groups_get_all_groupings($COURSE->id);
-        $options = array();
-        foreach ($groupings as $grouping) {
-            $options[$grouping->id] = $grouping->name;
-        }
-
-        $name = get_string('submissiongroupingid', 'peerwork');
-        $mform->addElement('select', 'submissiongroupingid', $name, $options);
-        $mform->addHelpButton('submissiongroupingid', 'submissiongroupingid', 'peerwork');
-        $mform->disabledIf('submissiongroupingid', 'teamsubmission', 'eq', 0);
 // TODO Why is this been done twice??
 //         if (($this->current->id) && has_been_graded($peerwork)) {
 //             $mform->freeze('calculationtype');

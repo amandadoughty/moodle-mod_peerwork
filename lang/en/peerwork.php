@@ -123,10 +123,6 @@ $string['assessmentcriteria:nocriteria'] = 'No Criteria have been set for this a
 $string['assessmentcriteria:usepreset_help'] = 'Choose a preset to <b>overwrite</b> any existing criteria. This wont take final effect until the form is saved.';
 
 
-$string['groupsubmissionsettings'] = 'Group submission settings';
-$string['submissiongroupingid'] = 'Grouping for student groups';
-$string['submissiongroupingid_help'] = 'This is the grouping that the assignment will use to find groups for student groups. If not set - the default set of groups will be used.';
-
 $string['treat0asgrade'] = 'Treat 0 as grade';
 $string['treat0asgrade_help'] = 'If enabled, students will be able to submit 0 as a valid grade. Otherwise, 0 means "not graded" and is not used for calculation';
 $string['userswhodidnotsubmitbefore'] = 'Users who still need to submit: {$a}';
