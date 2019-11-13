@@ -33,6 +33,20 @@ function xmldb_peerwork_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    // Final return of upgrade result (true, all went good) to Moodle.
+    if ($oldversion < 2019111301) {
+
+        // Define field completiongradedpeers to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('completiongradedpeers', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'submissiongroupingid');
+
+        // Conditionally launch add field completiongradedpeers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111301, 'peerwork');
+    }
+
     return true;
 }

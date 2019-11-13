@@ -34,7 +34,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'notifylatesubmissions', 'allowlatesubmissions', 'treat0asgrade',
             'calculationtype', 'standard_deviation', 'moderation', 'multiplyby',
-            'submissiongroupingid'));
+            'submissiongroupingid', 'completiongradedpeers'));
 
         $peers = new backup_nested_element('peers');
 

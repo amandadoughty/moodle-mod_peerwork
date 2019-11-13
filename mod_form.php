@@ -156,6 +156,46 @@ class mod_peerwork_mod_form extends moodleform_mod {
     }
 
     /**
+     * Add custom completion rules.
+     *
+     * @return array Of element names.
+     */
+    public function add_completion_rules() {
+        $mform =& $this->_form;
+
+        $mform->addElement('checkbox', 'completiongradedpeers', get_string('completiongradedpeers', 'mod_peerwork'),
+            get_string('completiongradedpeers_desc', 'mod_peerwork'));
+        $mform->addHelpButton('completiongradedpeers', 'completiongradedpeers', 'mod_peerwork');
+
+        return ['completiongradedpeers'];
+    }
+
+
+    /**
+     * Whether any custom completion rule is enabled.
+     *
+     * @param array $data Form data.
+     * @return bool
+     */
+    public function completion_rule_enabled($data) {
+        return !empty($data['completiongradedpeers']);
+    }
+
+    /**
+     * Modify the data from get_data.
+     *
+     * @param stdClass $data the form data to be modified.
+     */
+    public function data_postprocessing($data) {
+        parent::data_postprocessing($data);
+
+        // We can only change the values while completion is 'unlocked'.
+        if (!empty($data->completionunlocked)) {
+            $data->completiongradedpeers = (int) !empty($data->completiongradedpeers);
+        }
+    }
+
+    /**
      * Collect criteria data from the DB to initialise the form and add into $data, then pass $data on to the parent class to complete.
      * @param unknown $data incoming data is stdClass Object populated with fields => DB data
      * @return unknown

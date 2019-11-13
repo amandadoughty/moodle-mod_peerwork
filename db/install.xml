@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/peerwork/db" VERSION="20130906" COMMENT="XMLDB file for Moodlemod/peerwork"
+<XMLDB PATH="mod/peerwork/db" VERSION="20191113" COMMENT="XMLDB file for Moodlemod/peerwork"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
   <TABLES>
-    <TABLE NAME="peerwork" COMMENT="Default comment for peerassessment, please edit me" NEXT="peerwork_submission">
+    <TABLE NAME="peerwork" COMMENT="Default comment for peerassessment, please edit me">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="course"/>
-        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course peerassessment activity belongs to" PREVIOUS="id" NEXT="name"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances" PREVIOUS="course" NEXT="intro"/>
-        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the peerassessment activity" PREVIOUS="name" NEXT="introformat"/>
-        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)" PREVIOUS="intro" NEXT="timecreated"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="introformat" NEXT="timemodified"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="selfgrading"/>
-        <FIELD NAME="selfgrading" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Self-grading enabled" PREVIOUS="timemodified" NEXT="duedate"/>
-        <FIELD NAME="duedate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="selfgrading" NEXT="maxfiles"/>
-        <FIELD NAME="maxfiles" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false" PREVIOUS="duedate" NEXT="fromdate"/>
-        <FIELD NAME="fromdate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" PREVIOUS="maxfiles" NEXT="notifylatesubmissions"/>
-        <FIELD NAME="notifylatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="fromdate" NEXT="allowlatesubmissions"/>
-        <FIELD NAME="allowlatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="notifylatesubmissions" NEXT="treat0asgrade"/>
-        <FIELD NAME="treat0asgrade" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="allowlatesubmissions"/>
-        <FIELD NAME="moderation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="2" SEQUENCE="false" PREVIOUS="standard_deviation"/>
-        <FIELD NAME="calculationtype" TYPE="text" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="treat0asgrade"/>
-        <FIELD NAME="standard_deviation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="1.15" SEQUENCE="false" PREVIOUS="calculationtype"/>
-        <!-- <FIELD NAME="multiplier" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="4" SEQUENCE="false" PREVIOUS="moderation"/> -->
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course peerassessment activity belongs to"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the peerassessment activity"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="selfgrading" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Self-grading enabled"/>
+        <FIELD NAME="duedate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="maxfiles" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="fromdate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="notifylatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="allowlatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="treat0asgrade" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="moderation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="2" SEQUENCE="false"/>
+        <FIELD NAME="calculationtype" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="standard_deviation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="1.15" SEQUENCE="false"/>
         <FIELD NAME="submissiongroupingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="A grouping id to get groups for submissions"/>
+        <FIELD NAME="completiongradedpeers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether completion requires peers to be graded"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -32,46 +33,46 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="peerwork_submission" COMMENT="This table keeps information about student interactions with the mod/peerassessment." PREVIOUS="peerwork" NEXT="peerwork_peers">
+    <TABLE NAME="peerwork_submission" COMMENT="This table keeps information about student interactions with the mod/peerassessment.">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="assignment"/>
-        <FIELD NAME="assignment" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="userid"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="assignment" NEXT="timecreated"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of the first student submission to this assignment." PREVIOUS="userid" NEXT="timemodified"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this assignment submission was modified by a student." PREVIOUS="timecreated" NEXT="status"/>
-        <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The status of this assignment submission. The current statuses are DRAFT and SUBMITTED." PREVIOUS="timemodified" NEXT="groupid"/>
-        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The group id for team submissions" PREVIOUS="status" NEXT="attemptnumber"/>
-        <FIELD NAME="attemptnumber" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Used to track attempts for an assignment" PREVIOUS="groupid" NEXT="grade"/>
-        <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false" PREVIOUS="attemptnumber" NEXT="groupaverage"/>
-        <FIELD NAME="groupaverage" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade" NEXT="individualaverage"/>
-        <FIELD NAME="individualaverage" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="groupaverage" NEXT="finalgrade"/>
-        <FIELD NAME="finalgrade" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="individualaverage" NEXT="feedbacktext"/>
-        <FIELD NAME="feedbacktext" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="finalgrade" NEXT="feedbackformat"/>
-        <FIELD NAME="feedbackformat" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="feedbacktext" NEXT="timegraded"/>
-        <FIELD NAME="timegraded" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="feedbackformat" NEXT="gradedby"/>
-        <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="timegraded"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="assignment" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of the first student submission to this assignment."/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this assignment submission was modified by a student."/>
+        <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The status of this assignment submission. The current statuses are DRAFT and SUBMITTED."/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The group id for team submissions"/>
+        <FIELD NAME="attemptnumber" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Used to track attempts for an assignment"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="groupaverage" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="individualaverage" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="finalgrade" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="feedbacktext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="feedbackformat" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timegraded" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="The unique id for this assignment submission." NEXT="assignment"/>
-        <KEY NAME="assignment" TYPE="foreign" FIELDS="assignment" REFTABLE="assign" REFFIELDS="id" COMMENT="The instance of mod_assign this submission belongs to." PREVIOUS="primary"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="The unique id for this assignment submission."/>
+        <KEY NAME="assignment" TYPE="foreign" FIELDS="assignment" REFTABLE="assign" REFFIELDS="id" COMMENT="The instance of mod_assign this submission belongs to."/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" NEXT="attemptnumber"/>
-        <INDEX NAME="attemptnumber" UNIQUE="false" FIELDS="attemptnumber" PREVIOUS="userid" NEXT="uniquesubmission"/>
-        <INDEX NAME="uniquesubmission" UNIQUE="true" FIELDS="assignment, userid, groupid" PREVIOUS="attemptnumber"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="attemptnumber" UNIQUE="false" FIELDS="attemptnumber"/>
+        <INDEX NAME="uniquesubmission" UNIQUE="true" FIELDS="assignment, userid, groupid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="peerwork_peers" COMMENT="Entries for pees assessments" PREVIOUS="peerwork_submission">
+    <TABLE NAME="peerwork_peers" COMMENT="Entries for pees assessments">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="peerwork"/>
-        <FIELD NAME="peerwork" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="grade"/>
-        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="peerwork" COMMENT="Which of the criteria does this record relate to." NEXT="grade"/>
-        <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false" PREVIOUS="peerwork" NEXT="groupid"/>
-        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade" NEXT="gradedby"/>
-        <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="groupid" NEXT="gradefor"/>
-        <FIELD NAME="gradefor" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="gradedby" NEXT="feedback"/>
-        <FIELD NAME="feedback" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="gradefor" NEXT="timecreated"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of grading a peer." PREVIOUS="feedback"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="peerwork" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Which of the criteria does this record relate to."/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="gradefor" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="feedback" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of grading a peer."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -80,36 +81,34 @@
         <INDEX NAME="grade" UNIQUE="true" FIELDS="peerwork, gradedby, gradefor"/>
       </INDEXES>
     </TABLE>
-    <!--- KM added to store criteria -->
-     <TABLE NAME="peerwork_criteria" COMMENT="Defines the assessment criteria for a peerassessment">
+    <TABLE NAME="peerwork_criteria" COMMENT="Defines the assessment criteria for a peerassessment">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="peerworkid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="peer assessment ID"/>
         <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Defines the sequence order to display the criteria within the assessment form"/>
-        <FIELD NAME="description" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false" COMMENT="The description and purpose of the criteria displayed to students"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The description and purpose of the criteria displayed to students"/>
         <FIELD NAME="descriptionformat" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the description field"/>
-        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"  COMMENT="If greater than 0, then the value is maximum grade on a scale 0..grade. If lesser than 0, then its absolute value is the id of a record in scale table. If equals 0, then no grading is possible for this criteria just commenting"/>
-		<FIELD NAME="weight" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT="The weight of the criteria used in the algorithm"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If greater than 0, then the value is maximum grade on a scale 0..grade. If lesser than 0, then its absolute value is the id of a record in scale table. If equals 0, then no grading is possible for this criteria just commenting"/>
+        <FIELD NAME="weight" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="The weight of the criteria used in the algorithm"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="peerwork_fk" TYPE="foreign" FIELDS="peerworkid" REFTABLE="peerwork" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <!--  KM added table to store available criteria presets -->
-	 <TABLE NAME="peerwork_presets" COMMENT="Sets of ready made criteria">
-		<FIELDS>
-			<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-			<FIELD NAME="setid" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="Set, used to identify a coherent set of criteria"/>
-			<FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Defines the sequence order to display the criteria within the assessment form"/>
-			<FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The description and purpose of the criteria displayed to students"/>
-			<FIELD NAME="descriptionformat" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the description field"/>
-			<FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If greater than 0, then the value is maximum grade on a scale 0..grade. If lesser than 0, then its absolute value is the id of a record in scale table. If equals 0, then no grading is possible for this criteria just commenting"/>
-			<FIELD NAME="weight" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="The weight of the criteria used in the algorithm"/>
-		</FIELDS>
-		<KEYS>
-			<KEY 	NAME="primary" TYPE="primary" FIELDS="id"/>
-		</KEYS>
-	</TABLE>
+    <TABLE NAME="peerwork_presets" COMMENT="Sets of ready made criteria">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="setid" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="Set, used to identify a coherent set of criteria"/>
+        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Defines the sequence order to display the criteria within the assessment form"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The description and purpose of the criteria displayed to students"/>
+        <FIELD NAME="descriptionformat" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the description field"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If greater than 0, then the value is maximum grade on a scale 0..grade. If lesser than 0, then its absolute value is the id of a record in scale table. If equals 0, then no grading is possible for this criteria just commenting"/>
+        <FIELD NAME="weight" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="The weight of the criteria used in the algorithm"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>

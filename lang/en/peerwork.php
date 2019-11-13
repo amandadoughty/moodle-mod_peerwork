@@ -22,6 +22,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['completiongradedpeers'] = 'Require peers graded';
+$string['completiongradedpeers_desc'] = 'Students must grade all their peers';
+$string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';
 $string['modulename'] = 'Peer Assessment';
 $string['modulenameplural'] = 'Peer Assessments';
 $string['modulename_help'] = 'The Peer Assessment activity is a group assignment submission combined with peer grading.<br />

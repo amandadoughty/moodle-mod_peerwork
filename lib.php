@@ -45,6 +45,8 @@ function peerwork_supports($feature) {
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
         case FEATURE_GRADE_HAS_GRADE:
             return true;
         case FEATURE_BACKUP_MOODLE2:
@@ -71,11 +73,11 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
 
     $peerwork->timecreated = time();
     $peerwork->id = $DB->insert_record('peerwork', $peerwork);
-    
+
     // Now save all the criteria.
     $pac = new peerwork_criteria( $peerwork->id );
     $pac ->update_instance($peerwork);
-    
+
     peerwork_grade_item_update($peerwork);
 
     return $peerwork->id;
@@ -84,7 +86,7 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
 /**
  * Settings
  * Called automatically when saving peerwork setttings.
- * Updates an instance of the peerwork details in the database, 
+ * Updates an instance of the peerwork details in the database,
  * the criteria settings are added to a separate table (peerwork_criteria)
  *
  * Given an object containing all the necessary data,
@@ -94,7 +96,7 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
  * @param object $peerwork An object from the form in mod_form.php
  * @param mod_peerwork_mod_form $mform
  * @return boolean Success/Fail
- * 
+ *
  */
 function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mform = null) {
     global $DB;
@@ -102,11 +104,11 @@ function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mfo
     $peerwork->timemodified = time();
     $peerwork->id = $peerwork->instance;
     $return1 = $DB->update_record('peerwork', $peerwork);
-    
+
     // Now save all the criteria.
     $pac = new peerwork_criteria( $peerwork->id );
     $return2 = $pac ->update_instance($peerwork);
-    
+
     peerwork_update_grades($peerwork);
 
     return $return1 && $return2;
@@ -129,11 +131,33 @@ function peerwork_delete_instance($id) {
         return false;
     }
 
+    // TODO Delete from other tables too.
     // Delete any dependent records here.
-
     $DB->delete_records('peerwork', array('id' => $peerwork->id));
-    
+
     return true;
+}
+
+/**
+ * Obtains the completion state.
+ *
+ * @param object $course The course.
+ * @param object $cm The course module.
+ * @param int $userid The user ID.
+ * @param bool $type The type of comparison (COMPLETION_AND or _OR), or the default return value.
+ */
+function peerwork_get_completion_state($course, $cm, $userid, $type) {
+    global $DB;
+    $result = $type;
+
+    $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
+    if ($peerwork->completiongradedpeers) {
+        // TODO Get the actual completion state.
+        $hasgradedpeers = false;
+        $result = $type == COMPLETION_AND ? $result && $hasgradedpeers : $result || $hasgradedpeers;
+    }
+
+    return $result;
 }
 
 /**
@@ -285,7 +309,7 @@ function peerwork_grade_item_update(stdClass $peerwork, $grades = null) {
  * @param stdClass $peerwork instance object with extra cmidnumber and modname property
  * @param int $userid update grade of specific user only, 0 means all participants
  * @return void
- * 
+ *
  * TODO should this even be called if peers havent yet added submissions and grades??
  */
 function peerwork_update_grades(stdClass $peerwork, $userid = 0, $nullifnone = true) {
