@@ -65,6 +65,7 @@ class mod_peerwork_submissions_form extends moodleform {
 
         if ($this->_customdata['fileupload']) {
             $mform->addElement('header', 'peerssubmission', get_string('assignment', 'peerwork'));
+            $mform->setExpanded('peerssubmission', true);
             $mform->addElement('filemanager', 'submission', get_string('assignment', 'peerwork'),
                 null, $this->_customdata['fileoptions']);
             $mform->addHelpButton('submission', 'submission', 'peerwork');
@@ -95,9 +96,11 @@ class mod_peerwork_submissions_form extends moodleform {
         global $USER;
         $mform = $this->_form;
         $peerworkid = $this->_customdata['peerworkid'];
+        $peerwork = $this->_customdata['peerwork'];
 
         // Create a section with all the criteria.
         $mform->addElement('header', 'peerstobegraded', get_string('peers', 'peerwork'));
+        $mform->setExpanded('peerstobegraded', true);
         $peers = $this->_customdata['peers'];
 
         $scales = grade_scale::fetch_all_global();
@@ -161,9 +164,29 @@ class mod_peerwork_submissions_form extends moodleform {
             $mform->addElement('html', $html);
         }
 
+        if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
+            $mform->addElement('header', 'justificationhdr', get_string('justification', 'mod_peerwork'));
+            $mform->setExpanded('justificationhdr', true);
+
+            $notestr = 'justificationnoteshidden';
+            if ($peerwork->justification == MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON) {
+                $notestr = 'justificationnotesvisibleanon';
+            } else if ($peerwork->justification == MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON) {
+                $notestr = 'justificationnotesvisibleuser';
+            }
+            $mform->addElement('static', '', '', get_string('justificationintro', 'mod_peerwork') . ' '
+                . get_string($notestr, 'mod_peerwork'));
+
+            foreach ($peers as $peer) {
+                $fullname = fullname($peer);
+                $namedisplay = $peer->id == $USER->id ? get_string('peernameisyou', 'mod_peerwork', $fullname) : $fullname;
+                $mform->addElement('textarea', 'justifications[' . $peer->id . ']', $namedisplay, ['rows' => 2,
+                    'style' => 'width: 100%']);
+            }
+        }
+
         $this->add_action_buttons(false);
     }
-
 
     /**
      *
@@ -177,9 +200,7 @@ class mod_peerwork_submissions_form extends moodleform {
     public function set_data($data) {
         global $DB, $USER;
 
-        // Convert the stored module id into the peerwork activity.
-        $peerassess = get_coursemodule_from_id('peerwork', $this->_customdata['id']);
-        $peerworkid = $peerassess->instance;
+        $peerworkid = $this->_customdata['peerworkid'];
 
         // Get information about each criteria and grades awarded to peers and add to the form data
         $pac = new peerwork_criteria($peerworkid);
@@ -199,7 +220,39 @@ class mod_peerwork_submissions_form extends moodleform {
             }
         }
 
+        $justifications = $DB->get_records('peerwork_justification', [
+            'peerworkid' => $peerworkid,
+            'gradedby' => $USER->id
+        ]);
+        foreach ($justifications as $j) {
+            $data->{'justifications[' . $j->gradefor . ']'} = $j->justification;
+        }
+
         return parent::set_data($data);
+    }
+
+    /**
+     * Validation.
+     *
+     * @param array $data The data.
+     * @param array $files The files.
+     * @return array|void
+     */
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        $peerwork = $this->_customdata['peerwork'];
+        $peers = $this->_customdata['peers'];
+
+        if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
+            foreach ($peers as $peer) {
+                $justification = isset($data['justifications'][$peer->id]) ? $data['justifications'][$peer->id] : '';
+                if (empty(trim($justification))) {
+                    $errors['justifications[' . $peer->id . ']'] = get_string('provideajustification', 'mod_peerwork');
+                }
+            }
+        }
+
+        return $errors;
     }
 
 }

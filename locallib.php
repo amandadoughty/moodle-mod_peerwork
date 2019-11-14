@@ -944,7 +944,9 @@ function peerwork_teachers($context) {
 function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable) {
     global $USER, $DB;
 
-    // Form has been submitted, commit, display confirmation and redirect.
+    $event = \mod_peerwork\event\assessable_submitted::create(['context' => $context]);
+    $event->trigger();
+
     // Create submission record if none yet.
     if (!$submission) {
         $submission = new stdClass();
@@ -1111,6 +1113,28 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
         $event = \mod_peerwork\event\peer_grade_created::create($params);
         $event->add_record_snapshot('peerwork_peers', $peer);
         $event->trigger();
+    }
+
+    // Save the justification.
+    if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_HIDDEN) {
+        foreach ($membersgradeable as $member) {
+            $params = [
+                'peerworkid' => $peerwork->id,
+                'groupid' => $group->id,
+                'gradefor' => $member->id,
+                'gradedby' => $USER->id
+            ];
+            $record = $DB->get_record('peerwork_justification', $params);
+            if (!$record) {
+                $record = (object) $params;
+            }
+            $record->justification = isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '';
+            if (!empty($record->id)) {
+                $DB->update_record('peerwork_justification', $record);
+            } else {
+                $DB->insert_record('peerwork_justification', $record);
+            }
+        }
     }
 
     // Send email confirmation.

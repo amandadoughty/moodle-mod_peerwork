@@ -28,7 +28,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         $peerwork = $summary->peerwork;
         $isopen = peerwork_is_open($peerwork, $group->id);
         $status = $summary->status;
-        $files = $data['files'];        
+        $files = $data['files'];
         if (isset($data['outstanding'])) {
             $outstanding = $data['outstanding'];
         } else {
@@ -84,18 +84,18 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $t->data[] = $row;
         }
 
-        if( $data['maxfiles'] > 0 ) { 
-        	$fcontent = implode('<br />', $files);
-        	if( count($files) == 0 ) {
-        		$fcontent = get_string('nothingsubmitted', 'peerwork' );
-        	}
-        	
-	        $row = new html_table_row();
-	        $cell1 = new html_table_cell('File submission');
-	        $cell2 = new html_table_cell($fcontent);
-	
-	        $row->cells = array($cell1, $cell2);
-	        $t->data[] = $row;
+        if ($peerwork->maxfiles > 0 ) {
+            $fcontent = implode('<br />', $files);
+            if (count($files) == 0) {
+                $fcontent = get_string('nothingsubmitted', 'peerwork' );
+            }
+
+            $row = new html_table_row();
+            $cell1 = new html_table_cell('File submission');
+            $cell2 = new html_table_cell($fcontent);
+
+            $row->cells = array($cell1, $cell2);
+            $t->data[] = $row;
         }
 
         if (isset($data['igraded'])) {

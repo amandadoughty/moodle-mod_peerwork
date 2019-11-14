@@ -82,15 +82,15 @@ $PAGE->set_context($context);
 // If not submitted yet, and student and part of a group
 // allow for submission.
 
-// Output starts here.
-echo $OUTPUT->header();
-
-// Show mod details.
-echo $OUTPUT->heading(format_string($peerwork->name));
-echo $OUTPUT->box(format_string($peerwork->intro));
-
 
 if (has_capability('mod/peerwork:grade', $context)) {
+
+    // Output starts here.
+    echo $OUTPUT->header();
+
+    // Show mod details.
+    echo $OUTPUT->heading(format_string($peerwork->name));
+    echo $OUTPUT->box(format_string($peerwork->intro));
     /**
      *
      * Teacher output
@@ -167,11 +167,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
     $membersgradeable = peerwork_get_peers($course->id, $peerwork, $groupingid, $mygroup);
     $groupmode = groups_get_activity_groupmode($cm);
 
-    if ($groupmode) {
-        groups_get_activity_group($cm, true);
-        groups_print_activity_menu($cm, $CFG->wwwroot . '/mod/peerwork/view.php?id='.$id);
-    }
-
     // Check if already submitted.
     $submission = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id, 'groupid' => $mygroup));
 
@@ -212,6 +207,13 @@ if (has_capability('mod/peerwork:grade', $context)) {
             $data['feedback_files'] = peerwork_feedback_files($context, $group);
         }
 
+        // Output starts here.
+        echo $OUTPUT->header();
+
+        // Show mod details.
+        echo $OUTPUT->heading(format_string($peerwork->name));
+        echo $OUTPUT->box(format_string($peerwork->intro));
+
         $summary = new peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text .
             ' Not editable because: ' . $isopen->text);
         echo $output->render($summary);
@@ -226,7 +228,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
     $foptions = peerwork_get_fileoptions($peerwork);
     if (!$myassessments || $edit == true) {
 
-        $draftitemid = null;
+        $draftitemid = file_get_submitted_draft_itemid('submission');
 
         file_prepare_draft_area($draftitemid, $context->id, 'mod_peerwork', 'submission', $mygroup, $foptions);
 
@@ -243,12 +245,29 @@ if (has_capability('mod/peerwork:grade', $context)) {
         // Check if there are any files at the time of opening the form.
         $files = peerwork_submission_files($context, $group);
 
-        $mform = new mod_peerwork_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'files' => count($files),
+        $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
+        $mform = new mod_peerwork_submissions_form($url->out(false), array('id' => $id, 'files' => count($files),
             'peerworkid' => $peerwork->id, 'fileupload' => $foptions['maxfiles'] > 0, 'peers' => $membersgradeable,
-            'fileoptions' => $foptions ));
+            'fileoptions' => $foptions, 'peerwork' => $peerwork));
         $mform->set_data($entry);
-        $mform->display();
 
+        $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+        if ($mform->is_cancelled()) {
+            redirect($redirecturl);
+
+        } else if (($data = $mform->get_data())) {
+            peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable);
+            redirect(new moodle_url('view.php', array('id' => $cm->id)));
+        }
+
+        // Output starts here.
+        echo $OUTPUT->header();
+
+        // Show mod details.
+        echo $OUTPUT->heading(format_string($peerwork->name));
+        echo $OUTPUT->box(format_string($peerwork->intro));
+
+        $mform->display();
         $params = array(
             'context' => $context
         );
@@ -258,6 +277,12 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     } else {
 
+        // Output starts here.
+        echo $OUTPUT->header();
+
+        // Show mod details.
+        echo $OUTPUT->heading(format_string($peerwork->name));
+        echo $OUTPUT->box(format_string($peerwork->intro));
 
         // If graded.
         if ($status->code == peerwork_STATUS_GRADED && !$hidden) {
@@ -273,7 +298,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
             '<p>Editable because: ' . $isopen->text . '</p>');
         echo $output->render($summary);
         $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
-        echo $OUTPUT->single_button($url, 'Edit submission');
+        echo $OUTPUT->single_button($url, get_string('editsubmission', 'mod_peerwork'), 'get');
 
     }
 } // End of student output

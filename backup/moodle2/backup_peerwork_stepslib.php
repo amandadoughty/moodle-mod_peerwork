@@ -27,6 +27,8 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         // To know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
+        $includegroups = $this->get_setting_value('groups');
+        $includeuserinfo = $userinfo && $includegroups; // We need groups to restore the data properly.
 
         // Define each element separated.
         $peerwork = new backup_nested_element('peerwork', array('id'), array(
@@ -39,13 +41,15 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         // TODO Backup criteria, and criteriaid in peers.
 
         $peers = new backup_nested_element('peers');
-
         $peer = new backup_nested_element('peer', array('id'), array(
             'grade', 'groupid', 'gradedby', 'gradefor',
             'feedback', 'timecreated'));
 
-        $submissions = new backup_nested_element('submissions');
+        $justifications = new backup_nested_element('justifications');
+        $justification = new backup_nested_element('justification', ['id'], [
+            'groupid', 'gradedby', 'gradefor', 'justification']);
 
+        $submissions = new backup_nested_element('submissions');
         $submission = new backup_nested_element('submission', array('id'), array(
             'userid',
             'timecreated', 'timemodified', 'status', 'groupid', 'attemptnumber',
@@ -56,6 +60,9 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peerwork->add_child($peers);
         $peers->add_child($peer);
 
+        $peerwork->add_child($justifications);
+        $justifications->add_child($justification);
+
         $peerwork->add_child($submissions);
         $submissions->add_child($submission);
 
@@ -63,14 +70,9 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peerwork->set_source_table('peerwork', array('id' => backup::VAR_ACTIVITYID));
 
         // All the rest of elements only happen if we are including user info.
-        if ($userinfo) {
-
-            $peer->set_source_sql('
-            SELECT *
-            FROM {peerwork_peers}
-            WHERE peerwork = ?',
-                array(backup::VAR_PARENTID));
-
+        if ($includeuserinfo) {
+            $peer->set_source_table('peerwork_peers', ['peerwork' => backup::VAR_PARENTID]);
+            $justification->set_source_table('peerwork_justification', ['peerworkid' => backup::VAR_PARENTID]);
             $submission->set_source_table('peerwork_submission', array('assignment' => '../../id'));
         }
 
@@ -78,6 +80,11 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         $peer->annotate_ids('user', 'gradedby');
         $peer->annotate_ids('user', 'gradefor');
+        $peer->annotate_ids('group', 'groupid');
+
+        $justification->annotate_ids('user', 'gradedby');
+        $justification->annotate_ids('user', 'gradefor');
+        $justification->annotate_ids('group', 'groupid');
 
         $submission->annotate_ids('user', 'userid');
         $submission->annotate_ids('user', 'gradedby');
