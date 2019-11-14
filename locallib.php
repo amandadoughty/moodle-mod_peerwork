@@ -39,21 +39,33 @@ define('MOD_PEERWORK_JUSTIFICATION_HIDDEN', 1);         // Justification hidden 
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON', 2);   // Justification visible to all but anonymously.
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER', 3);   // Justification visible to all with identity visible.
 
-require_once($CFG->dirroot . '/lib/grouplib.php');
+require_once($CFG->libdir . '/completionlib.php');
+require_once($CFG->libdir . '/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerwork/classes/algorithms/WebPAAlgorithm.php');
 
-function peerwork_get_peers($course, $peerwork, $groupingid, $group = null) {
+/**
+ * Get peers.
+ *
+ * @param object $course The course.
+ * @param object $peerwork The instance.
+ * @param int $groupingid The grouping ID.
+ * @param int $group The group ID.
+ * @param int $userid The ID of the user that is retrieving its peers.
+ * @return array
+ */
+function peerwork_get_peers($course, $peerwork, $groupingid, $group = null, $userid = null) {
     global $USER;
+    $userid = !$userid ? $USER->id : $userid;
 
     if (!$group) {
-        $group = peerwork_get_mygroup($course, $USER->id, $groupingid);
+        $group = peerwork_get_mygroup($course, $userid, $groupingid);
     }
 
     $members = groups_get_members($group);
     $membersgradeable = $members;
 
     if (!$peerwork->selfgrading) {
-        unset($membersgradeable[$USER->id]);
+        unset($membersgradeable[$userid]);
     }
 
     return $membersgradeable;
@@ -68,21 +80,26 @@ function peerwork_get_peers($course, $peerwork, $groupingid, $group = null) {
  * @param int $userid The id of the user.
  * @param int $groupingid optional returns only groups in the specified grouping.
  * @param bool $die - @TODO check use of this parameter.
- * @return int The group id.
+ * @return int|null The group id.
  */
 function peerwork_get_mygroup($courseid, $userid, $groupingid = 0, $die = true) {
     global $CFG;
 
     $mygroups = groups_get_all_groups($courseid, $userid, $groupingid);
 
-    if ($die && count($mygroups) == 0) {
-        print_error("You do not belong to any group.");
-    } else if ($die && count($mygroups) > 1) {
-        print_error("You belong to more than one group, this is currently not supported.");
+    if (count($mygroups) == 0) {
+        if ($die) {
+            print_error("You do not belong to any group.");
+        }
+        return null;
+    } else if (count($mygroups) > 1) {
+        if ($die) {
+            print_error("You belong to more than one group, this is currently not supported.");
+        }
+        return null;
     }
 
     $mygroup = array_shift($mygroups);
-
     return $mygroup->id;
 }
 
@@ -942,7 +959,7 @@ function peerwork_teachers($context) {
  * @throws Exception
  */
 function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable) {
-    global $USER, $DB;
+    global $CFG, $USER, $DB;
 
     $event = \mod_peerwork\event\assessable_submitted::create(['context' => $context]);
     $event->trigger();
@@ -1135,6 +1152,12 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
                 $DB->insert_record('peerwork_justification', $record);
             }
         }
+    }
+
+    // Suggest to check, and eventually update, the completion state.
+    $completion = new completion_info($course);
+    if ($completion->is_enabled($cm) && $peerwork->completiongradedpeers) {
+        $completion->update_state($cm, COMPLETION_COMPLETE);
     }
 
     // Send email confirmation.

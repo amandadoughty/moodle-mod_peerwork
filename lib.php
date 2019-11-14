@@ -153,9 +153,19 @@ function peerwork_get_completion_state($course, $cm, $userid, $type) {
     $result = $type;
 
     $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
+
+    // Check whether the user has graded all their peers.
     if ($peerwork->completiongradedpeers) {
-        // TODO Get the actual completion state.
-        $hasgradedpeers = false;
+        $groupid = peerwork_get_mygroup($course->id, $userid, $cm->groupingid, false);
+
+        // The user does not have the expected group.
+        if (!$groupid) {
+            return $result;
+        }
+
+        $peers = peerwork_get_peers($course, $peerwork, $cm->groupingid, $groupid, $userid);
+        $gradedcount = $DB->count_records_select('peerwork_peers', 'peerwork = ?', [$peerwork->id], 'COUNT(DISTINCT gradefor)');
+        $hasgradedpeers = count($peers) <= $gradedcount;
         $result = $type == COMPLETION_AND ? $result && $hasgradedpeers : $result || $hasgradedpeers;
     }
 
