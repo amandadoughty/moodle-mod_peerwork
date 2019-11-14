@@ -34,7 +34,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'notifylatesubmissions', 'allowlatesubmissions', 'treat0asgrade',
             'standard_deviation', 'moderation', 'multiplyby',
-            'justification', 'completiongradedpeers'));
+            'justification', 'paweighting', 'noncompletionpenalty', 'completiongradedpeers'));
 
         // TODO Backup criteria, and criteriaid in peers.
 

@@ -180,6 +180,35 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111405, 'peerwork');
     }
 
+    if ($oldversion < 2019111406) {
+
+        // Define field paweighting to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('paweighting', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '50', 'justification');
+
+        // Conditionally launch add field paweighting.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111406, 'peerwork');
+    }
+
+    if ($oldversion < 2019111407) {
+
+        // Define field noncompletionpenalty to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('noncompletionpenalty', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0', 'paweighting');
+
+        // Conditionally launch add field noncompletionpenalty.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111407, 'peerwork');
+    }
 
     return true;
 }

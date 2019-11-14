@@ -45,6 +45,10 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         $mform = $this->_form;
         $this->pac = new peerwork_criteria($this->current->id);
+        $steps = range(0, 100, 1);
+        $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
+            return $i . '%';
+        }, $steps));
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -80,16 +84,10 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addHelpButton('allowlatesubmissions', 'allowlatesubmissions', 'peerwork');
 
         // How many submission files to be allowed. Zero means dont offer a file upload at all.
-        $choices = array(0 =>0, 1, 2, 3, 4, 5);
+        $choices = [0 => 0, 1, 2, 3, 4, 5];
         $mform->addElement('select', 'maxfiles', get_string('setup.maxfiles', 'peerwork'), $choices);
         $mform->setType('maxfiles', PARAM_INT);
         $mform->addHelpButton('maxfiles', 'setup.maxfiles', 'peerwork');
-
-        // $mform->addElement('text', 'multiplyby', get_string('multiplyby', 'peerwork'), array('size' => '10'));
-        // $mform->setType('multiplyby', PARAM_INT);
-        // // $mform->addRule('multiplyby', null, 'required', null, 'client');
-        // $mform->addRule('multiplyby', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        // $mform->addHelpButton('multiplyby', 'multiplyby', 'peerwork');
 
         $mform->addElement('selectyesno', 'notifylatesubmissions', get_string('notifylatesubmissions', 'peerwork'));
         $mform->setType('notifylatesubmissions', PARAM_BOOL);
@@ -102,6 +100,12 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'selfgrading', get_string('selfgrading', 'peerwork'));
         $mform->setType('selfgrading', PARAM_BOOL);
         $mform->addHelpButton('selfgrading', 'selfgrading', 'peerwork');
+
+        $mform->addElement('select', 'paweighting', get_string('paweighting', 'peerwork'), $zerotohundredpcopts);
+        $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
+
+        $mform->addElement('select', 'noncompletionpenalty', get_string('noncompletionpenalty', 'peerwork'), $zerotohundredpcopts);
+        $mform->addHelpButton('noncompletionpenalty', 'noncompletionpenalty', 'peerwork');
 
         $this->add_assessment_criteria();
 
