@@ -244,7 +244,8 @@ if (has_capability('mod/peerwork:grade', $context)) {
         $files = peerwork_submission_files($context, $group);
 
         $mform = new mod_peerwork_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'files' => count($files),
-            'fileupload' => $foptions['maxfiles'] > 0, 'peers' => $membersgradeable, 'fileoptions' => $foptions ));
+            'peerworkid' => $peerwork->id, 'fileupload' => $foptions['maxfiles'] > 0, 'peers' => $membersgradeable,
+            'fileoptions' => $foptions ));
         $mform->set_data($entry);
         $mform->display();
 

@@ -8,46 +8,72 @@
 }
 
 #mod-peerwork-summary-table td {
-	padding: 0px 20px;
+    padding: 0px 20px;
 }
 
 #mod-peerwork-summary-table th {
-	padding: 10px 20px;
-	text-align: left;
+    padding: 10px 20px;
+    text-align: left;
 }
 
-
-
-/** classes **/
-/** vertical 'gap' into which the rotated text fits **/
-div.form-group[data-groupname="mod_peerwork_scaleheader"] {
-		/** height: 100px; **/
+.mod_peerwork_criteriarating {
+    overflow-x: auto;
+    padding-bottom: 1em;
+}
+.mod_peerwork_criteriaheader {
+    font-size: large;
+    border-top: 1px solid #efefef;
+    padding-top: 1em;
+}
+.mod_peerwork_criteria:first-child .mod_peerwork_criteriaheader {
+    border-top: none;
+    padding-top: 0;
+}
+.mod_peerwork_scaleheaders,
+.mod_peerwork_peer,
+.mod_peerwork_ratings {
+    display: flex;
+}
+.mod_peerwork_peer {
+    margin: 1em 0;
+    position: relative;
+}
+.mod_peerwork_peername {
+    width: 200px;
+    max-width: 200px;
+    min-width: 200px;
+}
+.mod_peerwork_scaleheaders {
+    font-weight: bold;
+    margin-left: 200px;
+    align-items: flex-end;
+}
+.mod_peerwork_rating,
+.mod_peerwork_scaleheaders > div {
+    text-align: center;
+    flex: 0 0 100px;
+}
+.mod_peerwork_rating label {
+    margin: 0;
+    padding: 0 1em;
+}
+.mod_peerwork_rating input {
+    margin: 0;
 }
 
-/** rotated text of the scale items , keep width same as  div.form-group height (so it fits when rotated) and radio button width **/
-div.form-group[data-groupname="mod_peerwork_scaleheader"] div.mod_peerwork_scaleheader {
-		background-color: orange;
-		float: left;
-		/**
-		transform: rotate(270deg);
-		transform-origin: center center 0;
-				height:100px;
-		**/
-		width:100px;
-		vertical-align: bottom;
-  		text-align: centre;
-  		font-weight: bold;
-}
-
-/** each radio button **/
-div[data-fieldtype="group"] label.form-check-label {
-		background-color: yellow;
-		text-align: center;
-		width:100px;
-}
-
-div.mod_peerwork_criteriaheader {
-		background-color: aqua;
-		font-size: large;
-				
+@media(max-width: 786px) {
+    .mod_peerwork_peername {
+        max-width: none;
+        min-width: auto;
+        width: auto;
+    }
+    .mod_peerwork_peer {
+        display: block;
+    }
+    .mod_peerwork_peername {
+        margin-bottom: .5em;
+    }
+    .mod_peerwork_scaleheaders {
+        margin-left: 0;
+    }
 }

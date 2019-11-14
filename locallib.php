@@ -252,8 +252,8 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     $feedback = array();
 
     foreach ($peers as $peer) {
-        $grades[$peer->sort][$peer->gradedby][$peer->gradefor] = $peer->grade;
-        $feedback[$peer->sort][$peer->gradedby][$peer->gradefor] = $peer->feedback;
+        $grades[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->grade;
+        $feedback[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->feedback;
     }
 
     // anthing not proceessed about gets a default string)
@@ -1088,7 +1088,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             $peer->timecreated = time();
             $field = 'grade_idx_'. $criterion->id;
             if (isset($data->{$field}[$peer->gradefor])) {
-                $peer->grade = $data->{$field}[$peer->gradefor];
+                $peer->grade = max(0, (int) $data->{$field}[$peer->gradefor]);
             } else {
                 $peer->grade = 0;
             }

@@ -43,6 +43,7 @@ $string['noncompletionpenalty'] = 'Penalty for non-submission of marks';
 $string['noncompletionpenalty_help'] = 'If a student has not submitted any marks for the assessment (has not assessed their peers), how much should they be penalised?';
 $string['paweighting'] = 'Peer assessment weighting';
 $string['paweighting_help'] = 'What percentage of the group\'s total mark should be peer assessed?';
+$string['peernameisyou'] = '{$a} (you)';
 $string['peerwork:addinstance'] = 'Add a peerwork activity';
 $string['peerworkfieldset'] = 'Peer assessment settings';
 $string['peerworkname'] = 'Peer assessment';
@@ -51,6 +52,7 @@ $string['peerwork'] = 'Peer Assessment';
 $string['pluginadministration'] = 'Peer Assessment administration';
 $string['pluginname'] = 'Peer Assessment';
 $string['provideminimumonecriterion'] = 'Please provide at least one criterion.';
+$string['ratingnforuser'] = 'Rating \'{$a->rating}\' for {$a->user}';
 $string['requirejustification'] = 'Require justification';
 $string['requirejustification_help'] = '
 - Disabled: Students will not be required to add any comments justifying the scores given for each of their peers

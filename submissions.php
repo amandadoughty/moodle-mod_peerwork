@@ -85,7 +85,7 @@ $myassessments = $DB->get_records('peerwork_peers', array('peerwork' => $peerwor
 
 // Visualise.
 $mform = new mod_peerwork_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => true,
-    'peers' => $membersgradeable, 'fileoptions' => peerwork_get_fileoptions($peerwork)));
+    'peerworkid' => $peerwork->id, 'peers' => $membersgradeable, 'fileoptions' => peerwork_get_fileoptions($peerwork)));
 
 $itemid = 0; // Will be peerwork_submission.id.
 
