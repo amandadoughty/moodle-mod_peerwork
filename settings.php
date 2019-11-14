@@ -34,4 +34,9 @@ if ($ADMIN->fulltree) {
     $multiplybyvalues = array(3 => 3, 4 => 4, 5 => 5);
     $settings->add(new admin_setting_configselect('peerwork/multiplyby', get_string('multiplyby', 'peerwork'),
         get_string('multiplyby', 'peerwork'), 4, $multiplybyvalues));
+
+    $settings->add(new admin_setting_configselect('peerwork/addmorecriteriastep', get_string('addmorecriteriastep', 'peerwork'),
+        get_string('addmorecriteriastep_help', 'peerwork'), 3,
+        [1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9]
+    ));
 }

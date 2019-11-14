@@ -92,5 +92,35 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111304, 'peerwork');
     }
 
+    if ($oldversion < 2019111400) {
+
+        // Define field sort to be dropped from peerwork_criteria.
+        $table = new xmldb_table('peerwork_criteria');
+        $field = new xmldb_field('sort');
+
+        // Conditionally launch drop field sort.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111400, 'peerwork');
+    }
+
+    if ($oldversion < 2019111401) {
+
+        // Define field sortorder to be added to peerwork_criteria.
+        $table = new xmldb_table('peerwork_criteria');
+        $field = new xmldb_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'weight');
+
+        // Conditionally launch add field sortorder.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111401, 'peerwork');
+    }
+
     return true;
 }

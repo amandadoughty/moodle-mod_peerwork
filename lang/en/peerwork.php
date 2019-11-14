@@ -22,6 +22,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['addmorecriteria'] = 'Add {no} more criteria';
+$string['addmorecriteriastep'] = 'Add more criteria increments';
+$string['addmorecriteriastep_help'] = 'The number of assessment criteria to append to the form when an educator clicks the button to add more criteria.';
 $string['completiongradedpeers'] = 'Require peers graded';
 $string['completiongradedpeers_desc'] = 'Students must grade all their peers';
 $string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';
@@ -37,6 +40,7 @@ $string['peerworkname_help'] = '<strong>Description</strong><br />In the descrip
 $string['peerwork'] = 'Peer Assessment';
 $string['pluginadministration'] = 'Peer Assessment administration';
 $string['pluginname'] = 'Peer Assessment';
+$string['provideminimumonecriterion'] = 'Please provide at least one criterion.';
 $string['grade'] = 'Grade';
 $string['feedback'] = 'Feedback to group';
 $string['peers'] = 'Grade your peers';
@@ -105,8 +109,8 @@ $string['peerwork:view'] = 'View peer assessment content';
 
 // Criteria strings
 $string['assessmentcriteria:header'] = 'Assessment criteria settings'; 
-$string['assessmentcriteria:description'] = 'Criteria {$a} description';
-$string['assessmentcriteria:scoretype'] = 'Scoring Type';
+$string['assessmentcriteria:description'] = 'Criteria {no} description';
+$string['assessmentcriteria:scoretype'] = 'Criteria {no} scoring type';
 $string['assessmentcriteria:weight'] = 'Weight';
 $string['assessmentcriteria:modgradetypescale'] = "Likert";
 

@@ -34,6 +34,9 @@ require_once($CFG->libdir . '/gradelib.php' );
  */
 class mod_peerwork_mod_form extends moodleform_mod {
 
+    /** @var peerwork_criteria The peerwork criteria class. */
+    protected $pac;
+
     /**
      * Defines forms elements
      */
@@ -41,6 +44,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         global $CFG, $DB, $COURSE;
 
         $mform = $this->_form;
+        $this->pac = new peerwork_criteria($this->current->id);
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -58,9 +62,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         // Adding the standard "intro" and "introformat" fields.
         $this->standard_intro_elements();
-        if ($this->current->id) {
-            $peerwork = $DB->get_record('peerwork', array('id' => $this->current->id), '*', MUST_EXIST);
-        }
 
         // Adding the rest of peerwork settings, spreading all them into this fieldset,
         // or adding more fieldsets ('header' elements) if needed for better logic.
@@ -103,9 +104,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->setType('selfgrading', PARAM_BOOL);
         $mform->addHelpButton('selfgrading', 'selfgrading', 'peerwork');
 
-        // KM add in the fields to specify assessment criteria, using a separate class to isolate change.
-        $pac = new peerwork_criteria( $this->current->id );
-        $pac ->definition($mform);
+        $this->add_assessment_criteria();
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
@@ -115,6 +114,42 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         // Goes to lib.php/peerwork_add_instance() etal
         $this->add_action_buttons();
+    }
+
+    /**
+     * Add assessment criteria.
+     *
+     * @return void
+     */
+    protected function add_assessment_criteria() {
+        $mform = $this->_form;
+
+        $criteria = $this->pac->getCriteria();
+        $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerwork'));
+
+        // Preparing repeated element.
+        $elements = [];
+        $repeatopts = [];
+        $initialrepeat = max(count($criteria), 3);
+        $repeatsteps = max(1, (int) get_config('peerwork', 'addmorecriteriastep'));
+
+        // Editor.
+        $editor = $mform->createElement('editor', 'critdesc', get_string('assessmentcriteria:description', 'mod_peerwork'),
+            ['rows' => 4]);
+        $repeatopts['critdesc'] = [
+            'helpbutton' => ['assessmentcriteria:description', 'mod_peerwork']
+        ];
+
+        // Scale.
+        $scale = $mform->createElement('select', 'critscale', get_string('assessmentcriteria:scoretype','mod_peerwork'),
+            get_scales_menu());
+        $repeatopts['critscale'] = [
+            'helpbutton' => ['assessmentcriteria:scoretype', 'mod_peerwork']
+        ];
+
+        // Repeat stuff.
+        $this->repeat_elements([$editor, $scale], $initialrepeat, $repeatopts, 'assessmentcriteria_count',
+            'assessmentcriteria_add', $repeatsteps, get_string('addmorecriteria', 'mod_peerwork'), true);
     }
 
     /**
@@ -144,6 +179,25 @@ class mod_peerwork_mod_form extends moodleform_mod {
     }
 
     /**
+     * Preprocessing.
+     *
+     * @param array $defaultvalues Passed by reference.
+     */
+    public function data_preprocessing(&$defaultvalues) {
+        $defaultvalues['critdesc'] = empty($defaultvalues['critdesc']) ? [] : $defaultvalues['critdesc'];
+        $defaultvalues['scale'] = empty($defaultvalues['scale']) ? [] : $defaultvalues['scale'];
+
+        $crits = array_values($this->pac->getCriteria());   // Drop the keys.
+        foreach ($crits as $i => $crit) {
+            $defaultvalues['critdesc'][$i] = [
+                'text' => $crit->description,
+                'format' => $crit->descriptionformat
+            ];
+            $defaultvalues['critscale'][$i] = -$crit->grade;    // Scales are saved as negative integers.
+        }
+    }
+
+    /**
      * Modify the data from get_data.
      *
      * @param stdClass $data the form data to be modified.
@@ -155,22 +209,54 @@ class mod_peerwork_mod_form extends moodleform_mod {
         if (!empty($data->completionunlocked)) {
             $data->completiongradedpeers = (int) !empty($data->completiongradedpeers);
         }
+
+        $data->assessmentcriteria = $this->normalise_criteria_from_data($data);
+        unset($data->critdesc);
+        unset($data->critscale);
     }
 
     /**
-     * Collect criteria data from the DB to initialise the form and add into $data, then pass $data on to the parent class to complete.
-     * @param unknown $data incoming data is stdClass Object populated with fields => DB data
-     * @return unknown
+     * Normalise the criteria from data.
+     *
+     * @param array|object $data The raw data.
+     * @return object
      */
-    public function set_data($data) {
+    protected function normalise_criteria_from_data($data) {
+        $data = (object) $data;
+        $count = 0;
+        $assessmentcriteria = [];
 
-        // Collect the criteria data for this peerwork and add into $data.
-        $pac = new peerwork_criteria( $data->id );
-        $pac ->set_data($data);
+        foreach ($data->critdesc as $i => $value) {
+            if (empty(trim(strip_tags($value['text'])))) {
+                continue;
+            }
+            $assessmentcriteria[$i] = (object) [
+                'description' => $value['text'],
+                'descriptionformat' => $value['format'],
+                'grade' => -abs($data->critscale[$i]),   // Scales are saved as negative integers.
+                'sortorder' => $count,
+                'weight' => 1,
+            ];
+            $count++;
+        }
 
-        // error_log("set_data with ". print_r($data,true) );
-        return parent::set_data($data);
+        return $assessmentcriteria;
     }
 
+    /**
+     * Validation.
+     *
+     * @param array $data The data.
+     * @param array $files The files.
+     * @return array|void
+     */
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        $crits = $this->normalise_criteria_from_data($data);
+        if (empty($crits)) {
+            $errors['critdesc[0]'] = get_string('provideminimumonecriterion', 'mod_peerwork');
+        }
+        return $errors;
+    }
 
 }
