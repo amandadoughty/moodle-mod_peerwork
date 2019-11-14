@@ -160,8 +160,6 @@ File(s) attached:
 Grades you have submitted:
 {$a->grades}';
 $string['exportxls'] = 'Export all group grades';
-$string['downloadallsubmissions'] = 'Download all submissions';
-
 
 /*** EVENTS ***/
 $string['eventsubmission_viewed'] = 'peerwork view submit assignment form';
@@ -174,7 +172,6 @@ $string['eventpeer_feedback_created'] = 'peerwork peer feedback';
 $string['eventassessable_submitted'] = 'peerwork submit';
 $string['eventsubmission_grade_form_viewed'] = 'peerwork view grading form';
 $string['eventsubmission_graded'] = 'peerwork grade';
-$string['eventsubmissions_downloaded'] = 'peerwork download all';
 $string['eventsubmission_exported'] = 'peerwork export';
 $string['eventsubmissions_exported'] = 'peerwork export all';
 

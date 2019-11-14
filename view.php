@@ -42,7 +42,6 @@ $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n = optional_param('n', 0, PARAM_INT); // peerwork instance ID - it should be named as the first character of the module.
 $edit = optional_param('edit', false, PARAM_BOOL);
 
-
 if ($id) {
     $cm = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -61,9 +60,9 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 $params = array(
-            'objectid' => $cm->instance,
-            'context' => $context
-        );
+    'objectid' => $cm->instance,
+    'context' => $context
+);
 
 $event = \mod_peerwork\event\course_module_viewed::create($params);
 $event->add_record_snapshot('course', $course);
@@ -150,8 +149,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
     echo $OUTPUT->box_start('generalbox', null);
     echo $OUTPUT->single_button(new moodle_url('exportxls.php', array('id' => $cm->id,  'groupingid' => $groupingid)),
         get_string("exportxls", 'mod_peerwork'), 'post', array("class" => 'yui3-u singlebutton'));
-    echo $OUTPUT->single_button(new moodle_url('downloadallsubmissions.php', array('id' => $cm->id)),
-        get_string("downloadallsubmissions", 'mod_peerwork'), 'post', array("class" => 'yui3-u singlebutton'));
     echo $OUTPUT->box_end();
 
 
