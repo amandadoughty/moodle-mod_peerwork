@@ -67,6 +67,7 @@ $string['requirejustification_help'] = '
 - Visible anonymous: Any comments left by students will be visible to their peers but the identities of those leaving comments will be hidden
 - Visible with usernames: Any comments left by students will be visible to their peers along with the identities of those leaving the feedback
 ';
+$string['search:activity'] = 'Peer work - activity information';
 $string['grade'] = 'Grade';
 $string['feedback'] = 'Feedback to group';
 $string['peers'] = 'Grade your peers';
