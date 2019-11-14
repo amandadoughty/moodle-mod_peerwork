@@ -97,7 +97,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         $mform->addElement('selectyesno', 'treat0asgrade', get_string('treat0asgrade', 'peerwork'));
         $mform->setType('treat0asgrade', PARAM_BOOL);
-        $mform->setDefault('treat0asgrade', true);
         $mform->addHelpButton('treat0asgrade', 'treat0asgrade', 'peerwork');
 
         $mform->addElement('selectyesno', 'selfgrading', get_string('selfgrading', 'peerwork'));
@@ -109,7 +108,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
-        // NW - DO I NEED TO ADD THIS??  Add admin defaults.
+        // Apply default values from admin settings.
         $this->apply_admin_defaults();
 
         // Goes to lib.php/peerwork_add_instance() etal
