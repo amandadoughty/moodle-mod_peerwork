@@ -38,11 +38,13 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'standard_deviation', 'moderation', 'multiplyby',
             'justification', 'paweighting', 'noncompletionpenalty', 'completiongradedpeers'));
 
-        // TODO Backup criteria, and criteriaid in peers.
+        $criteria = new backup_nested_element('criteria');
+        $criterion = new backup_nested_element('criterion', ['id'], [
+            'description', 'descriptionformat', 'grade', 'weight', 'sortorder']);
 
         $peers = new backup_nested_element('peers');
         $peer = new backup_nested_element('peer', array('id'), array(
-            'grade', 'groupid', 'gradedby', 'gradefor',
+            'criteriaid', 'grade', 'groupid', 'gradedby', 'gradefor',
             'feedback', 'timecreated'));
 
         $justifications = new backup_nested_element('justifications');
@@ -57,6 +59,9 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'gradedby'));
 
         // Build the tree.
+        $peerwork->add_child($criteria);
+        $criteria->add_child($criterion);
+
         $peerwork->add_child($peers);
         $peers->add_child($peer);
 
@@ -68,6 +73,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         // Define sources.
         $peerwork->set_source_table('peerwork', array('id' => backup::VAR_ACTIVITYID));
+        $criterion->set_source_table('peerwork_criteria', ['peerworkid' => backup::VAR_PARENTID]);
 
         // All the rest of elements only happen if we are including user info.
         if ($includeuserinfo) {
@@ -81,6 +87,8 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peer->annotate_ids('user', 'gradedby');
         $peer->annotate_ids('user', 'gradefor');
         $peer->annotate_ids('group', 'groupid');
+
+        $criterion->annotate_ids('scale', 'grade');
 
         $justification->annotate_ids('user', 'gradedby');
         $justification->annotate_ids('user', 'gradefor');

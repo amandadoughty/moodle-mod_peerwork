@@ -127,13 +127,15 @@ function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mfo
 function peerwork_delete_instance($id) {
     global $DB;
 
-    if (!$peerwork = $DB->get_record('peerwork', array('id' => $id))) {
+    if (!$peerwork = $DB->get_record('peerwork', ['id' => $id])) {
         return false;
     }
 
-    // TODO Delete from other tables too.
-    // Delete any dependent records here.
-    $DB->delete_records('peerwork', array('id' => $peerwork->id));
+    $DB->delete_records('peerwork_peers', ['peerwork' => $id]);
+    $DB->delete_records('peerwork_justification', ['peerworkid' => $id]);
+    $DB->delete_records('peerwork_criteria', ['peerworkid' => $id]);
+    $DB->delete_records('peerwork_submission', ['assignment' => $id]);
+    $DB->delete_records('peerwork', ['id' => $id]);
 
     return true;
 }

@@ -29,6 +29,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('peerwork', '/activity/peerwork');
+        $paths[] = new restore_path_element('peerwork_criterion', '/activity/peerwork/criteria/criterion');
         if ($userinfo) {
             $paths[] = new restore_path_element('peerwork_peer', '/activity/peerwork/peers/peer');
             $paths[] = new restore_path_element('peerwork_justification', '/activity/peerwork/justifications/justification');
@@ -57,6 +58,19 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $this->apply_activity_instance($newitemid);
     }
 
+    protected function process_peerwork_criterion($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $oldid = $data->id;
+
+        $data->peerworkid = $this->get_new_parentid('peerwork');
+        $data->grade = -$this->get_mappingid('scale', abs($data->grade));
+
+        $newitemid = $DB->insert_record('peerwork_criteria', $data);
+        $this->set_mapping('peerwork_criteria', $oldid, $newitemid);
+    }
+
     protected function process_peerwork_justification($data) {
         global $DB;
 
@@ -80,8 +94,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         // $data->timecreated = $this->apply_date_offset($data->timecreated);
 
         $data->groupid = $this->get_mappingid('group', $data->groupid);
-        // TODO Restore the with the valid criteria ID.
-        $data->criteriaid = random_int(0, 9999999); // $this->get_mappingid('peerwork_criteria', $data->criteriaid);
+        $data->criteriaid = $this->get_mappingid('peerwork_criteria', $data->criteriaid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
         $data->gradefor = $this->get_mappingid('user', $data->gradefor);
 
