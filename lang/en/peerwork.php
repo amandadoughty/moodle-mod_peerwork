@@ -31,6 +31,7 @@ $string['completiongradedpeers_help'] = 'When enabled, a student must grade all 
 $string['defaultsettings'] = 'Default settings';
 $string['defaultsettings_desc'] = 'The values to use as defaults when adding a new instance of this module to a course.';
 $string['editsubmission'] = 'Edit submission';
+$string['export'] = 'Export';
 $string['justification'] = 'Justification';
 $string['justificationdisabled'] = 'Disabled';
 $string['justificationhiddenfromstudents'] = 'Hidden from students';
@@ -45,8 +46,10 @@ $string['modulenameplural'] = 'Peer Assessments';
 $string['modulename_help'] = 'The Peer Assessment activity is a group assignment submission combined with peer grading.<br />
 For this activity, peer grading refers to the ability for students to assess the performance/contribution of their peer group, and if enabled, themselves, in relation to a group task. The group task is the file(s) submission component of the activity. The peer grading consists of a grade out of five and written comments on each student\'s performance.<br />
 Final overall grades for each individual student are then calculated from the differential of their individual and group peer grade averages, multiplied by five, and then added to or subtracted from the overall group submission grade (out of 100).';
+$string['nomembers'] = '# members';
 $string['noncompletionpenalty'] = 'Penalty for non-submission of marks';
 $string['noncompletionpenalty_help'] = 'If a student has not submitted any marks for the assessment (has not assessed their peers), how much should they be penalised?';
+$string['nopeergrades'] = '# peer grades';
 $string['paweighting'] = 'Peer assessment weighting';
 $string['paweighting_help'] = 'What percentage of the group\'s total mark should be peer assessed?';
 $string['peernameisyou'] = '{$a} (you)';

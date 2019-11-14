@@ -112,35 +112,36 @@ if (has_capability('mod/peerwork:grade', $context)) {
     $t = new html_table();
     $t->attributes['class'] = 'userenrolment';
     $t->id = 'mod-peerwork-summary-table';
-    $t->head = array('name', '# members', '# peer grades', 'status', 'actions');
+    $t->head = [
+        get_string('group'),
+        get_string('nomembers', 'mod_peerwork'),
+        get_string('nopeergrades', 'mod_peerwork'),
+        get_string('status'),
+        ''
+    ];
     foreach ($allgroups as $group) {
         $members = groups_get_members($group->id);
         $status = peerwork_get_status($peerwork, $group);
         $grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
+        $detailsurl = new moodle_url('details.php', ['id' => $cm->id, 'groupid' => $group->id]);
 
-        $options = array();
-        /* if ($status->code != peerwork_STATUS_SUBMITTED) {
-            $options = array('disabled' => true);
-        }*/
+        $menu = new action_menu();
+        $menu->add_secondary_action(new action_link(
+            $detailsurl,
+            $status->code == peerwork_STATUS_GRADED ? get_string('edit') : get_string('grade')
+        ));
+        $menu->add_secondary_action(new action_link(
+            new moodle_url('export.php', ['id' => $cm->id, 'groupid' => $group->id]),
+            get_string('export', 'mod_peerwork')
+        ));
 
         $row = new html_table_row();
-        $actions = '';
-        $status = peerwork_get_status($peerwork, $group);
-        if ($status->code == peerwork_STATUS_GRADED) {
-            $actions .= $OUTPUT->single_button(new moodle_url('details.php', array('id' => $cm->id,
-                'groupid' => $group->id)), "Edit", 'get');
-        } else {
-            $actions .= $OUTPUT->single_button(new moodle_url('details.php', array('id' => $cm->id,
-                'groupid' => $group->id)), "Grade", 'get');
-        }
-        $actions .= $OUTPUT->single_button(new moodle_url('export.php', array('id' => $cm->id,
-            'groupid' => $group->id)), "Export", 'post');
-        $row->cells = array($OUTPUT->action_link(new moodle_url('details.php', array('id' => $cm->id,
-            'groupid' => $group->id)), $group->name),
+        $row->cells = array(
+            $OUTPUT->action_link($detailsurl, $group->name),
             count($members),
             count($grades->grades),
             $status->text,
-            $actions
+            $OUTPUT->render($menu)
         );
         $t->data[] = $row;
     }
