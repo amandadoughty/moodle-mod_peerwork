@@ -53,11 +53,10 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 // TODO make sure this is submission for assessment in correct state.
-// TODO for increased security, only accept POST.
 
 $params = array(
-        'context' => $context
-    );
+    'context' => $context
+);
 
 $event = \mod_peerwork\event\assessable_submitted::create($params);
 $event->trigger();
@@ -85,23 +84,10 @@ $submission = $DB->get_record('peerwork_submission', array('assignment' => $peer
 $myassessments = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id, 'gradedby' => $USER->id));
 
 // Visualise.
-$mform = new mod_peerwork_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => true, 'peers'
-    => $membersgradeable, 'fileoptions' => peerwork_get_fileoptions($peerwork)));
-/*
-if (!$submission) {
-    //form for new submission
-    $mform = new mod_peerwork_add_submission_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => true,
-    'peers' => $membersgradeable,'fileoptions'=>peerwork_get_fileoptions($peerwork)));
-} else if ($submission && !$myassessments) {
-    //form for peer grading only, show file already submited
-    $mform = new mod_peerwork_add_submission_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => false,
-    'peers' => $membersgradeable,'fileoptions'=>peerwork_get_fileoptions($peerwork)));
-} else {
-    throw new coding_exception('Wrong state');
-}
-*/
+$mform = new mod_peerwork_submissions_form(new moodle_url('submissions.php'), array('id' => $id, 'fileupload' => true,
+    'peers' => $membersgradeable, 'fileoptions' => peerwork_get_fileoptions($peerwork)));
 
-$itemid = 0; // ...peerwork_submission.id.
+$itemid = 0; // Will be peerwork_submission.id.
 
 // Fetches the file manager draft area, called 'attachments'.
 $draftitemid = file_get_submitted_draft_itemid('submission');

@@ -253,30 +253,14 @@ function peerwork_get_extra_capabilities() {
 }
 
 /**
- * Is a given scale used by the instance of peerwork?
+ * Checks if scale is used.
  *
- * This function returns if a scale is being used by one peerwork
- * if it has support for grading and scales. Commented code should be
- * modified if necessary. See forum, glossary or journal modules
- * as reference.
- *
- * @param int $peerworkid ID of an instance of this module
- * @return bool true if the scale is used by the given peerwork instance
- */
-function peerwork_scale_used($peerworkid, $scaleid) {
-    return false;
-}
-
-/**
- * Checks if scale is being used by any instance of peerwork.
- *
- * This is used to find out if scale used anywhere.
- *
- * @param $scaleid int
- * @return boolean true if the scale is used by any peerwork instance
+ * @param int $scaleid
+ * @return boolean True when used.
  */
 function peerwork_scale_used_anywhere($scaleid) {
-    return false;
+    global $DB;
+    return $scaleid && $DB->record_exists('peerwork_criteria', ['grade' => -$scaleid]);
 }
 
 /**

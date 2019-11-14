@@ -137,5 +137,49 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111402, 'peerwork');
     }
 
+    if ($oldversion < 2019111403) {
+
+        // Rename field sort on table peerwork_peers to criteriaid.
+        $table = new xmldb_table('peerwork_peers');
+        $field = new xmldb_field('sort', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'peerwork');
+
+        // Launch rename field sort.
+        $dbman->rename_field($table, $field, 'criteriaid');
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111403, 'peerwork');
+    }
+
+    if ($oldversion < 2019111404) {
+
+        // Define index grade (unique) to be dropped form peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $index = new xmldb_index('grade', XMLDB_INDEX_UNIQUE, ['peerwork', 'gradedby', 'gradefor']);
+
+        // Conditionally launch drop index grade.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111404, 'peerwork');
+    }
+
+    if ($oldversion < 2019111405) {
+
+        // Define index grade (unique) to be added to peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $index = new xmldb_index('grade', XMLDB_INDEX_UNIQUE, ['peerwork', 'criteriaid', 'gradedby', 'gradefor']);
+
+        // Conditionally launch add index grade.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111405, 'peerwork');
+    }
+
+
     return true;
 }

@@ -65,7 +65,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="peerwork" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Which of the criteria does this record relate to."/>
+        <FIELD NAME="criteriaid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Which of the criteria does this record relate to."/>
         <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -77,7 +77,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="grade" UNIQUE="true" FIELDS="peerwork, gradedby, gradefor"/>
+        <INDEX NAME="grade" UNIQUE="true" FIELDS="peerwork, criteriaid, gradedby, gradefor"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="peerwork_criteria" COMMENT="Defines the assessment criteria for a peerassessment">

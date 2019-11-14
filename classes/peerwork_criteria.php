@@ -79,6 +79,7 @@ class peerwork_criteria  {
             $newdata = isset($criteria[$i]) ? $criteria[$i] : null;
             if (!$newdata) {
                 $DB->delete_records(self::$tablename, ['id' => $crit->id]);
+                $DB->delete_records('peerwork_peers', ['criteriaid' => $crit->id]);
                 continue;
             }
 

@@ -637,15 +637,15 @@ function peerwork_get_grade($peerwork, $group, stdClass $member) {
  * The score is the 'raw', pre-weighted value from the algorithm
  */
 function peerwork_get_score($peerwork, $group, stdClass $member) {
-	global $DB;
+    global $DB;
 
-	// Can't calculate grade if student does not belong to any group.
-	if (!$group) {
-		return null;
-	}
+    // Can't calculate grade if student does not belong to any group.
+    if (!$group) {
+        return null;
+    }
 
-	$score = peerwork_get_webpa_score($peerwork, $group, $member);
-	return $score;
+    $score = peerwork_get_webpa_score($peerwork, $group, $member);
+    return $score;
 }
 
 
@@ -673,16 +673,16 @@ function peerwork_get_webpa_grade($peerwork, $group, stdClass $member) {
 * @return number or null if unable to calculate
 */
 function peerwork_get_webpa_score($peerwork, $group, stdClass $member) {
-	global $CFG, $DB;
+    global $CFG, $DB;
 
-	// Can't calculate grade if student does not belong to any group.
-	if (!$group) {
-		return null;
-	}
+    // Can't calculate grade if student does not belong to any group.
+    if (!$group) {
+        return null;
+    }
 
-	$algorithm = new WebPAAlgorithm($peerwork, $group);
-	$algorithm ->calculate();
-	return $algorithm ->getScore($member);
+    $algorithm = new WebPAAlgorithm($peerwork, $group);
+    $algorithm ->calculate();
+    return $algorithm ->getScore($member);
 }
 
 /**
@@ -859,36 +859,40 @@ function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
     global $DB;
 
     $data = new stdClass(); // data->grade[member] data->feedback[member]
-    $data ->grade = array();
-    $data ->feedback = array();
+    $data->grade = array();
+    $data->feedback = array();
 
     $mygrades = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id,
-        'gradedby' => $user->id), '', 'id,sort,gradefor,feedback,grade');
+        'gradedby' => $user->id), '', 'id,criteriaid,gradefor,feedback,grade');
 
-    foreach( $mygrades as $grade) {
-
-        $peerid = $grade ->gradefor;
-        @$data->grade[$peerid] += $grade->grade; // @suppress "Undefined index" error reports
+    foreach ($mygrades as $grade) {
+        $peerid = $grade->gradefor;
+        @$data->grade[$peerid] += $grade->grade;
         @$data->feedback[$peerid] |= $grade->feedback;
     }
 
     // Make sure all the peers have an entry in the returning data array.
     foreach ($membersgradeable as $member) {
-        if ( !array_key_exists( $member->id, $data ->grade ) ) {
-            $data ->grade[$member->id] = '-';
+        if (!array_key_exists( $member->id, $data->grade)) {
+            $data->grade[$member->id] = '-';
         }
-        if ( !array_key_exists( $member->id, $data ->feedback ) ) {
-            $data ->feedback[$member->id] = '-';
+        if (!array_key_exists( $member->id, $data->feedback)) {
+            $data->feedback[$member->id] = '-';
         }
     }
     return $data;
 }
 
+/**
+ * Get submission file options.
+ *
+ * @param stdClass $peerwork The instance from database.
+ * @return array
+ */
 function peerwork_get_fileoptions($peerwork) {
     return array('mainfile' => '', 'subdirs' => 0, 'maxbytes' => -1, 'maxfiles' => $peerwork->maxfiles,
         'accepted_types' => '*', 'return_types' => null);
 }
-
 
 /**
  * Find members of the group that did not submit feedback and graded peers.
@@ -922,6 +926,7 @@ function peerwork_teachers($context) {
     }
     return $contacts;
 }
+
 /**
  * Student has provided some grades on their peers using the add_submission_form, save into database and trigger events.
  *
@@ -939,10 +944,6 @@ function peerwork_teachers($context) {
 function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable) {
     global $USER, $DB;
 
-
-    error_log( "calling peerwork_save peerwork=" . print_r($peerwork,true) . "  submission=". print_r($submission,true) . "  group=" . print_r($group,true) . "  data=" . print_r($data,true) );
-
-
     // Form has been submitted, commit, display confirmation and redirect.
     // Create submission record if none yet.
     if (!$submission) {
@@ -956,29 +957,29 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
         $submission->id = $DB->insert_record('peerwork_submission', $submission);
 
         $params = array(
-                'objectid' => $submission->id,
-                'context' => $context,
-                'other' => array('groupid' => $group->id)
-            );
+            'objectid' => $submission->id,
+            'context' => $context,
+            'other' => array('groupid' => $group->id)
+        );
 
         $event = \mod_peerwork\event\submission_created::create($params);
         $event->trigger();
+
     } else {
         // Just update.
         $submission->timemodified = time();
         $DB->update_record('peerwork_submission', $submission);
 
         $params = array(
-                'objectid' => $submission->id,
-                'context' => $context,
-                'other' => array('groupid' => $group->id)
-            );
+            'objectid' => $submission->id,
+            'context' => $context,
+            'other' => array('groupid' => $group->id)
+        );
 
         $event = \mod_peerwork\event\submission_updated::create($params);
         $event->add_record_snapshot('peerwork_submission', $submission);
         $event->trigger();
     }
-
 
     // Save the file submitted.
     // Check if the file is different or the same.
@@ -1030,13 +1031,13 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
 
         if ($deletedhashes) {
             $params = array(
-                    'objectid' => $submission->id,
-                    'context' => $context,
-                    'other' => array(
-                        'filedeletedcount' => $filedeletedcount,
-                        'deletedlist' => $deletedlist
-                        )
-                );
+                'objectid' => $submission->id,
+                'context' => $context,
+                'other' => array(
+                    'filedeletedcount' => $filedeletedcount,
+                    'deletedlist' => $deletedlist
+                )
+            );
 
             $event = \mod_peerwork\event\submission_files_deleted::create($params);
             $event->trigger();
@@ -1044,13 +1045,13 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
 
         if ($filelist) {
             $params = array(
-                    'objectid' => $submission->id,
-                    'context' => $context,
-                    'other' => array(
-                        'filesubmissioncount' => $filesubmissioncount,
-                        'filelist' => $filelist
-                        )
-                );
+                'objectid' => $submission->id,
+                'context' => $context,
+                'other' => array(
+                    'filesubmissioncount' => $filesubmissioncount,
+                    'filelist' => $filelist
+                )
+            );
 
             $event = \mod_peerwork\event\submission_files_uploaded::create($params);
             $event->trigger();
@@ -1072,52 +1073,40 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     $DB->delete_records('peerwork_peers',
         array('peerwork' => $peerwork->id, 'groupid' => $group->id, 'gradedby' => $USER->id));
 
-
-    // Save the grades and feedback for your peers against each criteria. This is held in $data
-    // Only save against criteria that have been specified otherwise we create a lot of "criteria#4 = grade zero" records
-    $peerwork_criteria = new peerwork_criteria($peerwork->id);
-    $criterias = $peerwork_criteria ->getCriteria(); // id => record
-    $sorts = array();
-    foreach ($criterias as $id => $record) {
-        $sorts[] = $record->sort;
-    }
-//    error_log("peerwork_save() criteria=" . print_r($criterias,true) . " sort=". print_r($sorts, true));
-
-    foreach ($sorts as $key => $sort) {
-
+    // Save the grades.
+    $pac = new peerwork_criteria($peerwork->id);
+    $criteria = $pac->getCriteria();
+    foreach ($criteria as $criterion) {
         foreach ($membersgradeable as $member) {
-
             $peer = new stdClass();
             $peer->peerwork = $peerwork->id;
-            $peer->sort = $sort;
+            $peer->criteriaid = $criterion->id;
             $peer->groupid = $group->id;
             $peer->gradedby = $USER->id;
             $peer->gradefor = $member->id;
+            $peer->feedback = null;
             $peer->timecreated = time();
-
-            $field = 'grade_idx_'. $sort;	// eg grade_idx_0 matches field setup at submissions_form.php $grpname
-            error_log("looking for ". print_r( $data->{$field}, true) );
-            if (isset($data->{$field}[$peer->gradefor]) ) {
+            $field = 'grade_idx_'. $criterion->id;
+            if (isset($data->{$field}[$peer->gradefor])) {
                 $peer->grade = $data->{$field}[$peer->gradefor];
             } else {
                 $peer->grade = 0;
             }
-            // place where we would store feedback
-            $ret = $DB->insert_record('peerwork_peers', $peer, true);
 
+            $peer->id = $DB->insert_record('peerwork_peers', $peer, true);
         }
-		// add a log entry
-        $fullname = fullname($member);
 
+        // add a log entry
+        $fullname = fullname($member);
         $params = array(
-                'objectid' => $peer->id,
-                'context' => $context,
-                'relateduserid' => $member->id,
-                'other' => array(
-                    'grade' => $peer->grade,
-                    'fullname' => $fullname
-                    )
-            );
+            'objectid' => $peer->id,
+            'context' => $context,
+            'relateduserid' => $member->id,
+            'other' => array(
+                'grade' => $peer->grade,
+                'fullname' => $fullname
+            )
+        );
 
         $event = \mod_peerwork\event\peer_grade_created::create($params);
         $event->add_record_snapshot('peerwork_peers', $peer);
@@ -1126,7 +1115,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
 
     // Send email confirmation.
     if (!mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data)) {
-        throw new Exception("Submission saved but no email sent.");
+        throw new moodle_exception("Submission saved but no email sent.");
     }
 }
 

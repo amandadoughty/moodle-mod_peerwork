@@ -36,6 +36,8 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'standard_deviation', 'moderation', 'multiplyby',
             'justification', 'completiongradedpeers'));
 
+        // TODO Backup criteria, and criteriaid in peers.
+
         $peers = new backup_nested_element('peers');
 
         $peer = new backup_nested_element('peer', array('id'), array(
