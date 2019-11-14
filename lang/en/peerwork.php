@@ -28,6 +28,10 @@ $string['addmorecriteriastep_help'] = 'The number of assessment criteria to appe
 $string['completiongradedpeers'] = 'Require peers graded';
 $string['completiongradedpeers_desc'] = 'Students must grade all their peers';
 $string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';
+$string['justificationdisabled'] = 'Disabled';
+$string['justificationhiddenfromstudents'] = 'Hidden from students';
+$string['justificationvisibleanon'] = 'Visible anonymous';
+$string['justificationvisibleuser'] = 'Visible with usernames';
 $string['modulename'] = 'Peer Assessment';
 $string['modulenameplural'] = 'Peer Assessments';
 $string['modulename_help'] = 'The Peer Assessment activity is a group assignment submission combined with peer grading.<br />
@@ -41,6 +45,13 @@ $string['peerwork'] = 'Peer Assessment';
 $string['pluginadministration'] = 'Peer Assessment administration';
 $string['pluginname'] = 'Peer Assessment';
 $string['provideminimumonecriterion'] = 'Please provide at least one criterion.';
+$string['requirejustification'] = 'Require justification';
+$string['requirejustification_help'] = '
+- Disabled: Students will not be required to add any comments justifying the scores given for each of their peers
+- Hidden from students: Any comments left by students will be visible only to teachers and hidden from their peers
+- Visible anonymous: Any comments left by students will be visible to their peers but the identities of those leaving comments will be hidden
+- Visible with usernames: Any comments left by students will be visible to their peers along with the identities of those leaving the feedback
+';
 $string['grade'] = 'Grade';
 $string['feedback'] = 'Feedback to group';
 $string['peers'] = 'Grade your peers';

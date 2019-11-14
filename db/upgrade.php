@@ -122,5 +122,20 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111401, 'peerwork');
     }
 
+    if ($oldversion < 2019111402) {
+
+        // Define field justification to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('justification', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'standard_deviation');
+
+        // Conditionally launch add field justification.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111402, 'peerwork');
+    }
+
     return true;
 }

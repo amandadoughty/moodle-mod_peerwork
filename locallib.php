@@ -34,6 +34,11 @@ define('peerwork_FROMDATE_NOT_USED', 0);
 define('peerwork_FROMDATE_OK', 1);
 define('peerwork_FROMDATE_BEFORE', 2);
 
+define('MOD_PEERWORK_JUSTIFICATION_DISABLED', 0);       // No justification required.
+define('MOD_PEERWORK_JUSTIFICATION_HIDDEN', 1);         // Justification hidden to students and peers.
+define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON', 2);   // Justification visible to all but anonymously.
+define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER', 3);   // Justification visible to all with identity visible.
+
 require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerwork/classes/algorithms/WebPAAlgorithm.php');
 

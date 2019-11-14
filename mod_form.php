@@ -127,6 +127,15 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $criteria = $this->pac->getCriteria();
         $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerwork'));
 
+        $options = [
+            MOD_PEERWORK_JUSTIFICATION_DISABLED => get_string('justificationdisabled', 'mod_peerwork'),
+            MOD_PEERWORK_JUSTIFICATION_HIDDEN => get_string('justificationhiddenfromstudents', 'mod_peerwork'),
+            MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON => get_string('justificationvisibleanon', 'mod_peerwork'),
+            MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER => get_string('justificationvisibleuser', 'mod_peerwork'),
+        ];
+        $mform->addElement('select', 'justification', get_string('requirejustification', 'mod_peerwork'), $options);
+        $mform->addHelpButton('justification', 'requirejustification', 'peerwork');
+
         // Preparing repeated element.
         $elements = [];
         $repeatopts = [];
