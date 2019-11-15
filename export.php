@@ -64,8 +64,8 @@ foreach ($members as $member) {
         $row[] = $grades->grade[$peer->id];
         $row[] = html_to_text($grades->feedback[$peer->id]);
     }
-    $row[] = peerwork_get_individualaverage($peerwork, $group, $member);
-    $row[] = peerwork_get_grade($peerwork, $group, $member);
+    // TODO Display grade as per what we have in the database.
+    $row[] = 0; //peerwork_get_grade($peerwork, $group, $member);
     $data[] = $row;
 }
 $header[] = 'Average group score';
@@ -81,10 +81,6 @@ foreach ($data as $row) {
 
 // Add information common to the whole group
 $csvexport->add_data(array());
-
-$row = array('Group average');
-$row[] = peerwork_get_groupaverage($peerwork, $group);
-$csvexport->add_data($row);
 
 $row = array('Course work grade');
 if (isset($submission->grade)) {

@@ -135,6 +135,7 @@ function peerwork_delete_instance($id) {
     $DB->delete_records('peerwork_justification', ['peerworkid' => $id]);
     $DB->delete_records('peerwork_criteria', ['peerworkid' => $id]);
     $DB->delete_records('peerwork_submission', ['assignment' => $id]);
+    $DB->delete_records('peerwork_grades', ['peerworkid' => $id]);
     $DB->delete_records('peerwork', ['id' => $id]);
 
     return true;
@@ -298,81 +299,51 @@ function peerwork_grade_item_update(stdClass $peerwork, $grades = null) {
 }
 
 /**
- * Update peerwork grades in the gradebook
+ * Update peerwork grades in the gradebook.
  *
- * Needed by grade_update_mod_grades() in lib/gradelib.php
+ * This updates the grades based on what was recorded when the educator saved them,
+ * and only when the grades have been released. So it is possible that grades won't
+ * change when the settings of the module itself change.
  *
  * @param stdClass $peerwork instance object with extra cmidnumber and modname property
  * @param int $userid update grade of specific user only, 0 means all participants
  * @return void
- *
- * TODO should this even be called if peers havent yet added submissions and grades??
  */
 function peerwork_update_grades(stdClass $peerwork, $userid = 0, $nullifnone = true) {
-    // Will be called for each user id from a group, upon grading.
     global $CFG, $DB;
 
-    require_once($CFG->libdir . '/gradelib.php');
-
-    $cm = get_coursemodule_from_instance('peerwork', $peerwork->id, $peerwork->course, false, MUST_EXIST);
-    $groupingid = $cm->groupingid;
-    $courseid = $peerwork->course;
-    $error = array();
+    $sql = "SELECT g.id, g.userid, g.grade, g.revisedgrade, s.feedbacktext, s.feedbackformat
+             FROM {peerwork_grades} g
+             JOIN {peerwork_submission} s
+               ON g.submissionid = s.id
+            WHERE g.peerworkid = :peerworkid
+              AND s.released > 0";
 
     if ($userid == 0) {
-        // Get all users in a course.
-        // Maybe we should take all roles with archetype student.
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
-        $context = context_module::instance($cm->id);
-        $users = get_role_users($role->id, $context, true);
+        $sql .= ' AND g.userid != :userid';
     } else {
-        $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
-        $users = array($user);
+        $sql .= ' AND g.userid = :userid';
     }
 
-    $grades = array();
+    $params = [
+        'peerworkid' => $peerwork->id,
+        'userid' => $userid,
+    ];
 
-    foreach ($users as $user) {
-        $groups = groups_get_all_groups($courseid, $user->id, $groupingid);
-
-        if (count($groups) > 1) {
-            $error[] = "{$user->firstname} {$user->lastname}";
-            continue;
-        }
-
-        $group = array_shift($groups);
-        $submission = null;
-        $grade = peerwork_get_grade($peerwork, $group, $user);
-
-        if ($group) {
-            $submission = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id,
-                'groupid' => $group->id));
-        }
-
-        if ($grade == '-') {
-            $grade = null;
-        }
-
-        $grades[$user->id]['rawgrade'] = $grade;
-        $grades[$user->id]['userid'] = $user->id;
-
-        if ($submission) {
-            $grades[$user->id]['feedback'] = $submission->feedbacktext;
-            $grades[$user->id]['feedbackformat'] = $submission->feedbackformat;
-        }
-
-        if (!isset($grades[$user->id]['feedbackformat'])) {
-            $grades[$user->id]['feedbackformat'] = FORMAT_HTML;
-        }
+    $grades = [];
+    $records = $DB->get_recordset_sql($sql, $params);
+    foreach ($records as $record) {
+        $userid = $record->userid;
+        $grades[$userid] = [
+            'rawgrade' => $record->revisedgrade !== null ? $record->revisedgrade : $record->grade,
+            'userid' => $userid,
+            'feedback' => $record->feedbacktext ?? '',
+            'feedbackformat' => $record->feedbackformat ?? FORMAT_PLAIN,
+        ];
     }
+    $records->close();
 
     peerwork_grade_item_update($peerwork, $grades);
-
-    if ($error) {
-        $names = join(', ', $error);
-        $returnurl = new moodle_url('/mod/peerwork/view.php', array('id' => $cm->id));
-        print_error('multiplegroups', 'mod_peerwork', $returnurl, $names);
-    }
 }
 
 /**
@@ -472,6 +443,16 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
 
     // Finally send the file.
     send_stored_file($file, 0, 0, true, $options); // download MUST be forced - security!
+}
+
+/**
+ * Reset user data.
+ *
+ * @param object $data the data submitted from the reset course.
+ * @return array Status array.
+ */
+function peerwork_reset_userdata($data) {
+    return [];
 }
 
 /**

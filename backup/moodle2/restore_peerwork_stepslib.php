@@ -34,6 +34,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
             $paths[] = new restore_path_element('peerwork_peer', '/activity/peerwork/peers/peer');
             $paths[] = new restore_path_element('peerwork_justification', '/activity/peerwork/justifications/justification');
             $paths[] = new restore_path_element('peerwork_submission', '/activity/peerwork/submissions/submission');
+            $paths[] = new restore_path_element('peerwork_grade', '/activity/peerwork/grades/grade');
         }
 
         // Return the paths wrapped into standard activity structure.
@@ -71,6 +72,18 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $this->set_mapping('peerwork_criteria', $oldid, $newitemid);
     }
 
+    protected function process_peerwork_grade($data) {
+        global $DB;
+
+        $data = (object) $data;
+
+        $data->peerworkid = $this->get_new_parentid('peerwork');
+        $data->submissionid = $this->get_mappingid('peerwork_submission', $data->submissionid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $newitemid = $DB->insert_record('peerwork_grades', $data);
+    }
+
     protected function process_peerwork_justification($data) {
         global $DB;
 
@@ -105,7 +118,8 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
     protected function process_peerwork_submission($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
+        $oldid = $data->id;
 
         $this->set_mapping('group_map', $data->groupid,  $this->get_mappingid('group', $data->groupid), true);
 
@@ -113,13 +127,10 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->groupid = $this->get_mappingid('group', $data->groupid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
-
-        // $data->optionid = $this->get_mappingid('peerwork_option', $data->optionid);
-        // $data->timemodified = $this->apply_date_offset($data->timemodified);
+        $data->releasedby = $this->get_mappingid('user', $data->releasedby);
 
         $newitemid = $DB->insert_record('peerwork_submission', $data);
-        // No need to save this mapping as far as nothing depend on it
-        // (child paths, file areas nor links decoder).
+        $this->set_mapping('peerwork_submission', $oldid, $newitemid);
     }
 
     protected function after_execute() {

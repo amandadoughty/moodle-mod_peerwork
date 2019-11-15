@@ -210,5 +210,20 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019111407, 'peerwork');
     }
 
+    if ($oldversion < 2019111500) {
+
+        // Define field paweighting to be added to peerwork_submission.
+        $table = new xmldb_table('peerwork_submission');
+        $field = new xmldb_field('paweighting', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '50', 'grade');
+
+        // Conditionally launch add field paweighting.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019111500, 'peerwork');
+    }
+
     return true;
 }

@@ -56,7 +56,12 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'userid',
             'timecreated', 'timemodified', 'status', 'groupid', 'attemptnumber',
             'grade', 'feedbacktext', 'feedbackformat', 'timegraded',
-            'gradedby'));
+            'gradedby', 'released', 'releasedby', 'paweighting'));
+
+        $grades = new backup_nested_element('grades');
+        $grade = new backup_nested_element('grade', ['id'], [
+            'submissionid', 'userid', 'grade', 'revisedgrade'
+        ]);
 
         // Build the tree.
         $peerwork->add_child($criteria);
@@ -71,6 +76,9 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peerwork->add_child($submissions);
         $submissions->add_child($submission);
 
+        $peerwork->add_child($grades);
+        $grades->add_child($grade);
+
         // Define sources.
         $peerwork->set_source_table('peerwork', array('id' => backup::VAR_ACTIVITYID));
         $criterion->set_source_table('peerwork_criteria', ['peerworkid' => backup::VAR_PARENTID]);
@@ -80,6 +88,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             $peer->set_source_table('peerwork_peers', ['peerwork' => backup::VAR_PARENTID]);
             $justification->set_source_table('peerwork_justification', ['peerworkid' => backup::VAR_PARENTID]);
             $submission->set_source_table('peerwork_submission', array('assignment' => '../../id'));
+            $grade->set_source_table('peerwork_grades', ['peerworkid' => backup::VAR_PARENTID]);
         }
 
         // Define id annotations.
@@ -96,7 +105,10 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         $submission->annotate_ids('user', 'userid');
         $submission->annotate_ids('user', 'gradedby');
+        $submission->annotate_ids('user', 'releasedby');
         $submission->annotate_ids('group', 'groupid');
+
+        $grade->annotate_ids('user', 'userid');
 
         // Define file annotations.
         $peerwork->annotate_files('mod_peerwork', 'intro', null);

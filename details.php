@@ -47,7 +47,7 @@ $status         = peerwork_get_status($peerwork, $group);
 // Print the standard page header and check access rights.
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-$PAGE->set_url('/mod/peerwork/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/peerwork/details.php', ['id' => $cm->id, 'groupid' => $groupid]);
 $PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
@@ -55,19 +55,46 @@ require_capability('mod/peerwork:grade', $context);
 
 
 // Start the form, initialise with some data.
-$data = array('id' => $id, 'groupid' => $groupid); //, 'feedback_files' => $draftitemid
+$fileoptions = mod_peerwork_details_form::$fileoptions;
+$draftitemid = file_get_submitted_draft_itemid('feedback_files');
+file_prepare_draft_area($draftitemid, $context->id, 'mod_peerwork', 'feedback_files', $group->id, $fileoptions);
+$data = [
+    'paweighting' => $peerwork->paweighting,
+    'feedback_files' => $draftitemid
+];
 
-
-$mform = new mod_peerwork_details_form();
-if ($status->code == peerwork_STATUS_GRADED) {
-//     $data['feedback']['text'] = "KM" . $submission->feedbacktext;
-//     $data['feedback']['format'] = $submission->feedbackformat;
+// Load the submission data.
+if ($submission && peerwork_was_submission_graded_from_status($status)) {
     $data['grade'] = $submission->grade;
+    $data['paweighting'] = $submission->paweighting;
+    $data['feedback'] = [
+        'text' => $submission->feedbacktext ?? '',
+        'format' => $submission->feedbackformat ?? FORMAT_HTML
+    ];
 }
+
+// Get the justifications.
+$justifications = [];
+if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
+    $justifications = $DB->get_records('peerwork_justification', ['peerworkid' => $peerwork->id, 'groupid' => $group->id]);
+    $justifications = array_reduce($justifications, function($carry, $row) {
+        if (!isset($carry[$row->gradedby])) {
+            $carry[$row->gradedby] = [];
+        }
+        $carry[$row->gradedby][$row->gradefor] = $row;
+        return $carry;
+    }, []);
+}
+
+$mform = new mod_peerwork_details_form($PAGE->url->out(false), [
+    'peerwork' => $peerwork,
+    'justifications' => $justifications,
+    'members' => $members,
+]);
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
-$submissionfiles = peerwork_submission_files($context, $group);	// creates <a href HTML
-$data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', 'peerwork') : implode('<br/>', $submissionfiles); 
+$submissionfiles = peerwork_submission_files($context, $group); // creates <a href HTML
+$data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', 'peerwork') : implode('<br/>', $submissionfiles);
 
 
 // Get the peer grades awarded so far, then for each criteria
@@ -76,49 +103,52 @@ $data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', '
 $grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
 $pac = new peerwork_criteria( $peerwork->id );
 $data['peergradesawarded'] = '';
-foreach( $pac ->getCriteria() as $criteria ) {
-	
-	$sort = $criteria->sort;
+foreach($pac ->getCriteria() as $criteria) {
 
-	$t = new html_table();
-	$t->attributes['class'] = 'userenrolment';
-	$t->id = 'mod-peerwork-summary-table';
-	$t->head[] = '';
-	$t->caption = $criteria ->description;
-	
-	foreach ($members as $member) {
-		$t->head[] = fullname($member);
-		$row = new html_table_row();
-		$row->cells = array();
-		$row->cells[] = fullname($member);
-		
-		foreach ($members as $peer) {
-			if( array_key_exists( $member->id, $grades->grades[$sort] ) &&  array_key_exists( $peer->id, $grades->grades[$sort][$member->id])) {
-				$row->cells[] = $grades->grades[$sort][$member->id][$peer->id];
-			} else {
-				$row->cells[] = '-';
-			}
-			
-		}
-		$t->data[] = $row;
-	}
-	$data['peergradesawarded'] .= html_writer::table($t); // Write the table for this criterion into the HTML placeholder element.
+    $critid = $criteria->id;
+
+    $t = new html_table();
+    $t->attributes['class'] = 'userenrolment';
+    $t->id = 'mod-peerwork-summary-table';
+    $t->head[] = '';
+    $t->caption = $criteria->description;
+
+    foreach ($members as $member) {
+        $t->head[] = fullname($member);
+        $row = new html_table_row();
+        $row->cells = array();
+        $row->cells[] = fullname($member);
+
+        foreach ($members as $peer) {
+            if (!isset($grades->grades[$critid]) || !isset($grades->grades[$critid][$member->id])
+                    || !isset($grades->grades[$critid][$member->id][$peer->id])) {
+                $row->cells[] = '-';
+            } else {
+                $row->cells[] = $grades->grades[$critid][$member->id][$peer->id];
+            }
+        }
+        $t->data[] = $row;
+    }
+    $data['peergradesawarded'] .= html_writer::table($t); // Write the table for this criterion into the HTML placeholder element.
 }
 
+// If assignment has been graded then pass the required data to create a table showing calculated grades.
+if (peerwork_was_submission_graded_from_status($status)) {
+    $result = peerwork_get_webpa_result($peerwork, $group);
+    $localgrades = peerwork_get_local_grades($peerwork->id, $submission->id);
 
-// If assignment has been graded then pass the required data to create a table showing calculated grades. 
-$finalgrades = array(); // Becomes userid => grade 
-if ($status->code == peerwork_STATUS_GRADED) {
-	$data['finalgrades'] = array();
-	
-	foreach ($members as $member) { 
-		$gradebook = 99;	//TODO current (if any) gradebook grade
-		$data['finalgrades'][] = array(	'memberid'=>$member->id, 
-										'contribution' => peerwork_get_score($peerwork, $group, $member), 
-										'fullname'=>fullname($member), 
-										'calcgrade'=>peerwork_get_grade($peerwork, $group, $member), 
-										'finalgrade'=>$gradebook );
-	}
+    $data['finalgrades'] = [];
+    foreach ($members as $member) {
+        $data['finalgrades'][] = array(
+            'memberid' => $member->id,
+            'fullname' => fullname($member),
+            'contribution' => $result->get_score($member->id),
+            'calcgrade' => $result->get_preliminary_grade($member->id),
+            'penalty' => $result->get_non_completion_penalty($member->id),
+            'finalweightedgrade' => $result->get_grade($member->id),
+            'revisedgrade' => $localgrades[$member->id]->revisedgrade ?? null
+        );
+    }
 }
 $mform->set_data($data);
 
@@ -128,7 +158,7 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('view.php', array('id' => $cm->id)));
     return;
 } else if (($data = $mform->get_data())) {
-	//
+    //
     // Form has been submitted, save form values to database then redirect to re-display form.
     //
     if (!$submission) {
@@ -137,39 +167,35 @@ if ($mform->is_cancelled()) {
         $submission->groupid = $group->id;
     }
     $submission->grade = $data->grade;
+    $submission->paweighting = $data->paweighting;
     $submission->gradedby = $USER->id;
     $submission->timegraded = time();
     $submission->feedbacktext = $data->feedback['text'];
     $submission->feedbackformat = $data->feedback['format'];
 
-    // add final grade here
-    //$submission->finalgrade = peerwork_get_grade($peerwork, $group, $member);
-
-    //error_log("details.php submitting form with " . print_r($submission,true) );
     if (isset($submission->id)) {
         $DB->update_record('peerwork_submission', $submission);
     } else {
+        // Insert and fetch, so we have the full record to pass as snapshot to the event below.
         $submission->id = $DB->insert_record('peerwork_submission', $submission);
+        $submission = $DB->get_record('peerwork_submission', ['id' => $submission->id], '*', MUST_EXIST);
     }
 
-    // Update grades for every group member.
-    foreach ($members as $member) {
-        peerwork_update_grades($peerwork, $member->id);
-    }
     // Save the file submitted.
-    file_save_draft_area_files($draftitemid, $context->id, 'mod_peerwork', 'feedback_files',
-        $group->id, mod_peerwork_details_form::$fileoptions);
+    file_save_draft_area_files($draftitemid, $context->id, 'mod_peerwork', 'feedback_files', $group->id, $fileoptions);
+
+    // Save the grades.
+    peerwork_update_local_grades($peerwork, $group, $submission, array_keys($members), $data->revisedgrades);
 
     $params = array(
-                'objectid' => $submission->id,
-                'context' => $context,
-                'other' => array(
-                    'groupid' => $group->id,
-                    'groupname' => $group->name,
-                    'grade' => $data->grade
-                    )
-            );
-
+        'objectid' => $submission->id,
+        'context' => $context,
+        'other' => array(
+            'groupid' => $group->id,
+            'groupname' => $group->name,
+            'grade' => $data->grade
+        )
+    );
     $event = \mod_peerwork\event\submission_graded::create($params);
     $event->add_record_snapshot('peerwork_submission', $submission);
     $event->trigger();
@@ -177,15 +203,14 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)));
 }
 
-// 
+//
 // Form should now be setup to display, so do the output.
 //
 $params = array(
-                'objectid' => $cm->id,
-                'context' => $context,
-                'other' => array('groupid' => $group->id)
-            );
-
+    'objectid' => $cm->id,
+    'context' => $context,
+    'other' => array('groupid' => $group->id)
+);
 $event = \mod_peerwork\event\submission_grade_form_viewed::create($params);
 $event->trigger();
 

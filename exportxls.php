@@ -71,12 +71,11 @@ foreach ($allgroups as $group) {
         $row = array();
         $row[] = fullname($member);
         $row[] = $group->name;
-        $row[] = peerwork_get_individualaverage($peerwork, $group, $member);
-        $row[] = peerwork_get_groupaverage($peerwork, $group);
         if (isset($submission->grade)) {
             $row[] = $submission->grade;
         }
-        $row[] = peerwork_get_grade($peerwork, $group, $member);
+        // TODO Display grade as per what we have in the database.
+        $row[] = 0; // peerwork_get_grade($peerwork, $group, $member);
         if (isset($submission->timegraded)) {
             $row[] = userdate($submission->timegraded);
         }
@@ -121,8 +120,8 @@ foreach ($allgroups as $group) {
             $row[] = $grades->grade[$peer->id];
             $row[] = html_to_text($grades->feedback[$peer->id]);
         }
-        $row[] = peerwork_get_individualaverage($peerwork, $group, $member);
-        $row[] = peerwork_get_grade($peerwork, $group, $member);
+        // TODO Display grade as per what we have in the database.
+        $row[] = 0; // peerwork_get_grade($peerwork, $group, $member);
         $data[] = $row;
     }
     $header[] = 'Average group score';

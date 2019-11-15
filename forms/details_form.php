@@ -28,8 +28,8 @@ require_once($CFG->libdir . '/formslib.php');
  * Creates UI elements for the tutor to enter an overall grade to a submission.
  * Called from and data provided by details.php
  */
-class mod_peerwork_details_form extends moodleform
-{
+class mod_peerwork_details_form extends moodleform {
+
     public static $fileoptions = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,
         'accepted_types' => '*', 'return_types' => null);
 
@@ -41,107 +41,154 @@ class mod_peerwork_details_form extends moodleform
         $userid = $USER->id;
         $strrequired = get_string('required');
 
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
+        $peerwork = $this->_customdata['peerwork'];
+        $members = $this->_customdata['members'];
+        $justifications = $this->_customdata['justifications'];
 
-        $mform->addElement('hidden', 'groupid');
-        $mform->setType('groupid', PARAM_INT);
-        
-        ////////////////////////////////////////////////////////////////////////////////////////
-        $mform->addElement('header', 'mod_peerwork_details', 'Details' );  
-        $mform->addElement('static', 'groupname', 'Group' ); // Filled from $data['groupname']
-        $mform->addElement('static', 'status', 'Status' );
-        
-        ////////////////////////////////////////////////////////////////////////////////////////
-        $mform->addElement('header', 'mod_peerwork_peers', 'Peer submission and grades' );  
+        $mform->addElement('header', 'mod_peerwork_details', get_string('general'));
+        $mform->addElement('static', 'groupname', get_string('group'));
+        $mform->addElement('static', 'status', get_string('status'));
+
+        $mform->addElement('header', 'mod_peerwork_peers', get_string('peersubmissionandgrades', 'mod_peerwork'));
         $mform->addElement('static', 'submission', get_string('submission', 'peerwork'));
         $mform->addHelpButton('submission', 'submission', 'peerwork');
-        
-        $mform->addElement('static', 'peergradesawarded', "");	// This gets replaced in details.php with a table of grades peers have awarded.
-        
-        
+
+        $mform->addElement('static', 'peergradesawarded', "");  // This gets replaced in details.php with a table of grades peers have awarded.
+
+        if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
+            $mform->addElement('header', 'justificationshdr', get_string('justifications', 'mod_peerwork'));
+            foreach ($members as $gradedby) {
+                $rows = [];
+                $theirjustifs = !empty($justifications[$gradedby->id]) ? $justifications[$gradedby->id] : [];
+                foreach ($members as $gradefor) {
+                    if (!$peerwork->selfgrading && $gradedby->id == $gradefor->id) {
+                        continue;
+                    }
+                    $justif = isset($theirjustifs[$gradefor->id]) ? $theirjustifs[$gradefor->id]->justification : null;
+                    $rows[] = new html_table_row([
+                        fullname($gradefor),
+                        ($justif ? s($justif) : html_writer::tag('em', get_string('nonegiven', 'mod_peerwork')))
+                    ]);
+                }
+                $t = new html_table();
+                $t->data = $rows;
+                $mform->addElement(
+                    'static',
+                    "justif_{$gradedby->id}",
+                    get_string('justificationbyfor', 'mod_peerwork', fullname($gradedby)),
+                    html_writer::table($t)
+                );
+            }
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////
-        $mform->addElement('header', 'mod_peerwork_grading', 'Tutor grading' );
-        $mform->addElement('text', 'grade', "Group grade out of 100", array('maxlength' => 15, 'size' => 10));
+        $mform->addElement('header', 'mod_peerwork_grading', get_string('tutorgrading', 'mod_peerwork'));
+
+        $mform->addElement('text', 'grade', get_string('groupgradeoutof100', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
         $mform->setType('grade', PARAM_INT);
-        // $mform->setDefault('grade', 'defult string value for the textarea');
-        // $mform->addHelpButton('grade', 'langkey_help', 'peerwork');
-        // $mform->disabledIf('grade', 'value1', 'eq|noteq', 'value2');
-        // $mform->addRule('grade', $strrequired, 'required', null, 'client');
-        // $mform->setAdvanced('grade');
-        
-        $mform->addElement('static', 'finalgrades', "Calculated grades");	// becomes a HTML table
-        //$mform->addHelpButton('finalgrades', 'finalgrades', 'peerwork');
+
+        $mform->addElement('text', 'paweighting', get_string('paweighting', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
+        $mform->setType('paweighting', PARAM_INT);
+
+        foreach ($members as $member) {
+            $mform->addElement('hidden', 'grade_' . $member->id, '');
+            $mform->setType('grade_' . $member->id, PARAM_RAW); // We don't want the value to be forced to 0.
+        }
+
+        $mform->addElement('static', 'finalgrades', get_string('calculatedgrades', 'mod_peerwork'));
 
 
-        $editoroptions = array();
-        $mform->addElement('editor', 'feedback', get_string('feedback', 'peerwork'), '', $editoroptions);
+        $mform->addElement('editor', 'feedback', get_string('feedback', 'peerwork'), ['rows' => 6]);
         $mform->setType('feedback', PARAM_CLEANHTML);
-        // $mform->addHelpButton('feedback', 'langkey_help', 'peerwork');
-        // $mform->disabledIf('feedback', 'value1', 'eq|noteq', 'value2');
-        // $mform->addRule('feedback', $strrequired, 'required', null, 'client');
-        // $mform->setAdvanced('feedback');
 
         $mform->addElement('filemanager', 'feedback_files', get_string('feedbackfiles', 'peerwork'),
-            null, $this->_customdata['fileoptions']);
-        // $mform->addHelpButton('feedback_files', 'langkey_help', 'peerwork');
-        // $mform->disabledIf('feedback_files', 'value1', 'eq|noteq', 'value2');
-        // $mform->addRule('feedback_files', $strrequired, 'required', null, 'client');
-        // $mform->setAdvanced('feedback_files');
+            null, self::$fileoptions);
 
-        
         $this->add_action_buttons();
+    }
+
+    /**
+     * Get the data.
+     *
+     * @return object
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        if (!is_object($data)) {
+            return $data;
+        }
+
+        $revisedgrades = [];
+        foreach ($data as $key => $value) {
+            if (strpos($key, 'grade_') === 0) {
+                $memberid = (int) substr($key, 6);
+                $grade = unformat_float($value);
+                $revisedgrades[$memberid] = $grade !== null ? max(0, min(100, $grade)) : null;
+                unset($data->{$key});
+            }
+        }
+
+        $data->revisedgrades = $revisedgrades;
+
+        return $data;
     }
 
     /**
      * Called from details.php to populate the form from existing data.
      */
     public function set_data($data) {
-    	global $OUTPUT;
- 
-    	error_log("set_data " . print_r($data['finalgrades'] , true ) );
-    	
-    	if( array_key_exists('finalgrades', $data) ) {
-    		
-    		$t = new html_table();
-    		$t->attributes['class'] = 'userenrolment';
-    		$t->id = 'mod-peerwork-summary-table';
-    		$t->head = array(	'Name', 
-    							get_string('contibutionscore', 'peerwork'). $OUTPUT->help_icon('contibutionscore', 'peerwork'),
-    							'Calculated grade', 
-    							"Revised grade");
-    		
-    		foreach ($data['finalgrades'] as $member) {
-    			$row = new html_table_row();
-    			// TODO also add grade from gradebook in case it's overwritten ??
-    			
-    			$default = $member['calcgrade'];
+        global $OUTPUT;
 
-    			$row->cells[] = $member['fullname']; 
-    			$row->cells[] = $member['contribution'];
-    			$row->cells[] = $member['calcgrade'];
-    			$row->cells[] = $this->_form ->createElement('text', 'grade_'.$member['memberid'], '', array('maxlength' => 15, 'size' => 10)) ->toHtml();
-    			
-    			// not working $this->_form ->setDefault('grade_'.$member['memberid'], $default );
-    			
-    			$t->data[] = $row;
-    		}
-    		$data['finalgrades'] = html_writer::table($t);
-    		
-    	} else {    		
-    		$data['finalgrades'] = ""; 
-    	}
-    	
+        if (array_key_exists('finalgrades', $data)) {
 
-    	return parent::set_data($data);
+            $t = new html_table();
+            $t->attributes['class'] = 'userenrolment';
+            $t->id = 'mod-peerwork-summary-table';
+            $t->head = [
+                get_string('name'),
+                get_string('contibutionscore', 'mod_peerwork') . $OUTPUT->help_icon('contibutionscore', 'mod_peerwork'),
+                get_string('calculatedgrade', 'mod_peerwork') . $OUTPUT->help_icon('calculatedgrade', 'mod_peerwork'),
+                get_string('penalty', 'mod_peerwork'),
+                get_string('finalweightedgrade', 'mod_peerwork'),
+                get_string('revisedgrade', 'mod_peerwork') . $OUTPUT->help_icon('revisedgrade', 'mod_peerwork'),
+            ];
+
+            foreach ($data['finalgrades'] as $member) {
+                $row = new html_table_row();
+
+                $default = $member['calcgrade'];
+                $revisedgrade = $member['revisedgrade'];
+
+                $row->cells[] = $member['fullname'];
+                $row->cells[] = format_float($member['contribution'], 4);
+                $row->cells[] = format_float($member['calcgrade'], 2);
+                $row->cells[] = format_float($member['penalty'] * 100, 0) . '%';
+                $row->cells[] = format_float($member['finalweightedgrade'], 2);
+                $row->cells[] = $this->_form ->createElement('text', 'grade_' . $member['memberid'], '',
+                    ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)])->toHtml();
+
+                $t->data[] = $row;
+            }
+            $data['finalgrades'] = html_writer::table($t);
+
+        } else {
+            $data['finalgrades'] = html_writer::tag('em', get_string('notyetgraded', 'mod_peerwork'));
+        }
+
+        return parent::set_data($data);
     }
-    
+
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
         if ($data['grade'] < 0 || $data['grade'] > 100) {
-            $errors['grade'] = 'Grade should be between 0 and 100';
+            $errors['grade'] = get_string('invalidgrade', 'mod_peerwork');
         }
+
+        if ($data['paweighting'] < 0 || $data['paweighting'] > 100) {
+            $errors['paweighting'] = get_string('invalidpaweighting', 'mod_peerwork');
+        }
+
         return $errors;
     }
 }

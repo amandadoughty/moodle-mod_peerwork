@@ -97,13 +97,12 @@ if (has_capability('mod/peerwork:grade', $context)) {
      *
      */
     $duedate = peerwork_due_date($peerwork);
-    if ($duedate != peerwork_DUEDATE_NOT_USED) {
-        echo $OUTPUT->box('Due date: ' . userdate($peerwork->duedate));
-        if ($duedate == peerwork_DUEDATE_PASSED) {
-            echo $OUTPUT->box('Assessment closed for: ' . format_time(time() - $peerwork->duedate));
+    if ($duedate != PEERWORK_DUEDATE_NOT_USED) {
+        echo $OUTPUT->box(get_string('duedateat', 'mod_peerwork', userdate($peerwork->duedate)));
+        if ($duedate == PEERWORK_DUEDATE_PASSED) {
+            echo $OUTPUT->box(get_string('assessmentclosedfor', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
         } else {
-            echo $OUTPUT->box('Time remaining: ' . format_time(time() - $peerwork->duedate));
-
+            echo $OUTPUT->box(get_string('timeremaining', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
         }
     }
 
@@ -123,17 +122,24 @@ if (has_capability('mod/peerwork:grade', $context)) {
         $members = groups_get_members($group->id);
         $status = peerwork_get_status($peerwork, $group);
         $grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
+        $wasgraded = peerwork_was_submission_graded_from_status($status);
         $detailsurl = new moodle_url('details.php', ['id' => $cm->id, 'groupid' => $group->id]);
 
         $menu = new action_menu();
         $menu->add_secondary_action(new action_link(
             $detailsurl,
-            $status->code == peerwork_STATUS_GRADED ? get_string('edit') : get_string('grade')
+            $wasgraded ? get_string('edit') : get_string('grade')
         ));
         $menu->add_secondary_action(new action_link(
             new moodle_url('export.php', ['id' => $cm->id, 'groupid' => $group->id]),
             get_string('export', 'mod_peerwork')
         ));
+        if ($status->code == PEERWORK_STATUS_GRADED) {
+            $menu->add_secondary_action(new action_link(
+                new moodle_url('release.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),
+                get_string('releasegrades', 'mod_peerwork')
+            ));
+        }
 
         $row = new html_table_row();
         $row->cells = array(
@@ -148,8 +154,13 @@ if (has_capability('mod/peerwork:grade', $context)) {
     echo html_writer::table($t);
 
     echo $OUTPUT->box_start('generalbox', null);
+
     echo $OUTPUT->single_button(new moodle_url('exportxls.php', array('id' => $cm->id,  'groupingid' => $groupingid)),
         get_string("exportxls", 'mod_peerwork'), 'post', array("class" => 'yui3-u singlebutton'));
+
+    echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id,  'groupid' => 0, 'sesskey' => sesskey()]),
+        get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');
+
     echo $OUTPUT->box_end();
 
 
@@ -196,9 +207,10 @@ if (has_capability('mod/peerwork:grade', $context)) {
     if (!$isopen->code) {   // Student and we are due to submit.
 
         // If graded and grade not hidden in gradebook.
-        if ($status->code == peerwork_STATUS_GRADED && !$hidden) {
+        if ($status->code == PEERWORK_STATUS_GRADED && !$hidden) {
             // My grade.
-            $data['mygrade'] = peerwork_get_grade($peerwork, $group, $USER);
+            // TODO Update to use the grade that was saved in our table.
+            $data['mygrade'] = 0; //peerwork_get_grade($peerwork, $group, $USER);
 
             // Feedback.
             $data['feedback'] = $submission->feedbacktext;
@@ -283,7 +295,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
         echo $OUTPUT->box(format_string($peerwork->intro));
 
         // If graded.
-        if ($status->code == peerwork_STATUS_GRADED && !$hidden) {
+        if ($status->code == PEERWORK_STATUS_GRADED && !$hidden) {
             // My grade.
             $data['mygrade'] = peerwork_get_grade($peerwork, $group, $USER);
 
