@@ -20,6 +20,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * @package    mod_peerwork
+ * @copyright  2013 LEARNING TECHNOLOGY SERVICES
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_peerwork_renderer extends plugin_renderer_base {
     public function render_peerwork_summary(peerwork_summary $summary) {
         $group = $summary->group;
@@ -29,15 +36,11 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         $isopen = peerwork_is_open($peerwork, $group->id);
         $status = $summary->status;
         $files = $data['files'];
-        if (isset($data['outstanding'])) {
-            $outstanding = $data['outstanding'];
-        } else {
-            $outstanding = array();
-        }
-        $t = new html_table();
+        $outstanding = $data['outstanding'] ?? [];
 
+        $t = new html_table();
         $row = new html_table_row();
-        $cell1 = new html_table_cell('Group');
+        $cell1 = new html_table_cell(get_string('group'));
         $cell2 = new html_table_cell($group->name);
         $row->cells = array($cell1, $cell2);
         $t->data[] = $row;
@@ -45,17 +48,13 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         $row = new html_table_row();
         $cell1 = new html_table_cell('Submission status');
 
-        $users = '';
-        foreach ($outstanding as $member) {
-            $users .= fullname($member) . ',';
-        }
         $text = "<p>$status</p>";
-        $users = rtrim($users, ',');
-        if ($users) {
+        if (!empty($outstanding)) {
+            $userslist = implode(', ', array_map('fullname', $outstanding));
             if ($isopen->code) {
-                $text .= "<p>". get_string('userswhodidnotsubmitbefore', 'peerwork', $users) . "</p>";
+                $text .= "<p>". get_string('userswhodidnotsubmitbefore', 'peerwork', $userslist) . "</p>";
             } else {
-                $text .= "<p>". get_string('userswhodidnotsubmitafter', 'peerwork', $users) . "</p>";
+                $text .= "<p>". get_string('userswhodidnotsubmitafter', 'peerwork', $userslist) . "</p>";
             }
         } else {
             $text .= get_string('allmemberssubmitted', 'peerwork');
@@ -67,18 +66,19 @@ class mod_peerwork_renderer extends plugin_renderer_base {
 
         if ($peerwork->duedate) {
             $row = new html_table_row();
-            $cell1 = new html_table_cell('Due date');
+            $cell1 = new html_table_cell(get_string('duedate', 'mod_peerwork'));
             $cell2 = new html_table_cell(userdate($peerwork->duedate));
 
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
 
             $row = new html_table_row();
-            $cell1 = new html_table_cell('Time remaining');
+            $cell1 = new html_table_cell(get_string('timeremaining', 'mod_peerwork'));
             if ($peerwork->duedate > time()) {
                 $cell2 = new html_table_cell(format_time($peerwork->duedate - time()));
             } else {
-                $cell2 = new html_table_cell('(over due by ' . format_time($peerwork->duedate - time()) .')');
+                $cell2 = new html_table_cell(get_string('noteoverdueby', 'mod_peerwork',
+                    format_time($peerwork->duedate - time())));
             }
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
@@ -91,7 +91,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             }
 
             $row = new html_table_row();
-            $cell1 = new html_table_cell('File submission');
+            $cell1 = new html_table_cell(get_string('submission', 'mod_peerwork'));
             $cell2 = new html_table_cell($fcontent);
 
             $row->cells = array($cell1, $cell2);
@@ -129,15 +129,15 @@ class mod_peerwork_renderer extends plugin_renderer_base {
 
         if (isset($data['mygrade'])) {
             $row = new html_table_row();
-            $cell1 = new html_table_cell('My final grade');
-            $cell2 = new html_table_cell($data['mygrade']);
+            $cell1 = new html_table_cell(get_string('myfinalgrade', 'mod_peerwork'));
+            $cell2 = new html_table_cell(format_float($data['mygrade'], 2));
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
         }
 
         if (isset($data['feedback'])) {
             $row = new html_table_row();
-            $cell1 = new html_table_cell('Feedback');
+            $cell1 = new html_table_cell(get_string('feedback', 'mod_peerwork'));
             $cell2 = new html_table_cell($data['feedback']);
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
@@ -145,8 +145,8 @@ class mod_peerwork_renderer extends plugin_renderer_base {
 
         if (isset($data['feedback_files'])) {
             $row = new html_table_row();
-            $cell1 = new html_table_cell('Feedback file');
-            $cell2 = new html_table_cell(implode(',', $data['feedback_files']));
+            $cell1 = new html_table_cell(get_string('feedbackfiles', 'mod_peerwork'));
+            $cell2 = new html_table_cell(implode(', ', $data['feedback_files']));
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
         }

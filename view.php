@@ -66,22 +66,15 @@ $params = array(
 
 $event = \mod_peerwork\event\course_module_viewed::create($params);
 $event->add_record_snapshot('course', $course);
-// In the next line you can use $PAGE->activityrecord if you have set it, or skip this line if you don't have a record.
 $event->add_record_snapshot($cm->modname, $peerwork);
 $event->trigger();
-
-
-// Print the page header.
 
 $PAGE->set_url('/mod/peerwork/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-// If not submitted yet, and student and part of a group
-// allow for submission.
-
-
+// Teacher view.
 if (has_capability('mod/peerwork:grade', $context)) {
 
     // Output starts here.
@@ -102,7 +95,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
         if ($duedate == PEERWORK_DUEDATE_PASSED) {
             echo $OUTPUT->box(get_string('assessmentclosedfor', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
         } else {
-            echo $OUTPUT->box(get_string('timeremaining', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
+            echo $OUTPUT->box(get_string('timeremainingcolon', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
         }
     }
 
@@ -121,7 +114,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
     foreach ($allgroups as $group) {
         $members = groups_get_members($group->id);
         $status = peerwork_get_status($peerwork, $group);
-        $grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
         $wasgraded = peerwork_was_submission_graded_from_status($status);
         $detailsurl = new moodle_url('details.php', ['id' => $cm->id, 'groupid' => $group->id]);
 
@@ -145,7 +137,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
         $row->cells = array(
             $OUTPUT->action_link($detailsurl, $group->name),
             count($members),
-            count($grades->grades),
+            peerwork_get_number_peers_graded($peerwork->id, $group->id),
             $status->text,
             $OUTPUT->render($menu)
         );
@@ -164,7 +156,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
     echo $OUTPUT->box_end();
 
 
-} else { // end of teacher only output
+} else {
     /**
      *
      * Student output displays summary of submissions amde so far and provides a button to start editing.
@@ -185,34 +177,22 @@ if (has_capability('mod/peerwork:grade', $context)) {
     $status = peerwork_get_status($peerwork, $group);
 
     $duedate = peerwork_due_date($peerwork);
-
-    // No point in doing any checks if it's not open.
-    $hidden = false;
-    $gradinginfo = grade_get_grades($course->id, 'mod', 'peerwork', $peerwork->id, array($USER->id));
-    if ($gradinginfo && isset($gradinginfo->items[0]->grades[$USER->id]) && $gradinginfo->items[0]->grades[$USER->id]->hidden) {
-        $hidden = true;
-    }
-
-    $output = $PAGE->get_renderer('mod_peerwork');
+    $renderer = $PAGE->get_renderer('mod_peerwork');
 
     // Establish the status of the assessment.
     $isopen = peerwork_is_open($peerwork, $mygroup);
 
     // Collect data on how this user graded their peers.
     $data = array();
-    $data['igraded']     = peerwork_grade_by_user($peerwork, $USER, $membersgradeable);
+    // $data['igraded']     = peerwork_grade_by_user($peerwork, $USER, $membersgradeable);
     $data['files']       = peerwork_submission_files($context, $group);
     $data['outstanding'] = peerwork_outstanding($peerwork, $group);
 
-    if (!$isopen->code) {   // Student and we are due to submit.
+    if (!$isopen->code) {
 
         // If graded and grade not hidden in gradebook.
-        if ($status->code == PEERWORK_STATUS_GRADED && !$hidden) {
-            // My grade.
-            // TODO Update to use the grade that was saved in our table.
-            $data['mygrade'] = 0; //peerwork_get_grade($peerwork, $group, $USER);
-
-            // Feedback.
+        if (peerwork_can_student_view_grade_and_feedback_from_status($status)) {
+            $data['mygrade'] = peerwork_get_user_local_grade($peerwork->id, $submission->id, $USER->id);
             $data['feedback'] = $submission->feedbacktext;
             $data['feedback_files'] = peerwork_feedback_files($context, $group);
         }
@@ -223,12 +203,9 @@ if (has_capability('mod/peerwork:grade', $context)) {
         // Show mod details.
         echo $OUTPUT->heading(format_string($peerwork->name));
         echo $OUTPUT->box(format_string($peerwork->intro));
-
-        $summary = new peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text .
-            ' Not editable because: ' . $isopen->text);
-        echo $output->render($summary);
-        $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
-
+        $summary = new peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text . ' '
+            . get_string('noteditablebecause', 'mod_peerwork', $isopen->text));
+        echo $renderer->render($summary);
         echo $OUTPUT->footer();
         die();
     }
@@ -243,7 +220,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
         file_prepare_draft_area($draftitemid, $context->id, 'mod_peerwork', 'submission', $mygroup, $foptions);
 
         $entry = new stdClass();
-        // Add the draftitemid to the form, so that 'file_get_submitted_draft_itemid' can retrieve it.
         $entry->submission = $draftitemid;
 
         if ($myassessments) {
@@ -305,8 +281,8 @@ if (has_capability('mod/peerwork:grade', $context)) {
         }
         $data['maxfiles'] = $foptions['maxfiles'];
         $summary = new peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text .
-            '<p>Editable because: ' . $isopen->text . '</p>');
-        echo $output->render($summary);
+            '<p>' . get_string('editablebecause', 'mod_peerwork', $isopen->text) . '</p>');
+        echo $renderer->render($summary);
         $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
         echo $OUTPUT->single_button($url, get_string('editsubmission', 'mod_peerwork'), 'get');
 

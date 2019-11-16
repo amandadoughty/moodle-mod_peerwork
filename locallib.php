@@ -200,6 +200,16 @@ function peerwork_from_date($peerwork) {
 }
 
 /**
+ * Whether the student can view their grade and feedback.
+ *
+ * @param object $status The status.
+ * @return bool
+ */
+function peerwork_can_student_view_grade_and_feedback_from_status($status) {
+    return $status->code == PEERWORK_STATUS_RELEASED;
+}
+
+/**
  * Whether the submission was graded, from its status.
  *
  * @param object $status The status.
@@ -221,7 +231,7 @@ function peerwork_is_open($peerwork, $groupid = 0) {
     // Is it before from date?
     $fromdate = peerwork_from_date($peerwork);
     if ($fromdate == PEERWORK_FROMDATE_BEFORE) {
-        $status->text = "Assessment not open yet.";
+        $status->text = get_string('assessmentnotopenyet', 'mod_peerwork');
         return $status;
     }
 
@@ -231,7 +241,7 @@ function peerwork_is_open($peerwork, $groupid = 0) {
     // Is it already graded?
     $pstatus = peerwork_get_status($peerwork, $group);
     if (peerwork_was_submission_graded_from_status($pstatus)) {
-        $status->text = "Assessment already graded.";
+        $status->text = get_string('assessmentalreadygraded', 'mod_peerwork');
         return $status;
     }
 
@@ -240,16 +250,16 @@ function peerwork_is_open($peerwork, $groupid = 0) {
     if ($duedate == PEERWORK_DUEDATE_PASSED) {
         if ($peerwork->allowlatesubmissions) {
             $status->code = true;
-            $status->text = "After due date but late submissions allowed.";
+            $status->text = get_string('latesubmissionsallowedafterduedate', 'mod_peerwork');
         } else {
-            $status->text = "After due date and late submissions not allowed.";
+            $status->text = get_string('latesubmissionsnotallowedafterduedate', 'mod_peerwork');
         }
         return $status;
     }
 
     // If we are here it means it's between from date and due date.
     $status->code = true;
-    $status->text = "Assessment open.";
+    $status->text = get_string('assessmentopen', 'mod_peerwork');
     return $status;
 }
 
@@ -295,6 +305,18 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     $return->feedback = $feedback;
 
     return $return;
+}
+
+/**
+ * Get the number of peers graded.
+ *
+ * @param object $peerwork The intance.
+ * @param object $group The group.
+ */
+function peerwork_get_number_peers_graded($peerworkid, $groupid) {
+    global $DB;
+    return $DB->count_records_select('peerwork_peers', 'peerwork = ? AND groupid = ?', [$peerworkid, $groupid],
+        'COUNT(DISTINCT gradedby)');
 }
 
 /**
@@ -484,6 +506,29 @@ function peerwork_teachers($context) {
         $contacts += get_role_users($roleid, $context, true);
     }
     return $contacts;
+}
+
+/**
+ * Get the local grade of a user.
+ *
+ * @param int $peerworkid The peerwork ID.
+ * @param int $submissionid The submission ID.
+ * @param int $userid The user ID.
+ * @return object|null
+ */
+function peerwork_get_user_local_grade($peerworkid, $submissionid, $userid) {
+    global $DB;
+    $record = $DB->get_record('peerwork_grades', [
+        'peerworkid' => $peerworkid,
+        'submissionid' => $submissionid,
+        'userid' => $userid
+    ]);
+
+    if (!$record) {
+        return null;
+    }
+
+    return $record->revisedgrade != null ? $record->revisedgrade : $record->grade;
 }
 
 /**
