@@ -56,6 +56,7 @@ $string['justificationnotesvisibleuser'] = 'Note: your comments and your usernam
 $string['justifications'] = 'Justifications';
 $string['justificationvisibleanon'] = 'Visible anonymous';
 $string['justificationvisibleuser'] = 'Visible with usernames';
+$string['messageprovider:grade_released'] = 'Grade and feedback published';
 $string['modulename'] = 'Peer Assessment';
 $string['modulenameplural'] = 'Peer Assessments';
 $string['modulename_help'] = 'The Peer Assessment activity is a group assignment submission combined with peer grading.<br />
@@ -66,6 +67,9 @@ $string['noncompletionpenalty'] = 'Penalty for non-submission of marks';
 $string['noncompletionpenalty_help'] = 'If a student has not submitted any marks for the assessment (has not assessed their peers), how much should they be penalised?';
 $string['nonegiven'] = 'None given';
 $string['nopeergrades'] = '# peer grades';
+$string['notifygradesreleasedsmall'] = 'Your grade for \'{$a}\' has been published.';
+$string['notifygradesreleasedtext'] = 'The grade and feedback for your submission in \'{$a->name}\' have been published. You can access them here: {$a->url}';
+$string['notifygradesreleasedhtml'] = 'The grade and feedback for your submission in \'<em>{$a->name}</em>\' have been published. You can access them <a href="{$a->url}">here</a>.';
 $string['nothingsubmittedyet'] = 'Nothing submitted yet.';
 $string['nothingsubmittedyetduedatepassednago'] = 'Nothing submitted yet but due date passed {$a} ago.';
 $string['notyetgraded'] = 'Not yet graded';
@@ -97,6 +101,7 @@ $string['requirejustification_help'] = '
 $string['revisedgrade'] = 'Revised grade';
 $string['revisedgrade_help'] = 'Use this field to override the final weighted grade, if needed.';
 $string['search:activity'] = 'Peer work - activity information';
+$string['tasknodifystudents'] = 'Notify students';
 $string['timeremaining'] = 'Time remaining: {$a}';
 $string['tutorgrading'] = 'Tutor grading';
 $string['grade'] = 'Grade';
@@ -207,7 +212,6 @@ $string['eventsubmission_exported'] = 'peerwork export';
 $string['eventsubmissions_exported'] = 'peerwork export all';
 
 $string['multiplegroups'] = 'The following people belong to more than one group: {$a}. Their grades have not been updated.';
-$string['messageprovider:late_submission'] = 'Late submission';
 
 $string['privacy:metadata:peerwork_submission'] = 'Information about the group submissions made in a Peer Assessment';
 $string['privacy:metadata:peerwork_submission:id'] = 'The ID of the user who has made a submission in Peer Assessment';
