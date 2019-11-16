@@ -123,7 +123,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
             $wasgraded ? get_string('edit') : get_string('grade')
         ));
         $menu->add_secondary_action(new action_link(
-            new moodle_url('export.php', ['id' => $cm->id, 'groupid' => $group->id]),
+            new moodle_url('export.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),
             get_string('export', 'mod_peerwork')
         ));
         if ($status->code == PEERWORK_STATUS_GRADED) {
@@ -147,8 +147,8 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     echo $OUTPUT->box_start('generalbox', null);
 
-    echo $OUTPUT->single_button(new moodle_url('exportxls.php', array('id' => $cm->id,  'groupingid' => $groupingid)),
-        get_string("exportxls", 'mod_peerwork'), 'post', array("class" => 'yui3-u singlebutton'));
+    echo $OUTPUT->single_button(new moodle_url('export.php', array('id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey())),
+        get_string("exportxls", 'mod_peerwork'), 'get');
 
     echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id,  'groupid' => 0, 'sesskey' => sesskey()]),
         get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');

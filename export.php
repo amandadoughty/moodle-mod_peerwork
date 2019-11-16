@@ -19,93 +19,116 @@
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once($CFG->dirroot . '/mod/peerwork/lib.php');
-require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerwork/forms/add_submission_form.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
+require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->libdir . '/csvlib.class.php');
 
 $id = required_param('id', PARAM_INT);
-$groupid = required_param('groupid', PARAM_INT);
-$cm = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$group = $DB->get_record('groups', array('id' => $groupid), '*', MUST_EXIST);
-$peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
-$submission = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id, 'groupid' => $groupid));
-$members = groups_get_members($group->id);
-$groupingid = $cm->groupingid;
+$groupid = optional_param('groupid', 0, PARAM_INT);
+
+list($course, $cm) = get_course_and_cm_from_cmid($id, 'peerwork');
+$peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, true, $cm);
-$context = context_module::instance($cm->id);
-$params = array(
-        'objectid' => $submission->id,
-        'context' => $context,
-        'other' => array('groupid' => $group->id)
-    );
+require_sesskey();
+require_capability('mod/peerwork:grade', $cm->context);
 
-$event = \mod_peerwork\event\submission_exported::create($params);
-$event->add_record_snapshot('peerwork_submission', $submission);
+$PAGE->set_url(new moodle_url('/mod/peerwork/export.php', ['id' => $id, 'groupid' => $groupid]));
+
+if (empty($groupid)) {
+    $groupids = array_keys(groups_get_all_groups($course->id, 0, $cm->groupingid));
+} else {
+    $groupids = [$groupid];
+}
+
+if (empty($groupids)) {
+    throw new moodle_exception('nogroups', 'mod_peerwork');
+}
+
+$context = $cm->context;
+$params = [
+    'context' => $context
+];
+$event = \mod_peerwork\event\submissions_exported::create($params);
 $event->trigger();
 
-require_capability('mod/peerwork:grade', $context);
-$membersgradeable = peerwork_get_peers($course, $peerwork, $groupingid, $groupid);
+$headers = [
+    get_string('group'),
+    get_string('groupgrade', 'mod_peerwork'),
+    get_string('groupsubmittedon', 'mod_peerwork'),
+    get_string('student', 'core_grades'),
+    get_string('studentgrade', 'mod_peerwork'),
+    get_string('studentfinalgrade', 'mod_peerwork'),
+    get_string('feedback', 'mod_peerwork'),
+    get_string('gradedby', 'mod_peerwork'),
+    get_string('gradedon', 'mod_peerwork'),
+    get_string('releasedby', 'mod_peerwork'),
+    get_string('releasedon', 'mod_peerwork'),
+];
 
-$data = array();
-$header = array('Student');
-foreach ($members as $member) {
-    $row = array(fullname($member));
-    $header[] = 'Grade for ' . fullname($member);
-    $header[] = 'Feedback for ' . fullname($member);
-    // How I graded others.
-    $grades = peerwork_grade_by_user($peerwork, $member, $membersgradeable);
-    foreach ($members as $peer) {
-        $row[] = $grades->grade[$peer->id];
-        $row[] = html_to_text($grades->feedback[$peer->id]);
-    }
-    // TODO Display grade as per what we have in the database.
-    $row[] = 0; //peerwork_get_grade($peerwork, $group, $member);
-    $data[] = $row;
-}
-$header[] = 'Average group score';
-$header[] = 'Final grade';
-
-$filename = clean_filename($peerwork->name . "-$id-$groupid");
+$filename = clean_filename($peerwork->name . '-' . $id . '_' . implode('-', $groupids));
 $csvexport = new csv_export_writer();
 $csvexport->set_filename($filename);
-$csvexport->add_data($header);
-foreach ($data as $row) {
-    $csvexport->add_data($row);
+$csvexport->add_data($headers);
+
+$ingroupparams = [];
+$ingroupsql = ' = 0';
+if (!empty($groupids)) {
+    list($ingroupsql, $ingroupparams) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
 }
 
-// Add information common to the whole group
-$csvexport->add_data(array());
+$stufields = user_picture::fields('u', null, 'user_id', 'user_');
+$graderfields = user_picture::fields('ug', null, 'grader_id', 'grader_');
+$releaserfields = user_picture::fields('ur', null, 'reluser_id', 'reluser_');
 
-$row = array('Course work grade');
-if (isset($submission->grade)) {
-    $row[] = $submission->grade;
+$uniqid = $DB->sql_concat_join("'-'", ['g.id', 'COALESCE(s.id, 0)', 'COALESCE(g.id, 0)']);
+$sql = "SELECT $uniqid, $stufields, $graderfields, $releaserfields,
+               s.id AS submissionid, s.grade as groupgrade, s.timegraded, s.released, s.timecreated,
+               s.feedbacktext, gg.grade AS studentgrade, gg.revisedgrade, g.name as groupname
+          FROM {peerwork} p
+          JOIN {groups} g
+            ON g.id $ingroupsql
+     LEFT JOIN {peerwork_submission} s
+            ON s.groupid = g.id
+           AND s.assignment = p.id
+     LEFT JOIN {peerwork_grades} gg
+            ON gg.submissionid = s.id
+     LEFT JOIN {user} u
+            ON u.id = gg.userid
+     LEFT JOIN {user} ug
+            ON ug.id = s.gradedby
+     LEFT JOIN {user} ur
+            ON ur.id = s.releasedby
+         WHERE p.id = :peerworkid
+      ORDER BY g.id, u.id";
+$params = ['peerworkid' => $peerwork->id] + $ingroupparams;
+$recordset = $DB->get_recordset_sql($sql, $params);
+
+foreach ($recordset as $record) {
+    $student = user_picture::unalias($record, null, 'user_id', 'user_');
+    $grader = user_picture::unalias($record, null, 'grader_id', 'grader_');
+    $releaser = user_picture::unalias($record, null, 'reluser_id', 'reluser_');
+
+    // We did not find a submission.
+    if (!$record->submissionid) {
+        $csvexport->add_data([$record->groupname, '', '', '', '', '', '', '', '', ]);
+        continue;
+    }
+
+    $csvexport->add_data([
+        $record->groupname,
+        $record->groupgrade,
+        !empty($record->timecreated) ? userdate($record->timecreated) : '',
+        !empty($student->id) ? fullname($student) : '',
+        $record->studentgrade ?? '',
+        $record->revisedgrade ?? $record->studentgrade,
+        html_to_text($record->feedbacktext ?? ''),
+        !empty($grader->id) ? fullname($grader) : '',
+        !empty($record->timegraded) ? userdate($record->timegraded) : '',
+        !empty($releaser->id) ? fullname($releaser) : '',
+        !empty($record->released) ? userdate($record->released) : '',
+    ]);
 }
-$csvexport->add_data($row);
-
-$row = array('Graded on');
-if (isset($submission->timegraded)) {
-
-    $row[] = userdate($submission->timegraded);
-}
-$csvexport->add_data($row);
-
-$row = array('Graded by');
-if (isset($submission->gradedby)) {
-    $teacher = $DB->get_record('user', array('id' => $submission->gradedby));
-    $row[] = fullname($teacher);
-}
-$csvexport->add_data($row);
-
-$row = array('Feedback');
-if (isset($submission->feedbacktext)) {
-    $row[] = html_to_text($submission->feedbacktext);
-}
-$csvexport->add_data($row);
-
+$recordset->close();
 $csvexport->download_file();
