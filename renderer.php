@@ -22,12 +22,21 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_peerwork\output\peerwork_summary;
+
 /**
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_peerwork_renderer extends plugin_renderer_base {
+
+    /**
+     * Render summary.
+     *
+     * @param peerwork_summary $summary The summary.
+     * @return string
+     */
     public function render_peerwork_summary(peerwork_summary $summary) {
         $group = $summary->group;
         $data = $summary->data;
@@ -152,15 +161,5 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         }
 
         return html_writer::table($t);
-    }
-}
-
-class peerwork_summary implements renderable {
-    public function __construct($group, $data, $membersgradeable, $peerwork, $status = 'Draft (not submitted).') {
-        $this->group = $group;
-        $this->data = $data;
-        $this->membersgradeable = $membersgradeable;
-        $this->peerwork = $peerwork;
-        $this->status = $status;
     }
 }

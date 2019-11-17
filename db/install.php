@@ -20,17 +20,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Post installation procedure
+ * Post installation procedure.
  *
  * @see upgrade_plugins_modules()
  */
 function xmldb_peerwork_install() {
-    
 }
 
 /**
- * Post installation recovery procedure
+ * Post installation recovery procedure.
  *
  * @see upgrade_plugins_modules()
  */

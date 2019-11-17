@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * @package mod_peerwork
@@ -23,18 +23,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
-require_once(__DIR__ . '/../classes/peerwork_criteria.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->libdir . '/grade/grade_scale.php');
 
 /**
- * This form is the layout for a student grading their peers. Contains a file submission area where files can be submitted on behalf of the group
+ * This form is the layout for a student grading their peers.
+ *
+ * Contains a file submission area where files can be submitted on behalf of the group
  * and space to enter marks and feedback to peers in your group.
  *
  * Each criteria is presented and for each one a space for grading peers is provided.
- *
- * Data is provided into $this->_customdata sent in the CTOR new mod_peerwork_submissions_form(...) calls in submissions.php and view.php
- *
  */
 class mod_peerwork_submissions_form extends moodleform {
 
@@ -73,8 +71,8 @@ class mod_peerwork_submissions_form extends moodleform {
 
         // Create a hidden field for each possible rating, this is so that we can construct the radio
         // button ourselves while still use the form validation.
-        $pac = new peerwork_criteria($peerworkid);
-        foreach ($pac->getCriteria() as $criteria) {
+        $pac = new mod_peerwork_criteria($peerworkid);
+        foreach ($pac->get_criteria() as $criteria) {
             foreach ($peers as $peer) {
                 $uniqueid = 'grade_idx_' . $criteria->id . '[' . $peer->id . ']';
                 $mform->addElement('hidden', $uniqueid, 0);
@@ -104,9 +102,9 @@ class mod_peerwork_submissions_form extends moodleform {
         $peers = $this->_customdata['peers'];
 
         $scales = grade_scale::fetch_all_global();
-        $pac = new peerwork_criteria($peerworkid);
+        $pac = new mod_peerwork_criteria($peerworkid);
 
-        foreach ($pac->getCriteria() as $criteria) {
+        foreach ($pac->get_criteria() as $criteria) {
 
             // Get the scale.
             $scaleid = abs($criteria->grade);
@@ -171,7 +169,7 @@ class mod_peerwork_submissions_form extends moodleform {
             $notestr = 'justificationnoteshidden';
             if ($peerwork->justification == MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON) {
                 $notestr = 'justificationnotesvisibleanon';
-            } else if ($peerwork->justification == MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON) {
+            } else if ($peerwork->justification == MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER) {
                 $notestr = 'justificationnotesvisibleuser';
             }
             $mform->addElement('static', '', '', get_string('justificationintro', 'mod_peerwork') . ' '
@@ -189,26 +187,21 @@ class mod_peerwork_submissions_form extends moodleform {
     }
 
     /**
+     * Massages the data.
      *
-     * Called automatically.
-     * Doesnt include the submissions file $this->_customdata['fileupload'])?
-     * Collect the criteria from the database and populate the form fields with existing data from database.
-     *
-     * @param unknown $data
-     * @return unknown
+     * @param stdClass $data
+     * @return void
      */
     public function set_data($data) {
         global $DB, $USER;
 
         $peerworkid = $this->_customdata['peerworkid'];
 
-        // Get information about each criteria and grades awarded to peers and add to the form data
-        $pac = new peerwork_criteria($peerworkid);
+        // Get information about each criteria and grades awarded to peers and add to the form data.
+        $pac = new mod_peerwork_criteria($peerworkid);
 
-        foreach ($pac->getCriteria() as $id => $record) {
+        foreach ($pac->get_criteria() as $id => $record) {
 
-            // Now get all the grades and feedback for this criteria that this user has already awarded to their peers.
-            // Transfer into the $data so it populates the UI
             $mygrades = $DB->get_records('peerwork_peers', [
                 'peerwork' => $record->peerworkid,
                 'criteriaid' => $record->id,

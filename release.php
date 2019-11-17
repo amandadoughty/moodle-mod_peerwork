@@ -41,13 +41,13 @@ $PAGE->set_url('/mod/peerwork/release.php', ['id' => $cm->id, 'groupid' => $grou
 $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
 
 if ($groupid > 0) {
-    $sql = 'assignment = :peerworkid AND groupid = :groupid AND COALESCE(timegraded) > 0 AND released = 0';
+    $sql = 'peerworkid = :peerworkid AND groupid = :groupid AND COALESCE(timegraded) > 0 AND released = 0';
     $submissions = $DB->get_records_select('peerwork_submission', $sql, [
         'peerworkid' => $peerwork->id,
         'groupid' => $groupid
     ]);
 } else {
-    $sql = 'assignment = :peerworkid AND COALESCE(timegraded) > 0 AND released = 0';
+    $sql = 'peerworkid = :peerworkid AND COALESCE(timegraded) > 0 AND released = 0';
     $submissions = $DB->get_records_select('peerwork_submission', $sql, ['peerworkid' => $peerwork->id]);
 }
 

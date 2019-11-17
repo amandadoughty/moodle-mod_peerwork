@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/peerwork/db" VERSION="20191116" COMMENT="XMLDB file for Moodlemod/peerwork"
+<XMLDB PATH="mod/peerwork/db" VERSION="20191117" COMMENT="XMLDB file for Moodlemod/peerwork"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -20,8 +20,6 @@
         <FIELD NAME="notifylatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="allowlatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="treat0asgrade" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="moderation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="2" SEQUENCE="false"/>
-        <FIELD NAME="standard_deviation" TYPE="float" LENGTH="5" NOTNULL="false" DEFAULT="1.15" SEQUENCE="false"/>
         <FIELD NAME="justification" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="paweighting" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="50" SEQUENCE="false"/>
         <FIELD NAME="noncompletionpenalty" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -37,13 +35,9 @@
     <TABLE NAME="peerwork_submission" COMMENT="This table keeps information about student interactions with the mod/peerassessment.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="assignment" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="peerworkid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The group id for team submissions"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of the first student submission to this assignment."/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this assignment submission was modified by a student."/>
-        <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The status of this assignment submission. The current statuses are DRAFT and SUBMITTED."/>
-        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The group id for team submissions"/>
-        <FIELD NAME="attemptnumber" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Used to track attempts for an assignment"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="paweighting" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="50" SEQUENCE="false"/>
         <FIELD NAME="feedbacktext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
@@ -52,15 +46,14 @@
         <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="released" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The timestamp at which the grades were released, if they are"/>
         <FIELD NAME="releasedby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time of the first student submission to this assignment."/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this assignment submission was modified by a student."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="The unique id for this assignment submission."/>
-        <KEY NAME="assignment" TYPE="foreign" FIELDS="assignment" REFTABLE="assign" REFFIELDS="id" COMMENT="The instance of mod_assign this submission belongs to."/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-        <INDEX NAME="attemptnumber" UNIQUE="false" FIELDS="attemptnumber"/>
-        <INDEX NAME="uniquesubmission" UNIQUE="true" FIELDS="assignment, userid, groupid"/>
+        <INDEX NAME="uniqpergroup" UNIQUE="true" FIELDS="peerworkid, groupid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="peerwork_peers" COMMENT="Entries for pees assessments">

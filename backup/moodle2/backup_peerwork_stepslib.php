@@ -15,14 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Backup step.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class backup_peerwork_activity_structure_step extends backup_activity_structure_step
-{
+defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Backup step.
+ *
+ * @package    mod_peerwork
+ * @copyright  2013 LEARNING TECHNOLOGY SERVICES
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class backup_peerwork_activity_structure_step extends backup_activity_structure_step {
+
+    /**
+     * Define structure.
+     */
     protected function define_structure() {
 
         // To know if we are including userinfo.
@@ -35,7 +48,6 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'name', 'intro', 'introformat', 'timecreated',
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'notifylatesubmissions', 'allowlatesubmissions', 'treat0asgrade',
-            'standard_deviation', 'moderation', 'multiplyby',
             'justification', 'paweighting', 'noncompletionpenalty', 'completiongradedpeers'));
 
         $criteria = new backup_nested_element('criteria');
@@ -53,8 +65,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         $submissions = new backup_nested_element('submissions');
         $submission = new backup_nested_element('submission', array('id'), array(
-            'userid',
-            'timecreated', 'timemodified', 'status', 'groupid', 'attemptnumber',
+            'userid', 'timecreated', 'timemodified', 'groupid',
             'grade', 'feedbacktext', 'feedbackformat', 'timegraded',
             'gradedby', 'released', 'releasedby', 'paweighting'));
 
@@ -87,7 +98,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         if ($includeuserinfo) {
             $peer->set_source_table('peerwork_peers', ['peerwork' => backup::VAR_PARENTID]);
             $justification->set_source_table('peerwork_justification', ['peerworkid' => backup::VAR_PARENTID]);
-            $submission->set_source_table('peerwork_submission', array('assignment' => '../../id'));
+            $submission->set_source_table('peerwork_submission', array('peerworkid' => '../../id'));
             $grade->set_source_table('peerwork_grades', ['peerworkid' => backup::VAR_PARENTID]);
         }
 

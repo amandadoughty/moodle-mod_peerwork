@@ -20,16 +20,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once( dirname(__FILE__) . '/../../config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerwork/forms/submissions_form.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
-require_once($CFG->dirroot . '/mod/peerwork/forms/details_form.php');
-
-/**
- * This provides a teacher with a summary view of the assessment for a group, detailing who has submitted.
- */
 
 $id = required_param('id', PARAM_INT);
 $groupid = required_param('groupid', PARAM_INT);
@@ -37,12 +31,10 @@ $groupid = required_param('groupid', PARAM_INT);
 $cm             = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
 $course         = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
-$submission     = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id, 'groupid' => $groupid));
+$submission     = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $groupid));
 $members        = groups_get_members($groupid);
 $group          = $DB->get_record('groups', array('id' => $groupid), '*', MUST_EXIST);
 $status         = peerwork_get_status($peerwork, $group);
-
-
 
 // Print the standard page header and check access rights.
 require_login($course, true, $cm);
@@ -52,7 +44,6 @@ $PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 require_capability('mod/peerwork:grade', $context);
-
 
 // Start the form, initialise with some data.
 $fileoptions = mod_peerwork_details_form::$fileoptions;
@@ -93,7 +84,7 @@ $mform = new mod_peerwork_details_form($PAGE->url->out(false), [
 ]);
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
-$submissionfiles = peerwork_submission_files($context, $group); // creates <a href HTML
+$submissionfiles = peerwork_submission_files($context, $group);
 $data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', 'peerwork') : implode('<br/>', $submissionfiles);
 
 
@@ -101,9 +92,9 @@ $data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', '
 // output a HTML tabulation of the peers and the grades awarded and received.
 // TODO instead of HTML fragment can we build this with form elments?
 $grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
-$pac = new peerwork_criteria( $peerwork->id );
+$pac = new mod_peerwork_criteria( $peerwork->id );
 $data['peergradesawarded'] = '';
-foreach($pac ->getCriteria() as $criteria) {
+foreach ($pac->get_criteria() as $criteria) {
 
     $critid = $criteria->id;
 
@@ -163,7 +154,7 @@ if ($mform->is_cancelled()) {
     //
     if (!$submission) {
         $submission = new stdClass();
-        $submission->assignment = $peerwork->id;
+        $submission->peerworkid = $peerwork->id;
         $submission->groupid = $group->id;
     }
     $submission->grade = $data->grade;

@@ -39,16 +39,6 @@ if ($ADMIN->fulltree) {
         array_combine(range(1, 9), range(1, 9))
     ));
 
-    $settings->add(new admin_setting_configtext('peerwork/standard_deviation',
-        get_string('standard_deviation', 'mod_peerwork'), get_string('defaultstandard_deviation', 'mod_peerwork'), '1.15'));
-
-    $settings->add(new admin_setting_configtext('peerwork/moderation', get_string('moderation', 'mod_peerwork'),
-        get_string('defaultmoderation', 'mod_peerwork'), '2'));
-
-    $multiplybyvalues = array(3 => 3, 4 => 4, 5 => 5);
-    $settings->add(new admin_setting_configselect('peerwork/multiplyby', get_string('multiplyby', 'mod_peerwork'),
-        get_string('multiplyby', 'mod_peerwork'), 4, $multiplybyvalues));
-
     $settings->add(new admin_setting_heading(
         'peerwork/defaultsettingshdr',
         get_string('defaultsettings', 'mod_peerwork'),

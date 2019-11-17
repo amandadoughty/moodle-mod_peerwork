@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Peerwork criteria.
+ *
  * @package    mod_peerwork
  * @copyright  2018 Coventry University
  * @author     Kevin Moore <ac4581@coventry.ac.uk>
@@ -23,18 +25,17 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-
 /**
- * Handles the assessment criteria including saving/restore to database.
- * Assessment criteria are specific points to be considered when a peer marks a submission and consist of
- * a description, an expected type of grade (likert, split100,...) for the students to give to each other and some feedback.
+ * Peerwork criteria.
  *
- * Criteria are held in the $tablename=peerwork_criteria table:-
- *  descriptionformat: {0=moodle autoformat,1=editor, 2=plain text,3=HTML, 4=markdown}
+ * @package    mod_peerwork
+ * @copyright  2018 Coventry University
+ * @author     Kevin Moore <ac4581@coventry.ac.uk>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class peerwork_criteria  {
+class mod_peerwork_criteria  {
 
-	/** @var string The table name. */
+    /** @var string The table name. */
     protected static $tablename = 'peerwork_criteria';
 
     /** @var int The peerwork ID, or 0. */
@@ -45,7 +46,7 @@ class peerwork_criteria  {
      *
      * @param int|null $peerworkid The peerwork ID, when we have one.
      */
-    function __construct($peerworkid) {
+    public function __construct($peerworkid) {
         $this->id = (int) $peerworkid;
     }
 
@@ -53,7 +54,7 @@ class peerwork_criteria  {
      * Get the criteria created for this peerassesment, making sure we have the array in field=sort order.
      * @return DB records from  peerwork_criteria, one record per criteria on this assessment.
      */
-    public function getCriteria() {
+    public function get_criteria() {
         global $DB;
         $records = $DB->get_records(self::$tablename, ['peerworkid' => $this->id], 'sortorder, id');
         return $records;
@@ -72,7 +73,7 @@ class peerwork_criteria  {
 
         // The form is passing values through the key assessmentcriteria.
         $criteria = !empty($peerwork->assessmentcriteria) ? $peerwork->assessmentcriteria : [];
-        $existing = array_values($this->getCriteria()); // Drop the keys.
+        $existing = array_values($this->get_criteria()); // Drop the keys.
 
         // Update, or delete the criteria that exist.
         foreach ($existing as $i => $crit) {

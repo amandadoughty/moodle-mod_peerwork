@@ -20,7 +20,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$messageproviders = array (
+defined('MOODLE_INTERNAL') || die();
+
+$messageproviders = array(
 
     // Grade released.
     'grade_released' => [

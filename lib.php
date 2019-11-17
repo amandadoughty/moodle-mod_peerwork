@@ -75,7 +75,7 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
     $peerwork->id = $DB->insert_record('peerwork', $peerwork);
 
     // Now save all the criteria.
-    $pac = new peerwork_criteria($peerwork->id);
+    $pac = new mod_peerwork_criteria($peerwork->id);
     $pac->update_instance($peerwork);
 
     peerwork_grade_item_update($peerwork);
@@ -106,7 +106,7 @@ function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mfo
     $return1 = $DB->update_record('peerwork', $peerwork);
 
     // Now save all the criteria.
-    $pac = new peerwork_criteria($peerwork->id);
+    $pac = new mod_peerwork_criteria($peerwork->id);
     $return2 = $pac->update_instance($peerwork);
 
     peerwork_update_grades($peerwork);
@@ -134,7 +134,7 @@ function peerwork_delete_instance($id) {
     $DB->delete_records('peerwork_peers', ['peerwork' => $id]);
     $DB->delete_records('peerwork_justification', ['peerworkid' => $id]);
     $DB->delete_records('peerwork_criteria', ['peerworkid' => $id]);
-    $DB->delete_records('peerwork_submission', ['assignment' => $id]);
+    $DB->delete_records('peerwork_submission', ['peerworkid' => $id]);
     $DB->delete_records('peerwork_grades', ['peerworkid' => $id]);
     $DB->delete_records('peerwork', ['id' => $id]);
 

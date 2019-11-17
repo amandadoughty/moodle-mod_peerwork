@@ -26,7 +26,6 @@ require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Creates UI elements for the tutor to enter an overall grade to a submission.
- * Called from and data provided by details.php
  */
 class mod_peerwork_details_form extends moodleform {
 
@@ -53,7 +52,8 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('static', 'submission', get_string('submission', 'peerwork'));
         $mform->addHelpButton('submission', 'submission', 'peerwork');
 
-        $mform->addElement('static', 'peergradesawarded', "");  // This gets replaced in details.php with a table of grades peers have awarded.
+        // This gets replaced in details.php with a table of grades peers have awarded.
+        $mform->addElement('static', 'peergradesawarded', '');
 
         if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
             $mform->addElement('header', 'justificationshdr', get_string('justifications', 'mod_peerwork'));
@@ -81,7 +81,6 @@ class mod_peerwork_details_form extends moodleform {
             }
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////
         $mform->addElement('header', 'mod_peerwork_grading', get_string('tutorgrading', 'mod_peerwork'));
 
         $mform->addElement('text', 'grade', get_string('groupgradeoutof100', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
@@ -96,7 +95,6 @@ class mod_peerwork_details_form extends moodleform {
         }
 
         $mform->addElement('static', 'finalgrades', get_string('calculatedgrades', 'mod_peerwork'));
-
 
         $mform->addElement('editor', 'feedback', get_string('feedback', 'peerwork'), ['rows' => 6]);
         $mform->setType('feedback', PARAM_CLEANHTML);
@@ -164,7 +162,7 @@ class mod_peerwork_details_form extends moodleform {
                 $row->cells[] = format_float($member['calcgrade'], 2);
                 $row->cells[] = format_float($member['penalty'] * 100, 0) . '%';
                 $row->cells[] = format_float($member['finalweightedgrade'], 2);
-                $row->cells[] = $this->_form ->createElement('text', 'grade_' . $member['memberid'], '',
+                $row->cells[] = $this->_form->createElement('text', 'grade_' . $member['memberid'], '',
                     ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)])->toHtml();
 
                 $t->data[] = $row;

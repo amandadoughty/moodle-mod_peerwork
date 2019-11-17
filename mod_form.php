@@ -24,13 +24,14 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once( __DIR__ . '/locallib.php');
-require_once( __DIR__ . '/classes/peerwork_criteria.php');
 require_once($CFG->libdir . '/gradelib.php' );
 
 /**
- * Module instance settings form. This is the form that allows the teacher to
- * configure the peerwork settings.
- * It has to be located in the modules' root directory.
+ * Module instance settings form.
+ *
+ * @package    mod_peerwork
+ * @copyright  2013 LEARNING TECHNOLOGY SERVICES
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_peerwork_mod_form extends moodleform_mod {
 
@@ -38,13 +39,13 @@ class mod_peerwork_mod_form extends moodleform_mod {
     protected $pac;
 
     /**
-     * Defines forms elements
+     * Defines forms elements.
      */
     public function definition() {
         global $CFG, $DB, $COURSE;
 
         $mform = $this->_form;
-        $this->pac = new peerwork_criteria($this->current->id);
+        $this->pac = new mod_peerwork_criteria($this->current->id);
         $steps = range(0, 100, 1);
         $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
             return $i . '%';
@@ -115,7 +116,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // Apply default values from admin settings.
         $this->apply_admin_defaults();
 
-        // Goes to lib.php/peerwork_add_instance() etal
+        // Add actions.
         $this->add_action_buttons();
     }
 
@@ -127,7 +128,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
     protected function add_assessment_criteria() {
         $mform = $this->_form;
 
-        $criteria = $this->pac->getCriteria();
+        $criteria = $this->pac->get_criteria();
         $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerwork'));
 
         $options = [
@@ -153,8 +154,8 @@ class mod_peerwork_mod_form extends moodleform_mod {
         ];
 
         // Scale.
-        $scale = $mform->createElement('select', 'critscale', get_string('assessmentcriteria:scoretype','mod_peerwork'),
-            get_scales_menu());
+        $scale = $mform->createElement('select', 'critscale',
+            get_string('assessmentcriteria:scoretype', 'mod_peerwork'), get_scales_menu());
         $repeatopts['critscale'] = [
             'helpbutton' => ['assessmentcriteria:scoretype', 'mod_peerwork']
         ];
@@ -199,7 +200,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $defaultvalues['critdesc'] = empty($defaultvalues['critdesc']) ? [] : $defaultvalues['critdesc'];
         $defaultvalues['scale'] = empty($defaultvalues['scale']) ? [] : $defaultvalues['scale'];
 
-        $crits = array_values($this->pac->getCriteria());   // Drop the keys.
+        $crits = array_values($this->pac->get_criteria());   // Drop the keys.
         foreach ($crits as $i => $crit) {
             $defaultvalues['critdesc'][$i] = [
                 'text' => $crit->description,

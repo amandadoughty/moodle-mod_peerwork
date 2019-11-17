@@ -37,6 +37,7 @@ $string['completiongradedpeers_desc'] = 'Students must grade all their peers';
 $string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';
 $string['defaultsettings'] = 'Default settings';
 $string['defaultsettings_desc'] = 'The values to use as defaults when adding a new instance of this module to a course.';
+$string['draftnotsubmitted'] = 'Draft (not submitted).';
 $string['duedateat'] = 'Due date: {$a}';
 $string['duedatepassedago'] = 'Due date has passed {$a} ago.';
 $string['editablebecause'] = 'Editable because: {$a}';
@@ -144,25 +145,8 @@ $string['setup.maxfiles'] = 'Maximum number of uploaded files';
 $string['setup.maxfiles_help'] = 'The maximum number of files the group will be able to upload for their submission.<br/>' .
 'Setting to zero will remove the file upload ability completely.';
 
-//Simple is the default, original calculation. It totals the marks awarded by peers and uses those to decide the proportion of the tutors final grade to award. Simple does not calculate standard deviation.<br />
-//Outlier includes a standard deviation moderation.';
-
-$string['standard_deviation'] = 'Maximum standard deviation to not be classed an outlier';
-$string['standard_deviation_help'] = 'Average grades more than this standard deviation will be classed outliers and will be moderated.';
-$string['defaultstandard_deviation'] = 'Default Standard Deviation';
-
-$string['moderation'] = 'Mark moderation';
-$string['moderation_help'] = 'Average grades which differ more than this number from the group average will be moderated .';
-$string['defaultmoderation'] = 'Default Mark Moderation';
-
-
 $string['contibutionscore'] = "Contribution";
 $string['contibutionscore_help'] = "This is the webPA score which is the relative contribution made by group members";
-
-
-$string['multiplyby'] = 'This is the multiplier used to calculate the final mark';
-$string['multiplyby_help'] = 'This is the number used to multiply the average by to get the final mark moderation.';
-$string['defaultmultiplyby'] = 'Default Multiplier';
 
 $string['fromdate'] = 'Allow submissions from';
 $string['fromdate_help'] = 'If enabled, students will not be able to submit before this date. If disabled, students will be able to start submitting right away.';
@@ -184,12 +168,8 @@ $string['latesubmissiontext'] = 'Late submission have been submitted in {$a->nam
 $string['peerwork:grade'] = 'Grade assignments and peer grades';
 $string['peerwork:submit'] = 'Submit peer grades';
 $string['peerwork:view'] = 'View peer assessment content';
-// $string['teamsubmission'] = 'Students submit in groups';
-// $string['teamsubmission_help'] = 'If enabled students will be divided into groups based on the default set of groups or a custom grouping. A group submission will be shared among group members and all members of the group will see each others changes to the submission.';
 
-
-// Criteria strings
-$string['assessmentcriteria:header'] = 'Assessment criteria settings'; 
+$string['assessmentcriteria:header'] = 'Assessment criteria settings';
 $string['assessmentcriteria:description'] = 'Criteria {no} description';
 $string['assessmentcriteria:scoretype'] = 'Criteria {no} scoring type';
 $string['assessmentcriteria:weight'] = 'Weight';
@@ -199,7 +179,6 @@ $string['assessmentcriteria:description_help'] = 'Use this to concisely describe
 $string['assessmentcriteria:scoretype_help'] = 'Choose the scale by which this criteria is to be graded';
 $string['assessmentcriteria:weight_help'] = 'TODO not yet used';
 $string['assessmentcriteria:nocriteria'] = 'No Criteria have been set for this assignment.';
-
 
 $string['treat0asgrade'] = 'Treat 0 as grade';
 $string['treat0asgrade_help'] = 'If enabled, students will be able to submit 0 as a valid grade. Otherwise, 0 means "not graded" and is not used for calculation';
@@ -215,7 +194,6 @@ Grades you have submitted:
 {$a->grades}';
 $string['exportxls'] = 'Export all group grades';
 
-/*** EVENTS ***/
 $string['eventsubmission_viewed'] = 'peerwork view submit assignment form';
 $string['eventsubmission_created'] = 'peerwork submission created';
 $string['eventsubmission_updated'] = 'peerwork submission updated';
@@ -237,17 +215,12 @@ $string['privacy:metadata:peerwork_submission:assignment'] = 'The ID of the Peer
 $string['privacy:metadata:peerwork_submission:userid'] = 'The ID of the user who has created a Peer Assessment';
 $string['privacy:metadata:peerwork_submission:timecreated'] = 'The time that the submission was submitted in Peer Assessment';
 $string['privacy:metadata:peerwork_submission:timemodified'] = 'If the submission has been modified. The time that the submission was modified in Peer Assessment';
-$string['privacy:metadata:peerwork_submission:status'] = 'Not used';
 $string['privacy:metadata:peerwork_submission:groupid'] = 'The ID of the group who has made a submission in Peer Assessment';
-$string['privacy:metadata:peerwork_submission:attemptnumber'] = 'The ID of the group who has made a submission in Peer Assessment';
 $string['privacy:metadata:peerwork_submission:grade'] = 'The grade that the group submission was given by the lecturer in Peer Assessment';
 $string['privacy:metadata:peerwork_submission:feedbacktext'] = 'The feedback text given to the group given by the lecturer who graded the group submission in Peer Assessment';
 $string['privacy:metadata:peerwork_submission:feedbackformat'] = 'TRUE or NULL';
 $string['privacy:metadata:peerwork_submission:timegraded'] = 'The time that the group submission was graded in Peer Assessment';
 $string['privacy:metadata:peerwork_submission:gradedby'] = 'The ID of the lecturer who graded the group submission in Peer Assessment';
-$string['privacy:metadata:peerwork_submission:finalgrade'] = 'Not used';
-$string['privacy:metadata:peerwork_submission:groupaverage'] = 'Not used';
-$string['privacy:metadata:peerwork_submission:individualaverage'] = 'Not used';
 
 $string['privacy:metadata:peerwork_peers'] = 'Information about the peer grades and feedback given in a Peer Assessment';
 $string['privacy:metadata:peerwork_peers:id'] = 'The ID of the feedback in Peer Assessment';

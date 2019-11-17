@@ -15,14 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Restore step.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class restore_peerwork_activity_structure_step extends restore_activity_structure_step
-{
+defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Restore step.
+ *
+ * @package    mod_peerwork
+ * @copyright  2013 LEARNING TECHNOLOGY SERVICES
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class restore_peerwork_activity_structure_step extends restore_activity_structure_step {
+
+    /**
+     * Define structure.
+     */
     protected function define_structure() {
 
         $paths = array();
@@ -41,6 +54,11 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Process restoring element.
+     *
+     * @param stdClass $data The backup data.
+     */
     protected function process_peerwork($data) {
         global $DB;
 
@@ -48,17 +66,18 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
         $data->course = $this->get_courseid();
 
-        // $data->timecreated = $this->apply_date_offset($data->timecreated);
-        // $data->timemodified = $this->apply_date_offset($data->timemodified);
         $data->duedate = $this->apply_date_offset($data->duedate);
         $data->fromdate = $this->apply_date_offset($data->fromdate);
 
-        // insert the peerwork record
         $newitemid = $DB->insert_record('peerwork', $data);
-        // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Process restoring element.
+     *
+     * @param stdClass $data The backup data.
+     */
     protected function process_peerwork_criterion($data) {
         global $DB;
 
@@ -72,6 +91,11 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $this->set_mapping('peerwork_criteria', $oldid, $newitemid);
     }
 
+    /**
+     * Process restoring element.
+     *
+     * @param stdClass $data The backup data.
+     */
     protected function process_peerwork_grade($data) {
         global $DB;
 
@@ -84,6 +108,11 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $newitemid = $DB->insert_record('peerwork_grades', $data);
     }
 
+    /**
+     * Process restoring element.
+     *
+     * @param stdClass $data The backup data.
+     */
     protected function process_peerwork_justification($data) {
         global $DB;
 
@@ -97,6 +126,11 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $newitemid = $DB->insert_record('peerwork_justification', $data);
     }
 
+    /**
+     * Process restoring element.
+     *
+     * @param stdClass $data The backup data.
+     */
     protected function process_peerwork_peer($data) {
         global $DB;
 
@@ -104,17 +138,19 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
 
         $data->peerwork = $this->get_new_parentid('peerwork');
-        // $data->timecreated = $this->apply_date_offset($data->timecreated);
-
         $data->groupid = $this->get_mappingid('group', $data->groupid);
         $data->criteriaid = $this->get_mappingid('peerwork_criteria', $data->criteriaid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
         $data->gradefor = $this->get_mappingid('user', $data->gradefor);
 
         $newitemid = $DB->insert_record('peerwork_peers', $data);
-        // $this->set_mapping('peerwork_peers', $oldid, $newitemid);
     }
 
+    /**
+     * Process restoring element.
+     *
+     * @param stdClass $data The backup data.
+     */
     protected function process_peerwork_submission($data) {
         global $DB;
 
@@ -123,7 +159,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
         $this->set_mapping('group_map', $data->groupid,  $this->get_mappingid('group', $data->groupid), true);
 
-        $data->assignment = $this->get_new_parentid('peerwork');
+        $data->peerworkid = $this->get_new_parentid('peerwork');
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->groupid = $this->get_mappingid('group', $data->groupid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
@@ -133,11 +169,11 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $this->set_mapping('peerwork_submission', $oldid, $newitemid);
     }
 
+    /**
+     * After execute.
+     */
     protected function after_execute() {
-        // Add peerwork related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_peerwork', 'intro', null);
-
-        // Add post related files, matching by itemname = 'forum_post'.
         $this->add_related_files('mod_peerwork', 'submission', 'group_map');
         $this->add_related_files('mod_peerwork', 'feedback_files', 'group_map');
     }

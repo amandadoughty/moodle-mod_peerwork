@@ -91,7 +91,7 @@ $sql = "SELECT $uniqid, $stufields, $graderfields, $releaserfields,
             ON g.id $ingroupsql
      LEFT JOIN {peerwork_submission} s
             ON s.groupid = g.id
-           AND s.assignment = p.id
+           AND s.peerworkid = p.id
      LEFT JOIN {peerwork_grades} gg
             ON gg.submissionid = s.id
      LEFT JOIN {user} u

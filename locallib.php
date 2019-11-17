@@ -110,7 +110,7 @@ function peerwork_get_mygroup($courseid, $userid, $groupingid = 0, $die = true) 
  */
 function peerwork_get_status($peerwork, $group) {
     global $DB;
-    $submission = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id, 'groupid' => $group->id));
+    $submission = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $group->id));
     $status = new stdClass();
     $duedate = peerwork_due_date($peerwork);
 
@@ -282,7 +282,7 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
         $feedback[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->feedback;
     }
 
-    // anthing not proceessed about gets a default string)
+    // Anthing not proceessed about gets a default string.
     if ($full) {
         foreach (array_keys($grades) as $critid) {
             foreach ($membersgradeable as $member1) {
@@ -370,14 +370,14 @@ function peerwork_get_webpa_result($peerwork, $group, $submission = null) {
 
     if (!$submission) {
         $submission = $DB->get_record('peerwork_submission', [
-            'assignment' => $peerwork->id,
+            'peerworkid' => $peerwork->id,
             'groupid' => $group->id
         ]);
     }
 
     if (!$submission || !isset($submission->grade)) {
         return;
-    } else if ($submission->groupid != $group->id || $submission->assignment != $peerwork->id) {
+    } else if ($submission->groupid != $group->id || $submission->peerworkid != $peerwork->id) {
         throw new coding_exception('Invalid submission provided');
     }
 
@@ -434,12 +434,15 @@ function peerwork_feedback_files($context, $group) {
 
 /**
  * Total all the grades awarded by the $user to other members of the group.
- * Return a structure that can be used to visualise the progress made in providing marks to peers in the group.
+ *
+ * @param object $peerwork The instance.
+ * @param object $user The user.
+ * @param object[] $membersgradeable The user's peers.
  */
 function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
     global $DB;
 
-    $data = new stdClass(); // data->grade[member] data->feedback[member]
+    $data = new stdClass();
     $data->grade = array();
     $data->feedback = array();
 
@@ -612,7 +615,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     // Create submission record if none yet.
     if (!$submission) {
         $submission = new stdClass();
-        $submission->assignment = $peerwork->id;
+        $submission->peerworkid = $peerwork->id;
         $submission->userid = $USER->id;
         $submission->timecreated = time();
         $submission->timemodified = time();
@@ -738,8 +741,8 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
         array('peerwork' => $peerwork->id, 'groupid' => $group->id, 'gradedby' => $USER->id));
 
     // Save the grades.
-    $pac = new peerwork_criteria($peerwork->id);
-    $criteria = $pac->getCriteria();
+    $pac = new mod_peerwork_criteria($peerwork->id);
+    $criteria = $pac->get_criteria();
     foreach ($criteria as $criterion) {
         foreach ($membersgradeable as $member) {
             $peer = new stdClass();
@@ -760,15 +763,12 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             $peer->id = $DB->insert_record('peerwork_peers', $peer, true);
         }
 
-        // add a log entry
-        $fullname = fullname($member);
         $params = array(
             'objectid' => $peer->id,
             'context' => $context,
             'relateduserid' => $member->id,
             'other' => array(
                 'grade' => $peer->grade,
-                'fullname' => $fullname
             )
         );
 
@@ -806,15 +806,25 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     }
 
     // Send email confirmation.
-    if (!mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data)) {
+    if (!mod_peerwork_mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data)) {
         throw new moodle_exception("Submission saved but no email sent.");
     }
 }
 
-function mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data) {
+/**
+ * Mail confirmation.
+ *
+ * @param object $course The course.
+ * @param object $submission The submission.
+ * @param array $draftfiles The files.
+ * @param array $membersgradeable The members.
+ * @param object $data The data.
+ * @return bool
+ */
+function mod_peerwork_mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data) {
     global $CFG, $USER;
-error_log("mail_confirmation_submission TODO ");
-return true;
+    // TODO Mail confirmation.
+    return true;
 
     $subject = get_string('confirmationmailsubject', 'peerwork', $course->fullname);
 
@@ -833,7 +843,7 @@ return true;
     }
     $a->grades = $grades;
 
-    $a->url = $CFG->wwwroot . "/mod/peerwork/view.php?n=" . $submission->assignment;
+    $a->url = $CFG->wwwroot . "/mod/peerwork/view.php?n=" . $submission->peerworkid;
 
     $body = get_string('confirmationmailbody', 'peerwork', $a);
     return email_to_user($USER, core_user::get_noreply_user(), $subject, $body);

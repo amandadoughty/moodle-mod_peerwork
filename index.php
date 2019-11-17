@@ -32,8 +32,8 @@ require_course_login($course);
 $coursecontext = context_course::instance($course->id);
 
 $params = array(
-                'context' => $coursecontext
-            );
+    'context' => $coursecontext
+);
 
 $event = \mod_peerwork\event\course_module_instance_list_viewed::create($params);
 $event->trigger();

@@ -31,10 +31,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerwork/forms/submissions_form.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->libdir . '/gradelib.php');
 
@@ -83,12 +82,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
     // Show mod details.
     echo $OUTPUT->heading(format_string($peerwork->name));
     echo $OUTPUT->box(format_string($peerwork->intro));
-    /**
-     *
-     * Teacher output
-     * If teacher then display a summary of the groups and the number of submissions made.
-     *
-     */
+
     $duedate = peerwork_due_date($peerwork);
     if ($duedate != PEERWORK_DUEDATE_NOT_USED) {
         echo $OUTPUT->box(get_string('duedateat', 'mod_peerwork', userdate($peerwork->duedate)));
@@ -157,19 +151,13 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
 
 } else {
-    /**
-     *
-     * Student output displays summary of submissions amde so far and provides a button to start editing.
-     *
-     */
-
-
+    // Student output displays summary of submissions amde so far and provides a button to start editing.
     $mygroup = peerwork_get_mygroup($course->id, $USER->id, $groupingid);
     $membersgradeable = peerwork_get_peers($course->id, $peerwork, $groupingid, $mygroup);
     $groupmode = groups_get_activity_groupmode($cm);
 
     // Check if already submitted.
-    $submission = $DB->get_record('peerwork_submission', array('assignment' => $peerwork->id, 'groupid' => $mygroup));
+    $submission = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $mygroup));
 
     // Check if I already graded my peers.
     $myassessments = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id, 'gradedby' => $USER->id));
@@ -203,15 +191,14 @@ if (has_capability('mod/peerwork:grade', $context)) {
         // Show mod details.
         echo $OUTPUT->heading(format_string($peerwork->name));
         echo $OUTPUT->box(format_string($peerwork->intro));
-        $summary = new peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text . ' '
+        $summary = new mod_peerwork\output\peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text . ' '
             . get_string('noteditablebecause', 'mod_peerwork', $isopen->text));
         echo $renderer->render($summary);
         echo $OUTPUT->footer();
         die();
     }
 
-    // File attachment is not compulsory
-    // therefore we enforce the submission form if the above is not submitted.
+    // File attachment is not compulsory therefore we enforce the submission form if the above is not submitted.
     $foptions = peerwork_get_fileoptions($peerwork);
     if (!$myassessments || $edit == true) {
 
@@ -280,7 +267,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
             $data['feedback_files'] = peerwork_feedback_files($context, $group);
         }
         $data['maxfiles'] = $foptions['maxfiles'];
-        $summary = new peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text .
+        $summary = new mod_peerwork\output\peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text .
             '<p>' . get_string('editablebecause', 'mod_peerwork', $isopen->text) . '</p>');
         echo $renderer->render($summary);
         $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));

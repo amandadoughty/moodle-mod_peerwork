@@ -15,14 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Backup task.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Because it exists (must).
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/mod/peerwork/backup/moodle2/backup_peerwork_stepslib.php');
 
+/**
+ * Backup task.
+ *
+ * @package    mod_peerwork
+ * @copyright  2013 LEARNING TECHNOLOGY SERVICES
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class backup_peerwork_activity_task extends backup_activity_task {
 
     /**
@@ -33,17 +43,26 @@ class backup_peerwork_activity_task extends backup_activity_task {
     }
 
     /**
-     * Define (add) particular steps this activity can have
+     * Define (add) particular steps this activity can have.
      */
     protected function define_my_steps() {
         $this->add_step(new backup_peerwork_activity_structure_step('peerwork_structure', 'peerwork.xml'));
     }
 
     /**
-     * Code the transformations to perform in the activity in
-     * order to get transportable (encoded) links
+     * Code the transformations to perform in the activity.
      */
     static public function encode_content_links($content) {
+        global $CFG;
+
+        $base = preg_quote($CFG->wwwroot, "/");
+
+        $search = "/(" . $base . "\/mod\/peerwork\/index.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@PEERWORKINDEX*$2@$', $content);
+
+        $search = "/(" . $base . "\/mod\/peerwork\/view.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@PEERWORKVIEWBYID*$2@$', $content);
+
         return $content;
     }
 }

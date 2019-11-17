@@ -24,9 +24,9 @@
 namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
+
 /**
  * The submission_viewed event class.
- *
  *
  * @since     Moodle 2.8
  * @copyright 2015 Amanda Doughty
@@ -45,16 +45,11 @@ class submission_viewed extends \core\event\base {
     }
 
     public function get_description() {
-        return "The user with id '{$this->userid}'' viewed the submission form for the 'peerwork'
-        activity with course module id '{$this->contextinstanceid}'.";
+        return "The user with id '{$this->userid}'' viewed the submission form for the 'peerwork' " .
+            "activity with course module id '{$this->contextinstanceid}'.";
     }
 
     public function get_url() {
-        return new \moodle_url(
-            '/mod/peerwork/view.php',
-            array(
-                'id' => $this->contextinstanceid
-                )
-            );
+        return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 }

@@ -33,7 +33,6 @@ defined('MOODLE_INTERNAL') || die();
  *      Extra information about the event.
  *
  *      - int grade: Grade awarded.
- *      - string fullname: Name of graded user.
  * }
  *
  * @package    mod_peerwork
@@ -44,7 +43,6 @@ defined('MOODLE_INTERNAL') || die();
 class peer_grade_created extends \core\event\base {
 
     protected function init() {
-        // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'peerwork_peers';
@@ -55,19 +53,12 @@ class peer_grade_created extends \core\event\base {
     }
 
     public function get_url() {
-        return new \moodle_url(
-            '/mod/peerwork/view.php',
-            array(
-                'id' => $this->contextinstanceid
-                )
-            );
+        return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 
     public function get_description() {
-        $descriptionstring = "Grade student: (id={$this->relateduserid}, fullname={$this->other['fullname']})." .
-        " Grade: {$this->other['grade']} / 5.";
-
-        return $descriptionstring;
+        return "User with id '{$this->userid}' gave their peer with id '{$this->relateduserid}' " .
+            "the grade '{$this->other['grade']}'.";
     }
 
     /**
@@ -78,11 +69,11 @@ class peer_grade_created extends \core\event\base {
      */
     protected function validate_data() {
         parent::validate_data();
+        if (!$this->relateduserid) {
+            throw new \coding_exception('The \'relateduserid\' value must be set.');
+        }
         if (!isset($this->other['grade'])) {
             throw new \coding_exception('The \'grade\' value must be set in other.');
-        }
-        if (!isset($this->other['fullname'])) {
-            throw new \coding_exception('The \'fullname\' value must be set in other.');
         }
     }
 }
