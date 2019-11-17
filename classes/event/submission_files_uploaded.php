@@ -32,7 +32,6 @@ defined('MOODLE_INTERNAL') || die();
  * @property-read array $other {
  *      Extra information about the event.
  *
- *      - int filesubmissioncount: The number of files uploaded.
  *      - string filelist: List of content hashes of uploaded files.
  * }
  *
@@ -44,7 +43,6 @@ defined('MOODLE_INTERNAL') || die();
 class submission_files_uploaded extends \core\event\base {
 
     protected function init() {
-        // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'peerwork_submission';
@@ -55,21 +53,14 @@ class submission_files_uploaded extends \core\event\base {
     }
 
     public function get_url() {
-        return new \moodle_url(
-            '/mod/peerwork/view.php',
-            array(
-                'id' => $this->contextinstanceid
-                )
-            );
+        return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 
     public function get_description() {
-        $descriptionstring = "The user with id '$this->userid' uploaded {$this->other['filesubmissioncount']} file(s)." .
-            "in the peerwork submission with id " .
-            "'{$this->objectid}' <br/>" .
-            " {$this->other['filelist']} ";
-
-        return $descriptionstring;
+        $list = $this->other['filelist'];
+        $count = count($list);
+        return "The user with id '{$this->userid}' uploaded {$count} file(s) " .
+            "in the submission with id '{$this->objectid}'. The file hashes are: " . implode(', ', $list);
     }
 
     /**
@@ -80,9 +71,6 @@ class submission_files_uploaded extends \core\event\base {
      */
     protected function validate_data() {
         parent::validate_data();
-        if (!isset($this->other['filesubmissioncount'])) {
-            throw new \coding_exception('The \'filesubmissioncount\' value must be set in other.');
-        }
         if (!isset($this->other['filelist'])) {
             throw new \coding_exception('The \'filelist\' value must be set in other.');
         }

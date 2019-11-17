@@ -674,35 +674,15 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             $oldhashes[$file->get_contenthash()] = $file->get_contenthash();
         }
 
-        $samehashes = array_intersect($newhashes, $oldhashes);
         $addedhashes = array_diff($newhashes, $oldhashes);
         $deletedhashes = array_diff($oldhashes, $newhashes);
-
-        $filesubmissioncount = count($newhashes);
-        $filelist = array();
-        $filedeletedcount = count($deletedhashes);
-
-        if ($samehashes) {
-            $filelist[] = ' Resubmitted:<br/>' . join('<br/>', $samehashes);
-        }
-
-        if ($addedhashes) {
-            $filelist[] = ' Added:<br/>' . join('<br/>', $addedhashes);
-        }
-
-        if ($deletedhashes) {
-            $deletedlist = 'Deleted:<br/>' . join('<br/>', $deletedhashes);
-        }
-
-        $filelist = join('<br/>', $filelist);
 
         if ($deletedhashes) {
             $params = array(
                 'objectid' => $submission->id,
                 'context' => $context,
                 'other' => array(
-                    'filedeletedcount' => $filedeletedcount,
-                    'deletedlist' => $deletedlist
+                    'deletedlist' => $deletedhashes
                 )
             );
 
@@ -710,13 +690,12 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             $event->trigger();
         }
 
-        if ($filelist) {
+        if ($addedhashes) {
             $params = array(
                 'objectid' => $submission->id,
                 'context' => $context,
                 'other' => array(
-                    'filesubmissioncount' => $filesubmissioncount,
-                    'filelist' => $filelist
+                    'filelist' => $addedhashes
                 )
             );
 
@@ -761,20 +740,20 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             }
 
             $peer->id = $DB->insert_record('peerwork_peers', $peer, true);
+
+            $params = array(
+                'objectid' => $peer->id,
+                'context' => $context,
+                'relateduserid' => $member->id,
+                'other' => array(
+                    'grade' => $peer->grade,
+                )
+            );
+
+            $event = \mod_peerwork\event\peer_grade_created::create($params);
+            $event->add_record_snapshot('peerwork_peers', $peer);
+            $event->trigger();
         }
-
-        $params = array(
-            'objectid' => $peer->id,
-            'context' => $context,
-            'relateduserid' => $member->id,
-            'other' => array(
-                'grade' => $peer->grade,
-            )
-        );
-
-        $event = \mod_peerwork\event\peer_grade_created::create($params);
-        $event->add_record_snapshot('peerwork_peers', $peer);
-        $event->trigger();
     }
 
     // Save the justification.
