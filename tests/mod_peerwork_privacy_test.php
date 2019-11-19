@@ -27,7 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\transform;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use mod_peerwork\privacy\provider;
 
@@ -48,7 +50,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
 
     public function test_get_metadata() {
         $data = provider::get_metadata(new collection('mod_peerwork'));
-        $this->assertCount(4, $data->get_collection());
+        $this->assertCount(5, $data->get_collection());
     }
 
     public function test_get_contexts_for_userid() {
@@ -136,7 +138,106 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $ctxu4 = provider::get_contexts_for_userid($u4->id)->get_contextids();
         $this->assertCount(1, $ctxu4);
         $this->assertContains($p3ctx->id, $ctxu4);
+    }
 
+    public function test_get_users_in_context() {
+        $dg = $this->getDataGenerator();
+        $pg = $dg->get_plugin_generator('mod_peerwork');
+
+        $c1 = $dg->create_course();
+        $g1 = $dg->create_group(['courseid' => $c1->id]);
+        $scale1 = $dg->create_scale();
+
+        $u1 = $dg->create_user();
+        $u2 = $dg->create_user();
+        $u3 = $dg->create_user();
+        $u4 = $dg->create_user();
+        $u5 = $dg->create_user();
+
+        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
+        $p2 = $dg->create_module('peerwork', (object) ['course' => $c1]);
+        $p3 = $dg->create_module('peerwork', (object) ['course' => $c1]);
+        $p1id = $p1->id;
+        $p2id = $p2->id;
+        $p3id = $p3->id;
+        $p1ctx = context_module::instance($p1->cmid);
+        $p2ctx = context_module::instance($p2->cmid);
+        $p3ctx = context_module::instance($p3->cmid);
+
+        // Validate all empty.
+        $userlist = new userlist($p1ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertEmpty($userlist->get_userids());
+        $userlist = new userlist($p2ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertEmpty($userlist->get_userids());
+        $userlist = new userlist($p3ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertEmpty($userlist->get_userids());
+
+        $p1s1 = $pg->create_submission(['peerworkid' => $p1id, 'groupid' => $g1->id, 'userid' => $u1->id]);
+        $p2s1 = $pg->create_submission(['peerworkid' => $p2id, 'groupid' => $g1->id, 'gradedby' => $u2->id,
+            'releasedby' => $u3->id]);
+
+        // Validate that users are returned for submission related fields.
+        $userlist = new userlist($p1ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(1, $userlist->get_userids());
+        $this->assertContains($u1->id, $userlist->get_userids());
+        $userlist = new userlist($p2ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist->get_userids());
+        $this->assertContains($u2->id, $userlist->get_userids());
+        $this->assertContains($u3->id, $userlist->get_userids());
+        $userlist = new userlist($p3ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(0, $userlist->get_userids());
+
+        // Validate that receiving or giving a peer grade, and justification is found.
+        $p3s1 = $pg->create_submission(['peerworkid' => $p3id, 'groupid' => $g1->id]);
+        $crit = $pg->create_criterion(['peerworkid' => $p3id, 'scale' => $scale1]);
+        $pg->create_peer_grade(['peerworkid' => $p3id, 'criteriaid' => $crit->id, 'groupid' => $g1->id,
+            'gradefor' => $u1->id, 'gradedby' => $u2->id]);
+        $pg->create_justification(['peerworkid' => $p3id, 'groupid' => $g1->id,
+            'gradefor' => $u3->id, 'gradedby' => $u4->id]);
+
+        $userlist = new userlist($p1ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(1, $userlist->get_userids());
+        $this->assertContains($u1->id, $userlist->get_userids());
+        $userlist = new userlist($p2ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist->get_userids());
+        $this->assertContains($u2->id, $userlist->get_userids());
+        $this->assertContains($u3->id, $userlist->get_userids());
+        $userlist = new userlist($p3ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(4, $userlist->get_userids());
+        $this->assertContains($u1->id, $userlist->get_userids());
+        $this->assertContains($u2->id, $userlist->get_userids());
+        $this->assertContains($u3->id, $userlist->get_userids());
+        $this->assertContains($u4->id, $userlist->get_userids());
+
+        // Validate that receiving a final grade is found.
+        $pg->create_grade(['peerworkid' => $p2id, 'userid' => $u1->id, 'submissionid' => $p2s1->id]);
+
+        $userlist = new userlist($p1ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(1, $userlist->get_userids());
+        $this->assertContains($u1->id, $userlist->get_userids());
+        $userlist = new userlist($p2ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(3, $userlist->get_userids());
+        $this->assertContains($u1->id, $userlist->get_userids());
+        $this->assertContains($u2->id, $userlist->get_userids());
+        $this->assertContains($u3->id, $userlist->get_userids());
+        $userlist = new userlist($p3ctx, 'mod_peerwork');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(4, $userlist->get_userids());
+        $this->assertContains($u1->id, $userlist->get_userids());
+        $this->assertContains($u2->id, $userlist->get_userids());
+        $this->assertContains($u3->id, $userlist->get_userids());
+        $this->assertContains($u4->id, $userlist->get_userids());
     }
 
     public function test_delete_data_for_all_users_in_context() {
@@ -365,6 +466,123 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u4->id]));
         $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u1->id]));
         $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u3->id]));
+        $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u4->id]));
+        $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u1->id]));
+        $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u2->id]));
+        $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u3->id]));
+        $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
+    }
+
+    public function test_delete_data_for_users() {
+        global $DB;
+        $dg = $this->getDataGenerator();
+        $pg = $dg->get_plugin_generator('mod_peerwork');
+
+        $c1 = $dg->create_course();
+        $c2 = $dg->create_course();
+        $g1 = $dg->create_group(['courseid' => $c1->id]);
+        $scale1 = $dg->create_scale();
+
+        $u1 = $dg->create_user();
+        $u2 = $dg->create_user();
+        $u3 = $dg->create_user();
+        $u4 = $dg->create_user();
+
+        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
+        $p2 = $dg->create_module('peerwork', (object) ['course' => $c2]);
+
+        // Create the same set of data in two modules.
+        foreach ([$p1, $p2] as $p) {
+            $sub = $pg->create_submission(['peerworkid' => $p->id, 'groupid' => $g1->id, 'userid' => $u1->id,
+                'gradedby' => $u2->id, 'releasedby' => $u3->id]);
+            $crit = $pg->create_criterion(['peerworkid' => $p->id, 'scale' => $scale1]);
+
+            $pg->create_peer_grade(['peerworkid' => $p->id, 'criteriaid' => $crit->id, 'groupid' => $g1->id,
+                'gradefor' => $u1->id, 'gradedby' => $u4->id]);
+            $pg->create_peer_grade(['peerworkid' => $p->id, 'criteriaid' => $crit->id, 'groupid' => $g1->id,
+                'gradefor' => $u4->id, 'gradedby' => $u1->id]);
+            $pg->create_peer_grade(['peerworkid' => $p->id, 'criteriaid' => $crit->id, 'groupid' => $g1->id,
+                'gradefor' => $u1->id, 'gradedby' => $u2->id]);
+            $pg->create_peer_grade(['peerworkid' => $p->id, 'criteriaid' => $crit->id, 'groupid' => $g1->id,
+                'gradefor' => $u3->id, 'gradedby' => $u2->id]);
+            $pg->create_peer_grade(['peerworkid' => $p->id, 'criteriaid' => $crit->id, 'groupid' => $g1->id,
+                'gradefor' => $u3->id, 'gradedby' => $u4->id]);
+
+            $pg->create_justification(['peerworkid' => $p->id, 'groupid' => $g1->id,
+                'gradefor' => $u1->id, 'gradedby' => $u4->id]);
+            $pg->create_justification(['peerworkid' => $p->id, 'groupid' => $g1->id,
+                'gradefor' => $u4->id, 'gradedby' => $u1->id]);
+            $pg->create_justification(['peerworkid' => $p->id, 'groupid' => $g1->id,
+                'gradefor' => $u1->id, 'gradedby' => $u2->id]);
+            $pg->create_justification(['peerworkid' => $p->id, 'groupid' => $g1->id,
+                'gradefor' => $u3->id, 'gradedby' => $u2->id]);
+            $pg->create_justification(['peerworkid' => $p->id, 'groupid' => $g1->id,
+                'gradefor' => $u3->id, 'gradedby' => $u4->id]);
+
+            $pg->create_grade(['peerworkid' => $p->id, 'userid' => $u1->id, 'submissionid' => $sub->id]);
+            $pg->create_grade(['peerworkid' => $p->id, 'userid' => $u2->id, 'submissionid' => $sub->id]);
+            $pg->create_grade(['peerworkid' => $p->id, 'userid' => $u3->id, 'submissionid' => $sub->id]);
+            $pg->create_grade(['peerworkid' => $p->id, 'userid' => $u4->id, 'submissionid' => $sub->id]);
+        }
+
+        // Confirm data.
+        foreach ([$p1, $p2] as $p) {
+            $this->assertTrue($DB->record_exists('peerwork_submission', ['peerworkid' => $p->id]));
+            $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u1->id]));
+            $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u2->id]));
+            $this->assertEquals(2, $DB->count_records('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u4->id]));
+            $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u1->id]));
+            $this->assertEquals(2, $DB->count_records('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u3->id]));
+            $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u4->id]));
+            $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u1->id]));
+            $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u2->id]));
+            $this->assertEquals(2, $DB->count_records('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u4->id]));
+            $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u1->id]));
+            $this->assertEquals(2, $DB->count_records('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u3->id]));
+            $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u4->id]));
+            $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u1->id]));
+            $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u2->id]));
+            $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u3->id]));
+            $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
+        }
+
+        $contextlist = new approved_userlist(context_module::instance($p1->cmid), 'mod_peerwork', [$u1->id, $u2->id]);
+        provider::delete_data_for_users($contextlist);
+
+        // Confirm deletion, and not deletion.
+        $p = $p1;
+        $this->assertTrue($DB->record_exists('peerwork_submission', ['peerworkid' => $p->id]));
+        $this->assertFalse($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u1->id]));
+        $this->assertFalse($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u2->id]));
+        $this->assertEquals(1, $DB->count_records('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u4->id]));
+        $this->assertFalse($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u1->id]));
+        $this->assertEquals(1, $DB->count_records('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u3->id]));
+        $this->assertFalse($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u4->id]));
+        $this->assertFalse($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u1->id]));
+        $this->assertFalse($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u2->id]));
+        $this->assertEquals(1, $DB->count_records('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u4->id]));
+        $this->assertFalse($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u1->id]));
+        $this->assertEquals(1, $DB->count_records('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u3->id]));
+        $this->assertFalse($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u4->id]));
+        $this->assertFalse($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u1->id]));
+        $this->assertFalse($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u2->id]));
+        $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u3->id]));
+        $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
+
+        // Confirm the other module was not affected.
+        $p = $p2;
+        $this->assertTrue($DB->record_exists('peerwork_submission', ['peerworkid' => $p->id]));
+        $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u1->id]));
+        $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u2->id]));
+        $this->assertEquals(2, $DB->count_records('peerwork_peers', ['peerwork' => $p->id, 'gradedby' => $u4->id]));
+        $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u1->id]));
+        $this->assertEquals(2, $DB->count_records('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u3->id]));
+        $this->assertTrue($DB->record_exists('peerwork_peers', ['peerwork' => $p->id, 'gradefor' => $u4->id]));
+        $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u1->id]));
+        $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u2->id]));
+        $this->assertEquals(2, $DB->count_records('peerwork_justification', ['peerworkid' => $p->id, 'gradedby' => $u4->id]));
+        $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u1->id]));
+        $this->assertEquals(2, $DB->count_records('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u3->id]));
         $this->assertTrue($DB->record_exists('peerwork_justification', ['peerworkid' => $p->id, 'gradefor' => $u4->id]));
         $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u1->id]));
         $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u2->id]));

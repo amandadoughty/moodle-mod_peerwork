@@ -32,9 +32,11 @@ use grade_scale;
 use moodle_recordset;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\helper;
 use core_privacy\local\request\transform;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
 require_once($CFG->libdir . '/grade/grade_scale.php');
@@ -50,7 +52,8 @@ require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
  */
 class provider implements
     \core_privacy\local\metadata\provider,
-    \core_privacy\local\request\plugin\provider {
+    \core_privacy\local\request\plugin\provider,
+    \core_privacy\local\request\core_userlist_provider  {
 
     /**
      * Returns metadata.
@@ -150,6 +153,33 @@ class provider implements
         $contextlist->add_from_sql($sql, $params);
 
         return $contextlist;
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param userlist $userlist The userlist containing the list of users.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_id('peerwork', $context->instanceid);
+        if (!$cm) {
+            return;
+        }
+
+        $id = $cm->instance;
+        $userlist->add_from_sql('userid', 'SELECT userid FROM {peerwork_submission} WHERE peerworkid = ?', [$id]);
+        $userlist->add_from_sql('gradedby', 'SELECT gradedby FROM {peerwork_submission} WHERE peerworkid = ?', [$id]);
+        $userlist->add_from_sql('releasedby', 'SELECT releasedby FROM {peerwork_submission} WHERE peerworkid = ?', [$id]);
+        $userlist->add_from_sql('gradedby', 'SELECT gradedby FROM {peerwork_peers} WHERE peerwork = ?', [$id]);
+        $userlist->add_from_sql('gradefor', 'SELECT gradefor FROM {peerwork_peers} WHERE peerwork = ?', [$id]);
+        $userlist->add_from_sql('gradedby', 'SELECT gradedby FROM {peerwork_justification} WHERE peerworkid = ?', [$id]);
+        $userlist->add_from_sql('gradefor', 'SELECT gradefor FROM {peerwork_justification} WHERE peerworkid = ?', [$id]);
+        $userlist->add_from_sql('userid', 'SELECT userid FROM {peerwork_grades} WHERE peerworkid = ?', [$id]);
     }
 
     /**
@@ -355,6 +385,53 @@ class provider implements
         // Delete the records of the peer justification received, or given.
         $sql = "peerworkid $insql AND (gradedby = :userid1 OR gradefor = :userid2)";
         $params = ['userid1' => $userid, 'userid2' => $userid] + $inparams;
+        $DB->delete_records_select('peerwork_justification', $sql, $params);
+
+        // We do not delete the submission because it belongs to the group, and removing
+        // it would essentially break the module. The same goes for the other fields such
+        // as who graded the submission, or released its grades, we cannot delete those records.
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+        $userids = $userlist->get_userids();
+        if (empty($userids)) {
+            return;
+        }
+
+        $context = $userlist->get_context();
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_id('peerwork', $context->instanceid);
+        if (!$cm) {
+            return;
+        }
+
+        // Delete all the things that do not affect the well functioning of the plugin.
+        $id = $cm->instance;
+        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        list($insql2, $inparams2) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+        // Delete the records of the teacher grade received.
+        $sql = "peerworkid = :id AND userid $insql";
+        $params = ['id' => $id] + $inparams;
+        $DB->delete_records_select('peerwork_grades', $sql, $params);
+
+        // Delete the records of the peer grade received, or given.
+        $sql = "peerwork = :id AND (gradedby $insql OR gradefor $insql2)";
+        $params = ['id' => $id] + $inparams + $inparams2;
+        $DB->delete_records_select('peerwork_peers', $sql, $params);
+
+        // Delete the records of the peer justification received, or given.
+        $sql = "peerworkid = :id AND (gradedby $insql OR gradefor $insql2)";
+        $params = ['id' => $id] + $inparams + $inparams2;
         $DB->delete_records_select('peerwork_justification', $sql, $params);
 
         // We do not delete the submission because it belongs to the group, and removing
