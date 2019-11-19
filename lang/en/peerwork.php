@@ -100,6 +100,7 @@ $string['peerworkname_help'] = '<strong>Description</strong><br />In the descrip
 $string['peerwork'] = 'Peer Assessment';
 $string['pluginadministration'] = 'Peer Assessment administration';
 $string['pluginname'] = 'Peer Assessment';
+$string['privacy:metadata:core_files'] = 'The plugins stores submission and feedback files.';
 $string['privacy:metadata:grades'] = 'Information about the grades computed and given by educators';
 $string['privacy:metadata:grades:grade'] = 'The grade given to the student';
 $string['privacy:metadata:grades:revisedgrade'] = 'The revised grade which takes precedence over the grade if any';

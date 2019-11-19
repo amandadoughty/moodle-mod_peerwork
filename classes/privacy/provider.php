@@ -94,6 +94,8 @@ class provider implements
             'revisedgrade' => 'privacy:metadata:grades:revisedgrade',
         ], 'privacy:metadata:grades');
 
+        $collection->add_subsystem_link('core_files', [], 'privacy:metadata:core_files');
+
         return $collection;
     }
 
@@ -178,7 +180,7 @@ class provider implements
 
         // Fetch the record for the overall grade.
         $sql = "SELECT g.id, g.grade, g.revisedgrade, s.grade AS groupgrade, s.timegraded, s.timecreated, s.timemodified,
-                       s.feedbacktext, s.feedbackformat, s.peerworkid
+                       s.feedbacktext, s.feedbackformat, s.peerworkid, s.groupid
                   FROM {peerwork_grades} g
                   JOIN {peerwork_submission} s
                     ON s.id = g.submissionid
@@ -188,7 +190,10 @@ class provider implements
         $recordset = $DB->get_recordset_sql($sql, $params);
         foreach ($recordset as $record) {
             $context = context_module::instance($peerworkidstocmids[$record->peerworkid]);
-            writer::with_context($context)->export_data([get_string('privacy:path:grade', 'mod_peerwork')], (object) [
+            $path = [get_string('privacy:path:grade', 'mod_peerwork')];
+            writer::with_context($context)->export_area_files($path, 'mod_peerwork', 'submission', $record->groupid);
+            writer::with_context($context)->export_area_files($path, 'mod_peerwork', 'feedback_files', $record->groupid);
+            writer::with_context($context)->export_data($path, (object) [
                 'group_grade' => $record->groupgrade,
                 'group_feedback' => format_text($record->feedbacktext, $record->feedbackformat, ['context' => $context]),
                 'group_submission_created_on' => $record->timecreated ? transform::datetime($record->timecreated) : '-',
@@ -210,6 +215,9 @@ class provider implements
         $recordset = $DB->get_recordset_sql($sql, $params);
         static::recordset_loop_and_export($recordset, 'peerworkid', [],
             function($carry, $record) use ($user, $userid, $peerworkidstocmids) {
+                $context = context_module::instance($peerworkidstocmids[$record->peerworkid]);
+                $path = [get_string('privacy:path:submission', 'mod_peerwork')];
+                writer::with_context($context)->export_area_files($path, 'mod_peerwork', 'submission', $record->groupid);
                 $carry[] = (object) [
                     'submitted_or_updated_by_you' => transform::yesno($record->userid == $userid),
                     'graded_by_you' => transform::yesno($record->gradedby == $userid),
@@ -223,7 +231,8 @@ class provider implements
             },
             function($peerworkid, $data) use ($peerworkidstocmids) {
                 $context = context_module::instance($peerworkidstocmids[$peerworkid]);
-                writer::with_context($context)->export_data([get_string('privacy:path:submission', 'mod_peerwork')], (object) [
+                $path = [get_string('privacy:path:submission', 'mod_peerwork')];
+                writer::with_context($context)->export_data($path, (object) [
                     'submissions' => $data
                 ]);
             }
