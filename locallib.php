@@ -539,14 +539,18 @@ function peerwork_get_user_local_grade($peerworkid, $submissionid, $userid) {
  *
  * @param int $peerworkid The peerwork ID.
  * @param int $submissionid The submission ID.
- * @return void
+ * @return array Indexed by userid.
  */
 function peerwork_get_local_grades($peerworkid, $submissionid) {
     global $DB;
-    return $DB->get_records('peerwork_grades', [
+    $records = $DB->get_records('peerwork_grades', [
         'peerworkid' => $peerworkid,
         'submissionid' => $submissionid
-    ], '', 'userid AS idx, *');
+    ], '', '*');
+    $userids = array_map(function($record) {
+        return $record->userid;
+    }, $records);
+    return array_combine($userids, $records);
 }
 
 /**
