@@ -757,7 +757,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     }
 
     // Save the justification.
-    if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_HIDDEN) {
+    if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
         foreach ($membersgradeable as $member) {
             $params = [
                 'peerworkid' => $peerwork->id,
