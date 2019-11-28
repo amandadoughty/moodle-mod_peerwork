@@ -172,8 +172,9 @@ class mod_peerwork_submissions_form extends moodleform {
             } else if ($peerwork->justification == MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER) {
                 $notestr = 'justificationnotesvisibleuser';
             }
-            $mform->addElement('static', '', '', get_string('justificationintro', 'mod_peerwork') . ' '
-                . get_string($notestr, 'mod_peerwork'));
+            $mform->addElement('static', '', '', get_string('justificationintro', 'mod_peerwork') .
+                html_writer::empty_tag('br') .
+                html_writer::tag('strong', get_string($notestr, 'mod_peerwork')));
 
             foreach ($peers as $peer) {
                 $fullname = fullname($peer);
