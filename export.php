@@ -67,7 +67,7 @@ $headers = [
     get_string('releasedon', 'mod_peerwork'),
 ];
 
-$filename = clean_filename($peerwork->name . '-' . $id . '_' . implode('-', $groupids));
+$filename = clean_filename($peerwork->name . '-' . $id . '_' . ($groupid ? $groupid : 'all'));
 $csvexport = new csv_export_writer();
 $csvexport->set_filename($filename);
 $csvexport->add_data($headers);
