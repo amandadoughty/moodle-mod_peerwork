@@ -181,8 +181,6 @@ $string['contibutionscore_help'] = "This is the webPA score which is the relativ
 
 $string['fromdate'] = 'Allow submissions from';
 $string['fromdate_help'] = 'If enabled, students will not be able to submit before this date. If disabled, students will be able to start submitting right away.';
-$string['notifylatesubmissions'] = 'Notify graders about late submissions';
-$string['notifylatesubmissions_help'] = 'If enabled, graders (usually teachers) receive a message whenever a student submits their peer grades or peer grades and file submission late. Message methods are configurable.';
 $string['allowlatesubmissions'] = 'Allow late submissions';
 $string['allowlatesubmissions_help'] = 'If enabled, submissions will still be allowed after the due date.<br />
 <strong>Note:</strong> Once the group grade has been saved and the final grades calculated, the student\'s submissions will become uneditable or locked. This is the stop tampering of the final grade by students amending their peer grades.';

@@ -61,13 +61,6 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_configcheckbox(
-        'peerwork/notifylatesubmissions',
-        get_string('notifylatesubmissions', 'mod_peerwork'),
-        get_string('notifylatesubmissions_help', 'mod_peerwork'),
-        0
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
         'peerwork/selfgrading',
         get_string('selfgrading', 'mod_peerwork'),
         get_string('selfgrading_help', 'mod_peerwork'),

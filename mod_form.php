@@ -90,10 +90,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->setType('maxfiles', PARAM_INT);
         $mform->addHelpButton('maxfiles', 'setup.maxfiles', 'peerwork');
 
-        $mform->addElement('selectyesno', 'notifylatesubmissions', get_string('notifylatesubmissions', 'peerwork'));
-        $mform->setType('notifylatesubmissions', PARAM_BOOL);
-        $mform->addHelpButton('notifylatesubmissions', 'notifylatesubmissions', 'peerwork');
-
         $mform->addElement('selectyesno', 'selfgrading', get_string('selfgrading', 'peerwork'));
         $mform->setType('selfgrading', PARAM_BOOL);
         $mform->addHelpButton('selfgrading', 'selfgrading', 'peerwork');
