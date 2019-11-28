@@ -9,6 +9,7 @@
 
 #mod-peerwork-summary-table td {
     padding: 0px 20px;
+    vertical-align: middle;
 }
 
 #mod-peerwork-summary-table th {
