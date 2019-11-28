@@ -183,6 +183,15 @@ if (has_capability('mod/peerwork:grade', $context)) {
             $data['mygrade'] = peerwork_get_user_local_grade($peerwork->id, $submission->id, $USER->id);
             $data['feedback'] = $submission->feedbacktext;
             $data['feedback_files'] = peerwork_feedback_files($context, $group);
+
+            if (peerwork_can_students_view_peer_grades($peerwork)) {
+                $pac = new mod_peerwork_criteria($peerwork->id);
+                $data['criteria'] = $pac->get_criteria();
+                $data['peergrades'] = peerwork_get_peer_grades_received($peerwork->id, $mygroup, $USER->id);
+            }
+            if (peerwork_can_students_view_peer_justification($peerwork)) {
+                $data['justifications'] = peerwork_get_justifications_received($peerwork->id, $mygroup, $USER->id);
+            }
         }
 
         // Output starts here.

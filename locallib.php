@@ -172,6 +172,70 @@ function peerwork_get_status($peerwork, $group) {
 }
 
 /**
+ * Get the justifications.
+ *
+ * @param int $peerworkid The peerwork ID.
+ * @param int $groupid The group ID.
+ * @return Array indexed by grader, then graded.
+ */
+function peerwork_get_justifications($peerworkid, $groupid) {
+    global $DB;
+    $justifications = $DB->get_records('peerwork_justification', ['peerworkid' => $peerworkid, 'groupid' => $groupid]);
+    return array_reduce($justifications, function($carry, $row) {
+        if (!isset($carry[$row->gradedby])) {
+            $carry[$row->gradedby] = [];
+        }
+        $carry[$row->gradedby][$row->gradefor] = $row;
+        return $carry;
+    }, []);
+}
+
+/**
+ * Get the justifications received.
+ *
+ * @param int $peerworkid The peerwork ID.
+ * @param int $groupid The group ID.
+ * @param int $userid The user ID.
+ * @return Array indexed by grader
+ */
+function peerwork_get_justifications_received($peerworkid, $groupid, $userid) {
+    global $DB;
+    $justifications = $DB->get_records('peerwork_justification', [
+        'peerworkid' => $peerworkid,
+        'groupid' => $groupid,
+        'gradefor' => $userid
+    ]);
+    return array_reduce($justifications, function($carry, $row) {
+        $carry[$row->gradedby] = $row;
+        return $carry;
+    }, []);
+}
+
+/**
+ * Get the peer grades.
+ *
+ * @param int $peerworkid The peerwork ID.
+ * @param int $groupid The group ID.
+ * @param int $userid The user ID.
+ * @return Array indexed by criteriaid, then graderid.
+ */
+function peerwork_get_peer_grades_received($peerworkid, $groupid, $userid) {
+    global $DB;
+    $peergrades = $DB->get_records('peerwork_peers', [
+        'peerwork' => $peerworkid,
+        'groupid' => $groupid,
+        'gradefor' => $userid
+    ]);
+    return array_reduce($peergrades, function($carry, $row) {
+        if (!isset($carry[$row->criteriaid])) {
+            $carry[$row->criteriaid] = [];
+        }
+        $carry[$row->criteriaid][$row->gradedby] = $row;
+        return $carry;
+    }, []);
+}
+
+/**
  * Was due date used and has it passed?
  * @param $peerwork
  */
@@ -211,6 +275,32 @@ function peerwork_from_date($peerwork) {
  */
 function peerwork_can_student_view_grade_and_feedback_from_status($status) {
     return $status->code == PEERWORK_STATUS_RELEASED;
+}
+
+/**
+ * Return whether students can view their peer grades.
+ *
+ * @param object $peerwork The peerwork instance.
+ * @return bool
+ */
+function peerwork_can_students_view_peer_grades($peerwork) {
+    return in_array($peerwork->peergradesvisibility, [
+        MOD_PEERWORK_PEER_GRADES_VISIBLE_ANON,
+        MOD_PEERWORK_PEER_GRADES_VISIBLE_USER,
+    ]);
+}
+
+/**
+ * Return whether students can view their peer justifications.
+ *
+ * @param object $peerwork The peerwork instance.
+ * @return bool
+ */
+function peerwork_can_students_view_peer_justification($peerwork) {
+    return in_array($peerwork->justification, [
+        MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON,
+        MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER,
+    ]);
 }
 
 /**
@@ -321,32 +411,6 @@ function peerwork_get_number_peers_graded($peerworkid, $groupid) {
     global $DB;
     return $DB->count_records_select('peerwork_peers', 'peerwork = ? AND groupid = ?', [$peerworkid, $groupid],
         'COUNT(DISTINCT gradedby)');
-}
-
-/**
- * How was user graded by his peers
- *
- * @param $id peer assessment id
- * @param $userid user id
- */
-function peerwork_gradedme($id, $userid, $membersgradeable) {
-    global $DB;
-    $gradedme = new stdClass();
-
-    // How others graded me.
-    $myresults = $DB->get_records('peerwork_peers', array('peerwork' => $id, 'gradefor' => $userid),
-        '', 'gradedby,feedback,grade');
-    foreach ($membersgradeable as $member) {
-        if (isset($myresults[$member->id])) {
-            $gradedme->feedback[$member->id] = $myresults[$member->id]->feedback;
-            $gradedme->grade[$member->id] = $myresults[$member->id]->grade;
-        } else {
-            $gradedme->feedback[$member->id] = '-';
-            $gradedme->grade[$member->id] = '-';
-        }
-    }
-
-    return $gradedme;
 }
 
 /**

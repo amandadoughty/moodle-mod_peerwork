@@ -67,14 +67,7 @@ if ($submission && peerwork_was_submission_graded_from_status($status)) {
 // Get the justifications.
 $justifications = [];
 if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
-    $justifications = $DB->get_records('peerwork_justification', ['peerworkid' => $peerwork->id, 'groupid' => $group->id]);
-    $justifications = array_reduce($justifications, function($carry, $row) {
-        if (!isset($carry[$row->gradedby])) {
-            $carry[$row->gradedby] = [];
-        }
-        $carry[$row->gradedby][$row->gradefor] = $row;
-        return $carry;
-    }, []);
+    $justifications = peerwork_get_justifications($peerwork->id, $group->id);
 }
 
 $mform = new mod_peerwork_details_form($PAGE->url->out(false), [

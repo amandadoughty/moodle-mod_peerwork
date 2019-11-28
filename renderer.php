@@ -107,35 +107,6 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $t->data[] = $row;
         }
 
-        if (isset($data['igraded'])) {
-            $row = new html_table_row();
-            $cell1 = new html_table_cell('Total grades awarded');
-
-            $users = '';
-            foreach ($membersgradeable as $member) {
-                $users .= '<p>' . fullname($member) . ': ' . $data['igraded']->grade[$member->id] . '</p>';
-            }
-
-            $cell2 = new html_table_cell($users);
-            $row->cells = array($cell1, $cell2);
-            $t->data[] = $row;
-        }
-
-        if (isset($data['gradedme'])) {
-            $row = new html_table_row();
-            $cell1 = new html_table_cell('Graded me');
-
-            $users = '';
-            foreach ($membersgradeable as $member) {
-                $users .= '<p>' . fullname($member) . ': ' . $data['gradedme']->grade[$member->id] .
-                ' (' . $data['gradedme']->feedback[$member->id] . ')</p>';
-            }
-
-            $cell2 = new html_table_cell($users);
-            $row->cells = array($cell1, $cell2);
-            $t->data[] = $row;
-        }
-
         if (isset($data['mygrade'])) {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('myfinalgrade', 'mod_peerwork'));
@@ -156,6 +127,97 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('feedbackfiles', 'mod_peerwork'));
             $cell2 = new html_table_cell(implode(', ', $data['feedback_files']));
+            $row->cells = array($cell1, $cell2);
+            $t->data[] = $row;
+        }
+
+        if (isset($data['peergrades']) && peerwork_can_students_view_peer_grades($peerwork)) {
+            $row = new html_table_row();
+            $cell1 = new html_table_cell(get_string('peergrades', 'mod_peerwork'));
+
+            $scales = grade_scale::fetch_all_global();
+            $isanon = $peerwork->peergradesvisibility != MOD_PEERWORK_PEER_GRADES_VISIBLE_USER;
+            $members = (array) (object) $membersgradeable;
+            if ($isanon) {
+                shuffle($members);
+            }
+
+            $html = '';
+            foreach ($data['criteria'] as $criteriaid => $criteria) {
+                $gradeinfo = $data['peergrades'][$criteriaid] ?? [];
+                $html .= html_writer::div($criteria->description);
+
+                $scaleid = abs($criteria->grade);
+                $scale = isset($scales[$scaleid]) ? $scales[$scaleid] : null;
+                if ($scale) {
+                    $scaleitems = $scale->load_items();
+                }
+
+                $ratings = [];
+                foreach ($members as $member) {
+                    $grade = $gradeinfo[$member->id] ?? null;
+                    $scalevalue = '-';
+                    if (!$grade && $isanon) {
+                        continue;
+                    } else if ($grade && $scale) {
+                        $scalevalue = $scaleitems[$grade->grade];
+                    }
+
+                    if ($isanon) {
+                        $ratings[] = $scalevalue;
+                    } else {
+                        $ratings[] = get_string('peerratedyou', 'mod_peerwork', [
+                            'name' => fullname($member),
+                            'grade' => $scalevalue
+                        ]);
+                    }
+                }
+
+                if (empty($ratings)) {
+                    $html .= html_writer::div(html_writer::tag('em', get_string('nonereceived', 'mod_peerwork')));
+                } else {
+                    $html .= html_writer::tag('ul', implode('', array_map(function($rating) {
+                        return html_writer::tag('li', $rating);
+                    }, $ratings)));
+                }
+
+            }
+
+            $cell2 = new html_table_cell($html);
+            $row->cells = array($cell1, $cell2);
+            $t->data[] = $row;
+        }
+
+        if (isset($data['justifications']) && peerwork_can_students_view_peer_justification($peerwork)) {
+            $row = new html_table_row();
+            $cell1 = new html_table_cell(get_string('justifications', 'mod_peerwork'));
+
+            $isanon = $peerwork->justification != MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER;
+            $members = (array) (object) $membersgradeable;
+            if ($isanon) {
+                shuffle($members);
+            }
+
+            $html = '';
+            foreach ($members as $member) {
+                $justification = $data['justifications'][$member->id] ?? null;
+                if ($isanon) {
+                    if (empty($justification)) {
+                        continue;
+                    }
+                    $html .= html_writer::tag('blockquote', s($justification->justification));
+                } else {
+                    $content = '';
+                    if (empty($justification)) {
+                        $content = html_writer::tag('p', html_writer::tag('em', get_string('nonegiven', 'mod_peerwork')));
+                    } else {
+                        $content = html_writer::tag('blockquote', s($justification->justification));
+                    }
+                    $html .= html_writer::tag('div', get_string('peersaid', 'mod_peerwork', fullname($member)) . $content);
+                }
+            }
+
+            $cell2 = new html_table_cell($html);
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
         }
