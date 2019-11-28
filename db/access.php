@@ -47,15 +47,6 @@ $capabilities = array(
         )
     ),
 
-    'mod/peerwork:submit' => array(
-
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'student' => CAP_ALLOW
-        )
-    ),
-
     'mod/peerwork:grade' => array(
         'riskbitmask' => RISK_XSS,
 

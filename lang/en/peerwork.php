@@ -197,7 +197,6 @@ $string['teacherfeedback_help'] = 'This is the feedback given by the grader.';
 $string['latesubmissionsubject'] = 'Late submission';
 $string['latesubmissiontext'] = 'Late submission have been submitted in {$a->name} by {$a->user}.';
 $string['peerwork:grade'] = 'Grade assignments and peer grades';
-$string['peerwork:submit'] = 'Submit peer grades';
 $string['peerwork:view'] = 'View peer assessment content';
 
 $string['assessmentcriteria:header'] = 'Assessment criteria settings';
