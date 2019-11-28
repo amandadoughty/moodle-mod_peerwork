@@ -123,7 +123,7 @@ foreach ($recordset as $record) {
         !empty($student->id) ? fullname($student) : '',
         $record->studentgrade ?? '',
         $record->revisedgrade ?? $record->studentgrade,
-        html_to_text($record->feedbacktext ?? ''),
+        trim(html_to_text($record->feedbacktext ?? '')),
         !empty($grader->id) ? fullname($grader) : '',
         !empty($record->timegraded) ? userdate($record->timegraded) : '',
         !empty($releaser->id) ? fullname($releaser) : '',
