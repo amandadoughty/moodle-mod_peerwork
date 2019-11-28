@@ -29,12 +29,17 @@ require_once($CFG->libdir . '/formslib.php');
  */
 class mod_peerwork_details_form extends moodleform {
 
+    /** @var bool Whether the page requirements were initialised. */
+    protected $pageinitialised = false;
+
     public static $fileoptions = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,
         'accepted_types' => '*', 'return_types' => null);
 
     // Define the form.
     protected function definition() {
         global $USER, $CFG, $COURSE;
+
+        $this->init_page_requirements();
 
         $mform = $this->_form;
         $userid = $USER->id;
@@ -135,13 +140,12 @@ class mod_peerwork_details_form extends moodleform {
      * Called from details.php to populate the form from existing data.
      */
     public function set_data($data) {
-        global $OUTPUT;
+        global $OUTPUT, $PAGE;
 
         if (array_key_exists('finalgrades', $data)) {
 
             $t = new html_table();
-            $t->attributes['class'] = 'userenrolment';
-            $t->id = 'mod-peerwork-summary-table';
+            $t->id = 'mod-peerwork-grader-table';
             $t->head = [
                 get_string('name'),
                 get_string('contibutionscore', 'mod_peerwork') . $OUTPUT->help_icon('contibutionscore', 'mod_peerwork'),
@@ -151,6 +155,8 @@ class mod_peerwork_details_form extends moodleform {
                 get_string('revisedgrade', 'mod_peerwork') . $OUTPUT->help_icon('revisedgrade', 'mod_peerwork'),
             ];
 
+            $totalcalculated = 0;
+            $totalfinalweighted = 0;
             foreach ($data['finalgrades'] as $member) {
                 $row = new html_table_row();
 
@@ -165,8 +171,37 @@ class mod_peerwork_details_form extends moodleform {
                 $row->cells[] = $this->_form->createElement('text', 'grade_' . $member['memberid'], '',
                     ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)])->toHtml();
 
+                $totalcalculated += $member['calcgrade'];
+                $totalfinalweighted += $member['finalweightedgrade'];
+
                 $t->data[] = $row;
             }
+
+            // Add totals.
+            $row = new html_table_row();
+            $row->attributes['class'] = 'grading-summary-totals';
+            $calculatedtotal = new html_table_cell(format_float($totalcalculated, 2));
+            $calculatedtotal->attributes = [
+                'class' => 'total-calculated-grade',
+                'data-total' => $totalcalculated
+            ];
+            $finalweightedtotal = new html_table_cell(format_float($totalfinalweighted, 2));
+            $finalweightedtotal->attributes = [
+                'class' => 'total-final-weighted-grade',
+                'data-total' => $totalfinalweighted
+            ];
+            $revisedtotal = new html_table_cell();
+            $revisedtotal->attributes['class'] = 'total-revised-grade';
+            $row->cells = [
+                get_string('total'),
+                '',
+                $calculatedtotal,
+                '',
+                $finalweightedtotal,
+                $revisedtotal,
+            ];
+            $t->data[] = $row;
+
             $data['finalgrades'] = html_writer::table($t);
 
         } else {
@@ -188,5 +223,19 @@ class mod_peerwork_details_form extends moodleform {
         }
 
         return $errors;
+    }
+
+    /**
+     * Init the page requirements.
+     *
+     * @return void
+     */
+    protected function init_page_requirements() {
+        global $PAGE;
+        if ($this->pageinitialised) {
+            return;
+        }
+        $this->pageinitialised = true;
+        $PAGE->requires->js_call_amd('mod_peerwork/revised-grades-total-calculator', 'init', ['#mod-peerwork-grader-table']);
     }
 }

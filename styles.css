@@ -7,11 +7,21 @@
     width: 70px;
 }
 
+#mod-peerwork-grader-table .grading-summary-totals td:first-child {
+    font-weight: bold;
+}
+#mod-peerwork-grader-table .grading-summary-totals td {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+#mod-peerwork-grader-table td,
 #mod-peerwork-summary-table td {
     padding: 0px 20px;
     vertical-align: middle;
 }
 
+#mod-peerwork-grader-table th,
 #mod-peerwork-summary-table th {
     padding: 10px 20px;
     text-align: left;
