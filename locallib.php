@@ -40,6 +40,10 @@ define('MOD_PEERWORK_JUSTIFICATION_HIDDEN', 1);         // Justification hidden 
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON', 2);   // Justification visible to all but anonymously.
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER', 3);   // Justification visible to all with identity visible.
 
+define('MOD_PEERWORK_PEER_GRADES_HIDDEN', 0);           // Peer grades hidden to students.
+define('MOD_PEERWORK_PEER_GRADES_VISIBLE_ANON', 2);     // Peer grades visible to all but anonymously.
+define('MOD_PEERWORK_PEER_GRADES_VISIBLE_USER', 3);     // Peer grades visible to all with identity visible.
+
 require_once($CFG->libdir . '/completionlib.php');
 require_once($CFG->libdir . '/grouplib.php');
 

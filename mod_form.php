@@ -124,6 +124,14 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerwork'));
 
         $options = [
+            MOD_PEERWORK_PEER_GRADES_HIDDEN => get_string('peergradeshiddenfromstudents', 'mod_peerwork'),
+            MOD_PEERWORK_PEER_GRADES_VISIBLE_ANON => get_string('peergradesvisibleanon', 'mod_peerwork'),
+            MOD_PEERWORK_PEER_GRADES_VISIBLE_USER => get_string('peergradesvisibleuser', 'mod_peerwork'),
+        ];
+        $mform->addElement('select', 'peergradesvisibility', get_string('peergradesvisibility', 'mod_peerwork'), $options);
+        $mform->addHelpButton('peergradesvisibility', 'peergradesvisibility', 'peerwork');
+
+        $options = [
             MOD_PEERWORK_JUSTIFICATION_DISABLED => get_string('justificationdisabled', 'mod_peerwork'),
             MOD_PEERWORK_JUSTIFICATION_HIDDEN => get_string('justificationhiddenfromstudents', 'mod_peerwork'),
             MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON => get_string('justificationvisibleanon', 'mod_peerwork'),

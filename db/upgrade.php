@@ -33,5 +33,20 @@ function xmldb_peerwork_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
+    if ($oldversion < 2019112800) {
+
+        // Define field peergradesvisibility to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('peergradesvisibility', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'completiongradedpeers');
+
+        // Conditionally launch add field peergradesvisibility.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019112800, 'peerwork');
+    }
+
     return true;
 }

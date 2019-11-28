@@ -90,6 +90,16 @@ $string['notyetgraded'] = 'Not yet graded';
 $string['paweighting'] = 'Peer assessment weighting';
 $string['paweighting_help'] = 'What percentage of the group\'s total mark should be peer assessed?';
 $string['penalty'] = 'Penalty';
+$string['peergradesvisibility'] = 'Peer grades visibility';
+$string['peergradesvisibility_help'] = 'This setting determines whether students can see the peer grades they received.
+
+- Hidden from students: Students will not see their peer scores at all
+- Visible anonymous: Students will see their peer scores, but not the usernames of those that scored them
+- Visible with usernames: Students will see their peer scores, and the names of those who scored them
+';
+$string['peergradeshiddenfromstudents'] = 'Hidden from students';
+$string['peergradesvisibleanon'] = 'Visible anonymous';
+$string['peergradesvisibleuser'] = 'Visible with usernames';
 $string['peergrades'] = 'Peer grades';
 $string['peernameisyou'] = '{$a} (you)';
 $string['peersubmissionandgrades'] = 'Peer submission and grades';
