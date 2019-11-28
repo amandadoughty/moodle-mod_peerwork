@@ -94,10 +94,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->setType('notifylatesubmissions', PARAM_BOOL);
         $mform->addHelpButton('notifylatesubmissions', 'notifylatesubmissions', 'peerwork');
 
-        $mform->addElement('selectyesno', 'treat0asgrade', get_string('treat0asgrade', 'peerwork'));
-        $mform->setType('treat0asgrade', PARAM_BOOL);
-        $mform->addHelpButton('treat0asgrade', 'treat0asgrade', 'peerwork');
-
         $mform->addElement('selectyesno', 'selfgrading', get_string('selfgrading', 'peerwork'));
         $mform->setType('selfgrading', PARAM_BOOL);
         $mform->addHelpButton('selfgrading', 'selfgrading', 'peerwork');

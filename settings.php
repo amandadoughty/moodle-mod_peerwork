@@ -68,13 +68,6 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_configcheckbox(
-        'peerwork/treat0asgrade',
-        get_string('treat0asgrade', 'mod_peerwork'),
-        get_string('treat0asgrade_help', 'mod_peerwork'),
-        1
-    ));
-
-    $settings->add(new admin_setting_configcheckbox(
         'peerwork/selfgrading',
         get_string('selfgrading', 'mod_peerwork'),
         get_string('selfgrading_help', 'mod_peerwork'),

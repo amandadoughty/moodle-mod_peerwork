@@ -210,8 +210,6 @@ $string['assessmentcriteria:scoretype_help'] = 'Choose the scale by which this c
 $string['assessmentcriteria:weight_help'] = 'TODO not yet used';
 $string['assessmentcriteria:nocriteria'] = 'No Criteria have been set for this assignment.';
 
-$string['treat0asgrade'] = 'Treat 0 as grade';
-$string['treat0asgrade_help'] = 'If enabled, students will be able to submit 0 as a valid grade. Otherwise, 0 means "not graded" and is not used for calculation';
 $string['userswhodidnotsubmitbefore'] = 'Users who still need to submit: {$a}';
 $string['userswhodidnotsubmitafter'] = 'Users who did not submit: {$a}';
 $string['allmemberssubmitted'] = 'All group members submitted.';

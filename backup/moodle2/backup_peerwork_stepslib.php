@@ -47,7 +47,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peerwork = new backup_nested_element('peerwork', array('id'), array(
             'name', 'intro', 'introformat', 'timecreated',
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
-            'fromdate', 'notifylatesubmissions', 'allowlatesubmissions', 'treat0asgrade',
+            'fromdate', 'notifylatesubmissions', 'allowlatesubmissions',
             'justification', 'paweighting', 'noncompletionpenalty', 'completiongradedpeers'));
 
         $criteria = new backup_nested_element('criteria');
