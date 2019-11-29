@@ -15,26 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Post installation procedure
+ * Post installation procedure.
  *
  * @see upgrade_plugins_modules()
  */
-function xmldb_peerassessment_install() {
-
+function xmldb_peerwork_install() {
 }
 
 /**
- * Post installation recovery procedure
+ * Post installation recovery procedure.
  *
  * @see upgrade_plugins_modules()
  */
-function xmldb_peerassessment_install_recovery() {
+function xmldb_peerwork_install_recovery() {
 
 }

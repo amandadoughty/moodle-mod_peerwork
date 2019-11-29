@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -33,21 +32,21 @@ require_course_login($course);
 $coursecontext = context_course::instance($course->id);
 
 $params = array(
-                'context' => $coursecontext
-            );
+    'context' => $coursecontext
+);
 
-$event = \mod_peerassessment\event\course_module_instance_list_viewed::create($params);
+$event = \mod_peerwork\event\course_module_instance_list_viewed::create($params);
 $event->trigger();
 
-$PAGE->set_url('/mod/peerassessment/index.php', array('id' => $id));
+$PAGE->set_url('/mod/peerwork/index.php', array('id' => $id));
 $PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($coursecontext);
 
 echo $OUTPUT->header();
 
-if (! $peerassessments = get_all_instances_in_course('peerassessment', $course)) {
-    notice(get_string('nopeerassessments', 'peerassessment'), new moodle_url('/course/view.php', array('id' => $course->id)));
+if (! $peerworks = get_all_instances_in_course('peerwork', $course)) {
+    notice(get_string('nopeerworks', 'peerwork'), new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
 $table = new html_table();
@@ -63,25 +62,25 @@ if ($course->format == 'weeks') {
     $table->align = array('left', 'left', 'left');
 }
 
-foreach ($peerassessments as $peerassessment) {
-    if (!$peerassessment->visible) {
+foreach ($peerworks as $peerwork) {
+    if (!$peerwork->visible) {
         $link = html_writer::link(
-            new moodle_url('/mod/peerassessment/view.php', array('id' => $peerassessment->coursemodule)),
-            format_string($peerassessment->name, true),
+            new moodle_url('/mod/peerwork/view.php', array('id' => $peerwork->coursemodule)),
+            format_string($peerwork->name, true),
             array('class' => 'dimmed'));
     } else {
         $link = html_writer::link(
-            new moodle_url('/mod/peerassessment/view.php', array('id' => $peerassessment->coursemodule)),
-            format_string($peerassessment->name, true));
+            new moodle_url('/mod/peerwork/view.php', array('id' => $peerwork->coursemodule)),
+            format_string($peerwork->name, true));
     }
 
     if ($course->format == 'weeks' or $course->format == 'topics') {
-        $table->data[] = array($peerassessment->section, $link);
+        $table->data[] = array($peerwork->section, $link);
     } else {
         $table->data[] = array($link);
     }
 }
 
-echo $OUTPUT->heading(get_string('modulenameplural', 'peerassessment'), 2);
+echo $OUTPUT->heading(get_string('modulenameplural', 'peerwork'), 2);
 echo html_writer::table($table);
 echo $OUTPUT->footer();

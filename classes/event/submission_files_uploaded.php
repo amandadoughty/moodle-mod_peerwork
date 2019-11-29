@@ -17,26 +17,25 @@
 /**
  * The submission__files_uploaded event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_peerassessment submission _files_uploaded event class.
+ * The mod_peerwork submission _files_uploaded event class.
  *
  * @property-read array $other {
  *      Extra information about the event.
  *
- *      - int filesubmissioncount: The number of files uploaded.
  *      - string filelist: List of content hashes of uploaded files.
  * }
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @since      Moodle 2.8
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -44,32 +43,24 @@ defined('MOODLE_INTERNAL') || die();
 class submission_files_uploaded extends \core\event\base {
 
     protected function init() {
-        // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'peerassessment_submission';
+        $this->data['objecttable'] = 'peerwork_submission';
     }
 
     public static function get_name() {
-        return get_string('eventsubmission_files_uploaded', 'mod_peerassessment');
+        return get_string('eventsubmission_files_uploaded', 'mod_peerwork');
     }
 
     public function get_url() {
-        return new \moodle_url(
-            '/mod/peerassessment/view.php',
-            array(
-                'id' => $this->contextinstanceid
-                )
-            );
+        return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 
     public function get_description() {
-        $descriptionstring = "The user with id '$this->userid' uploaded {$this->other['filesubmissioncount']} file(s)." .
-            "in the peerassessment submission with id " .
-            "'{$this->objectid}' <br/>" .
-            " {$this->other['filelist']} ";
-
-        return $descriptionstring;
+        $list = $this->other['filelist'];
+        $count = count($list);
+        return "The user with id '{$this->userid}' uploaded {$count} file(s) " .
+            "in the submission with id '{$this->objectid}'. The file hashes are: " . implode(', ', $list);
     }
 
     /**
@@ -80,9 +71,6 @@ class submission_files_uploaded extends \core\event\base {
      */
     protected function validate_data() {
         parent::validate_data();
-        if (!isset($this->other['filesubmissioncount'])) {
-            throw new \coding_exception('The \'filesubmissioncount\' value must be set in other.');
-        }
         if (!isset($this->other['filelist'])) {
             throw new \coding_exception('The \'filelist\' value must be set in other.');
         }

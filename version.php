@@ -15,16 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017030609;      // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2015111600;      // Requires this Moodle version
-$plugin->cron      = 0;               // Period for cron to check this plugin (secs)
-$plugin->component = 'mod_peerassessment'; // To check on upgrade, that plugin sits in correct place
-$plugin->release   = '3.3 version';   // Readable release description.
+$plugin->version   = 2019112800;
+$plugin->requires  = 2018120300;      // Moodle 3.6.0.
+$plugin->component = 'mod_peerwork';
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '1.0.0';

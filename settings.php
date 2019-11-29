@@ -17,24 +17,70 @@
 /**
  * This file adds the settings pages to the navigation menu
  *
- * @package   mod_peerassessment
+ * @package   mod_peerwork
  * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
+if ($ADMIN->fulltree) {
 
-    $calculations = array('simple' => 'simple', 'outlier' => 'outlier');
-    $settings->add(new admin_setting_configselect('peerassessment/calculationtype', get_string('calculationtype', 'peerassessment'),
-        get_string('defaultcalculationtype', 'peerassessment'), 'simple', $calculations));
+    $steps = range(0, 100, 1);
+    $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
+        return $i . '%';
+    }, $steps));
 
-    $settings->add(new admin_setting_configtext('peerassessment/standard_deviation',
-        get_string('standard_deviation', 'peerassessment'), get_string('defaultstandard_deviation', 'peerassessment'), '1.15'));
+    $settings->add(new admin_setting_configselect(
+        'peerwork/addmorecriteriastep',
+        get_string('addmorecriteriastep', 'mod_peerwork'),
+        get_string('addmorecriteriastep_help', 'mod_peerwork'),
+        3,
+        array_combine(range(1, 9), range(1, 9))
+    ));
 
-    $settings->add(new admin_setting_configtext('peerassessment/moderation', get_string('moderation', 'peerassessment'),
-        get_string('defaultmoderation', 'peerassessment'), '2'));
+    $settings->add(new admin_setting_heading(
+        'peerwork/defaultsettingshdr',
+        get_string('defaultsettings', 'mod_peerwork'),
+        get_string('defaultsettings_desc', 'mod_peerwork')
+    ));
 
-    $multiplybyvalues = array(3 => 3, 4 => 4, 5 => 5);
-    $settings->add(new admin_setting_configselect('peerassessment/multiplyby', get_string('multiplyby', 'peerassessment'),
-        get_string('multiplyby', 'peerassessment'), 4, $multiplybyvalues));
+    $settings->add(new admin_setting_configcheckbox(
+        'peerwork/allowlatesubmissions',
+        get_string('allowlatesubmissions', 'mod_peerwork'),
+        get_string('allowlatesubmissions_help', 'mod_peerwork'),
+        0
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/maxfiles',
+        get_string('setup.maxfiles', 'mod_peerwork'),
+        get_string('setup.maxfiles_help', 'mod_peerwork'),
+        1,
+        [0 => 0, 1, 2, 3, 4, 5]
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'peerwork/selfgrading',
+        get_string('selfgrading', 'mod_peerwork'),
+        get_string('selfgrading_help', 'mod_peerwork'),
+        0
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/paweighting',
+        get_string('paweighting', 'mod_peerwork'),
+        get_string('paweighting_help', 'mod_peerwork'),
+        50,
+        $zerotohundredpcopts
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/noncompletionpenalty',
+        get_string('noncompletionpenalty', 'mod_peerwork'),
+        get_string('noncompletionpenalty_help', 'mod_peerwork'),
+        0,
+        $zerotohundredpcopts
+    ));
+
+}

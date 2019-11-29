@@ -1,17 +1,90 @@
-#mod-peerassessment-summary-table .singlebutton {
+#mod-peerwork-summary-table .singlebutton {
     display: inline-block;
     margin-right: 4px;
 }
 
-#mod-peerassessment-summary-table .singlebutton input {
+#mod-peerwork-summary-table .singlebutton input {
     width: 70px;
 }
 
-#mod-peerassessment-summary-table td {
-	padding: 0px 20px;
+#mod-peerwork-grader-table .grading-summary-totals td:first-child {
+    font-weight: bold;
+}
+#mod-peerwork-grader-table .grading-summary-totals td {
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
-#mod-peerassessment-summary-table th {
-	padding: 10px 20px;
-	text-align: left;
+#mod-peerwork-grader-table td,
+#mod-peerwork-summary-table td {
+    padding: 0px 20px;
+    vertical-align: middle;
+}
+
+#mod-peerwork-grader-table th,
+#mod-peerwork-summary-table th {
+    padding: 10px 20px;
+    text-align: left;
+}
+
+.mod_peerwork_criteriarating {
+    overflow-x: auto;
+    padding-bottom: 1em;
+}
+.mod_peerwork_criteriaheader {
+    font-size: large;
+    border-top: 1px solid #efefef;
+    padding-top: 1em;
+}
+.mod_peerwork_criteria:first-child .mod_peerwork_criteriaheader {
+    border-top: none;
+    padding-top: 0;
+}
+.mod_peerwork_scaleheaders,
+.mod_peerwork_peer,
+.mod_peerwork_ratings {
+    display: flex;
+}
+.mod_peerwork_peer {
+    margin: 1em 0;
+    position: relative;
+}
+.mod_peerwork_peername {
+    width: 200px;
+    max-width: 200px;
+    min-width: 200px;
+}
+.mod_peerwork_scaleheaders {
+    font-weight: bold;
+    margin-left: 200px;
+    align-items: flex-end;
+}
+.mod_peerwork_rating,
+.mod_peerwork_scaleheaders > div {
+    text-align: center;
+    flex: 0 0 100px;
+}
+.mod_peerwork_rating label {
+    margin: 0;
+    padding: 0 1em;
+}
+.mod_peerwork_rating input {
+    margin: 0;
+}
+
+@media(max-width: 786px) {
+    .mod_peerwork_peername {
+        max-width: none;
+        min-width: auto;
+        width: auto;
+    }
+    .mod_peerwork_peer {
+        display: block;
+    }
+    .mod_peerwork_peername {
+        margin-bottom: .5em;
+    }
+    .mod_peerwork_scaleheaders {
+        margin-left: 0;
+    }
 }

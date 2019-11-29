@@ -17,11 +17,11 @@
 /**
  * The submission_grade_form_viewed event.
  *
- * @package    mod_peerassessment
+ * @package    mod_peerwork
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_peerassessment\event;
+namespace mod_peerwork\event;
 defined('MOODLE_INTERNAL') || die();
 /**
  * The submission_grade_form_viewed event class.
@@ -42,22 +42,22 @@ class submission_grade_form_viewed extends \core\event\base {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
-        $this->data['objecttable'] = 'peerassessment_submission';
+        $this->data['objecttable'] = 'peerwork_submission';
     }
 
     public static function get_name() {
-        return get_string('eventsubmission_grade_form_viewed', 'mod_peerassessment');
+        return get_string('eventsubmission_grade_form_viewed', 'mod_peerwork');
     }
 
     public function get_description() {
         return "The user with id '{$this->userid}' viewed the grade form for the group with id '{$this->other['groupid']}' " .
-            "in the 'peerassessment' submission with " .
+            "in the 'peerwork' submission with " .
             "id '{$this->objectid}'.";
     }
 
     public function get_url() {
         return new \moodle_url(
-            '/mod/peerassessment/details.php',
+            '/mod/peerwork/details.php',
             array(
                 'id' => $this->contextinstanceid,
                 'groupid' => $this->other['groupid']

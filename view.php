@@ -24,86 +24,72 @@
  * The teacher still has to apply the grade to the submission
  * The final grade is based on the teacher grade and the group grade.
  *
- * @package    mod
- * @subpackage peerassessment
+ * View provides a summary page the content of which depends if you are the teacher or a submitting student.
+ *
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once($CFG->dirroot . '/mod/peerassessment/lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once($CFG->dirroot . '/mod/peerassessment/add_submission_form.php');
-require_once($CFG->dirroot . '/mod/peerassessment/locallib.php');
+require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->libdir . '/gradelib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$n = optional_param('n', 0, PARAM_INT); // peerassessment instance ID - it should be named as the first character of the module.
+$n = optional_param('n', 0, PARAM_INT); // peerwork instance ID - it should be named as the first character of the module.
 $edit = optional_param('edit', false, PARAM_BOOL);
 
-
 if ($id) {
-    $cm = get_coursemodule_from_id('peerassessment', $id, 0, false, MUST_EXIST);
+    $cm = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $peerassessment = $DB->get_record('peerassessment', array('id' => $cm->instance), '*', MUST_EXIST);
+    $peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
 
 } else if ($n) {
-    $peerassessment = $DB->get_record('peerassessment', array('id' => $n), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $peerassessment->course), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('peerassessment', $peerassessment->id, $course->id, false, MUST_EXIST);
+    $peerwork = $DB->get_record('peerwork', array('id' => $n), '*', MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $peerwork->course), '*', MUST_EXIST);
+    $cm = get_coursemodule_from_instance('peerwork', $peerwork->id, $course->id, false, MUST_EXIST);
 } else {
     error('You must specify a course_module ID or an instance ID');
 }
 
-$groupingid = $peerassessment->submissiongroupingid;
+$groupingid = $cm->groupingid;
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 $params = array(
-            'objectid' => $cm->instance,
-            'context' => $context
-        );
+    'objectid' => $cm->instance,
+    'context' => $context
+);
 
-$event = \mod_peerassessment\event\course_module_viewed::create($params);
+$event = \mod_peerwork\event\course_module_viewed::create($params);
 $event->add_record_snapshot('course', $course);
-// In the next line you can use $PAGE->activityrecord if you have set it, or skip this line if you don't have a record.
-$event->add_record_snapshot($cm->modname, $peerassessment);
+$event->add_record_snapshot($cm->modname, $peerwork);
 $event->trigger();
 
-
-// Print the page header.
-
-$PAGE->set_url('/mod/peerassessment/view.php', array('id' => $cm->id));
-$PAGE->set_title(format_string($peerassessment->name));
+$PAGE->set_url('/mod/peerwork/view.php', array('id' => $cm->id));
+$PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-// Other things you may want to set - remove if not needed
-// $PAGE->set_cacheable(false);
-// $PAGE->set_focuscontrol('some-html-id');
-// $PAGE->add_body_class('peerassessment-'.$somevar);
-// end.
+// Teacher view.
+if (has_capability('mod/peerwork:grade', $context)) {
 
-// If not submitted yet, and student and part of a group
-// allow for submission.
+    // Output starts here.
+    echo $OUTPUT->header();
 
-// Output starts here.
-echo $OUTPUT->header();
+    // Show mod details.
+    echo $OUTPUT->heading(format_string($peerwork->name));
+    echo $OUTPUT->box(format_string($peerwork->intro));
 
-// Show mod details.
-echo $OUTPUT->heading(format_string($peerassessment->name));
-echo $OUTPUT->box(format_string($peerassessment->intro));
-
-// If teacher then display statuses for all groups.
-if (has_capability('mod/peerassessment:grade', $context)) {
-    $duedate = peerassessment_due_date($peerassessment);
-    if ($duedate != PEERASSESSMENT_DUEDATE_NOT_USED) {
-        echo $OUTPUT->box('Due date: ' . userdate($peerassessment->duedate));
-        if ($duedate == PEERASSESSMENT_DUEDATE_PASSED) {
-            echo $OUTPUT->box('Assessment closed for: ' . format_time(time() - $peerassessment->duedate));
+    $duedate = peerwork_due_date($peerwork);
+    if ($duedate != PEERWORK_DUEDATE_NOT_USED) {
+        echo $OUTPUT->box(get_string('duedateat', 'mod_peerwork', userdate($peerwork->duedate)));
+        if ($duedate == PEERWORK_DUEDATE_PASSED) {
+            echo $OUTPUT->box(get_string('assessmentclosedfor', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
         } else {
-            echo $OUTPUT->box('Time remaining: ' . format_time(time() - $peerassessment->duedate));
-
+            echo $OUTPUT->box(get_string('timeremainingcolon', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
         }
     }
 
@@ -111,166 +97,191 @@ if (has_capability('mod/peerassessment:grade', $context)) {
 
     $t = new html_table();
     $t->attributes['class'] = 'userenrolment';
-    $t->id = 'mod-peerassessment-summary-table';
-    $t->head = array('name', '# members', '# peer grades', 'status', 'actions');
+    $t->id = 'mod-peerwork-summary-table';
+    $t->head = [
+        get_string('group'),
+        get_string('nomembers', 'mod_peerwork'),
+        get_string('nopeergrades', 'mod_peerwork'),
+        get_string('status'),
+        ''
+    ];
     foreach ($allgroups as $group) {
         $members = groups_get_members($group->id);
-        $status = peerassessment_get_status($peerassessment, $group);
-        $grades = peerassessment_get_peer_grades($peerassessment, $group, $members, false);
+        $status = peerwork_get_status($peerwork, $group);
+        $wasgraded = peerwork_was_submission_graded_from_status($status);
+        $detailsurl = new moodle_url('details.php', ['id' => $cm->id, 'groupid' => $group->id]);
 
-        $options = array();
-        /* if ($status->code != PEERASSESSMENT_STATUS_SUBMITTED) {
-            $options = array('disabled' => true);
-        }*/
+        $menu = new action_menu();
+        $menu->add_secondary_action(new action_link(
+            $detailsurl,
+            $wasgraded ? get_string('edit') : get_string('grade')
+        ));
+        $menu->add_secondary_action(new action_link(
+            new moodle_url('export.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),
+            get_string('export', 'mod_peerwork')
+        ));
+        if ($status->code == PEERWORK_STATUS_GRADED) {
+            $menu->add_secondary_action(new action_link(
+                new moodle_url('release.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),
+                get_string('releasegrades', 'mod_peerwork')
+            ));
+        }
 
         $row = new html_table_row();
-        $actions = '';
-        $status = peerassessment_get_status($peerassessment, $group);
-        if ($status->code == PEERASSESSMENT_STATUS_GRADED) {
-            $actions .= $OUTPUT->single_button(new moodle_url('details.php', array('id' => $cm->id,
-                'groupid' => $group->id)), "Edit", 'get');
-        } else {
-            $actions .= $OUTPUT->single_button(new moodle_url('details.php', array('id' => $cm->id,
-                'groupid' => $group->id)), "Grade", 'get');
-        }
-        $actions .= $OUTPUT->single_button(new moodle_url('export.php', array('id' => $cm->id,
-            'groupid' => $group->id)), "Export", 'post');
-        $row->cells = array($OUTPUT->action_link(new moodle_url('details.php', array('id' => $cm->id,
-            'groupid' => $group->id)), $group->name),
+        $row->cells = array(
+            $OUTPUT->action_link($detailsurl, $group->name),
             count($members),
-            count($grades->grades),
+            peerwork_get_number_peers_graded($peerwork->id, $group->id),
             $status->text,
-            $actions
+            $OUTPUT->render($menu)
         );
         $t->data[] = $row;
     }
     echo html_writer::table($t);
 
     echo $OUTPUT->box_start('generalbox', null);
-    echo $OUTPUT->single_button(new moodle_url('exportxls.php', array('id' => $cm->id,  'groupingid' => $groupingid)),
-        get_string("exportxls", 'mod_peerassessment'), 'post', array("class" => 'yui3-u singlebutton'));
-    echo $OUTPUT->single_button(new moodle_url('downloadallsubmissions.php', array('id' => $cm->id)),
-        get_string("downloadallsubmissions", 'mod_peerassessment'), 'post', array("class" => 'yui3-u singlebutton'));
+
+    echo $OUTPUT->single_button(new moodle_url('export.php', array('id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey())),
+        get_string("exportxls", 'mod_peerwork'), 'get');
+
+    echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id,  'groupid' => 0, 'sesskey' => sesskey()]),
+        get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');
+
     echo $OUTPUT->box_end();
-    echo $OUTPUT->footer();
-    die();
-}
 
-$mygroup = peerassessment_get_mygroup($course->id, $USER->id, $groupingid);
-$membersgradeable = peerassessment_get_peers($course->id, $peerassessment, $groupingid, $mygroup);
-$groupmode = groups_get_activity_groupmode($cm);
-
-if ($groupmode) {
-    groups_get_activity_group($cm, true);
-    groups_print_activity_menu($cm, $CFG->wwwroot . '/mod/peerassessment/view.php?id='.$id);
-}
-
-// Check if already submitted.
-$submission = $DB->get_record('peerassessment_submission', array('assignment' => $peerassessment->id, 'groupid' => $mygroup));
-
-// Check if I already graded my peers.
-$myassessments = $DB->get_records('peerassessment_peers', array('peerassessment' => $peerassessment->id, 'gradedby' => $USER->id));
-$group = $DB->get_record('groups', array('id' => $mygroup), '*', MUST_EXIST);
-$status = peerassessment_get_status($peerassessment, $group);
-$isopen = peerassessment_is_open($peerassessment, $mygroup);
-$duedate = peerassessment_due_date($peerassessment);
-
-// No point in doing any checks if it's not open.
-$hidden = false;
-$gradinginfo = grade_get_grades($course->id, 'mod', 'peerassessment', $peerassessment->id, array($USER->id));
-if ($gradinginfo &&
-    isset($gradinginfo->items[0]->grades[$USER->id]) &&
-    $gradinginfo->items[0]->grades[$USER->id]->hidden
-) {
-    $hidden = true;
-}
-
-if (!$isopen->code) {
-    $data = array();
-
-    // How I graded others.
-    $data['igraded'] = peerassessment_grade_by_user($peerassessment, $USER, $membersgradeable);
-
-    $output = $PAGE->get_renderer('mod_peerassessment');
-    $data['files'] = peerassessment_submission_files($context, $group);
-    $data['outstanding'] = peerassessment_outstanding($peerassessment, $group);
-
-    // If graded and grade not hidden in gradebook.
-    if ($status->code == PEERASSESSMENT_STATUS_GRADED && !$hidden) {
-        // My grade.
-        $data['mygrade'] = peerassessment_get_grade($peerassessment, $group, $USER);
-
-        // Feedback.
-        $data['feedback'] = $submission->feedbacktext;
-        $data['feedback_files'] = peerassessment_feedback_files($context, $group);
-    }
-
-    $summary = new peerassessment_summary($group, $data, $membersgradeable, $peerassessment, $status->text .
-        ' Not editable because: ' . $isopen->text);
-    echo $output->render($summary);
-    $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
-
-    echo $OUTPUT->footer();
-    die();
-}
-
-// Sending feedback & grades is compulsory, file attachment is not
-// therefore we enforce the submission form if the above is not submitted.
-if (!$myassessments || $edit == true) {
-
-    $draftitemid = null;
-    file_prepare_draft_area($draftitemid, $context->id, 'mod_peerassessment', 'submission', $mygroup,
-        peerassessment_get_fileoptions($peerassessment));
-
-    $entry = new stdClass();
-    // Add the draftitemid to the form, so that 'file_get_submitted_draft_itemid' can retrieve it.
-    $entry->submission = $draftitemid;
-
-    if ($myassessments) {
-        $data = peerassessment_grade_by_user($peerassessment, $USER, $membersgradeable);
-        $entry->grade = $data->grade;
-        $entry->feedback = $data->feedback;
-    }
-
-    // Check if there are any files at the time of opening the form.
-    $files = peerassessment_submission_files($context, $group);
-
-    $mform = new mod_peerassessment_add_submission_form(new moodle_url('submit.php'), array('id' => $id, 'files' => count($files),
-        'fileupload' => true, 'peers' => $membersgradeable, 'fileoptions' => peerassessment_get_fileoptions($peerassessment)));
-    $mform->set_data($entry);
-    $mform->display();
-
-    $params = array(
-                'context' => $context
-            );
-
-    $event = \mod_peerassessment\event\submission_viewed::create($params);
-    $event->trigger();
 
 } else {
+    // Student output displays summary of submissions amde so far and provides a button to start editing.
+    $mygroup = peerwork_get_mygroup($course->id, $USER->id, $groupingid);
+    $membersgradeable = peerwork_get_peers($course->id, $peerwork, $groupingid, $mygroup);
+    $groupmode = groups_get_activity_groupmode($cm);
+
+    // Check if already submitted.
+    $submission = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $mygroup));
+
+    // Check if I already graded my peers.
+    $myassessments = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id, 'gradedby' => $USER->id));
+    $group = $DB->get_record('groups', array('id' => $mygroup), '*', MUST_EXIST);
+    $status = peerwork_get_status($peerwork, $group);
+
+    $duedate = peerwork_due_date($peerwork);
+    $renderer = $PAGE->get_renderer('mod_peerwork');
+
+    // Establish the status of the assessment.
+    $isopen = peerwork_is_open($peerwork, $mygroup);
+
+    // Collect data on how this user graded their peers.
     $data = array();
+    // $data['igraded']     = peerwork_grade_by_user($peerwork, $USER, $membersgradeable);
+    $data['files']       = peerwork_submission_files($context, $group);
+    $data['outstanding'] = peerwork_outstanding($peerwork, $group);
 
-    // How I graded others.
-    $data['igraded'] = peerassessment_grade_by_user($peerassessment, $USER, $membersgradeable);
+    if (!$isopen->code) {
 
-    $output = $PAGE->get_renderer('mod_peerassessment');
-    $data['files'] = peerassessment_submission_files($context, $group);
-    $data['outstanding'] = peerassessment_outstanding($peerassessment, $group);
+        // If graded and grade not hidden in gradebook.
+        if (peerwork_can_student_view_grade_and_feedback_from_status($status)) {
+            $data['mygrade'] = peerwork_get_user_local_grade($peerwork->id, $submission->id, $USER->id);
+            $data['feedback'] = $submission->feedbacktext;
+            $data['feedback_files'] = peerwork_feedback_files($context, $group);
 
-    // If graded.
-    if ($status->code == PEERASSESSMENT_STATUS_GRADED && !$hidden) {
-        // My grade.
-        $data['mygrade'] = peerassessment_get_grade($peerassessment, $group, $USER);
+            if (peerwork_can_students_view_peer_grades($peerwork)) {
+                $pac = new mod_peerwork_criteria($peerwork->id);
+                $data['criteria'] = $pac->get_criteria();
+                $data['peergrades'] = peerwork_get_peer_grades_received($peerwork->id, $mygroup, $USER->id);
+            }
+            if (peerwork_can_students_view_peer_justification($peerwork)) {
+                $data['justifications'] = peerwork_get_justifications_received($peerwork->id, $mygroup, $USER->id);
+            }
+        }
 
-        // Feedback.
-        $data['feedback'] = $submission->feedbacktext;
-        $data['feedback_files'] = peerassessment_feedback_files($context, $group);
+        // Output starts here.
+        echo $OUTPUT->header();
+
+        // Show mod details.
+        echo $OUTPUT->heading(format_string($peerwork->name));
+        echo $OUTPUT->box(format_string($peerwork->intro));
+        $summary = new mod_peerwork\output\peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text . ' '
+            . get_string('noteditablebecause', 'mod_peerwork', $isopen->text));
+        echo $renderer->render($summary);
+        echo $OUTPUT->footer();
+        die();
     }
-    $summary = new peerassessment_summary($group, $data, $membersgradeable, $peerassessment, $status->text .
-        ' Editable because: ' . $isopen->text);
-    echo $output->render($summary);
-    $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
-    echo $OUTPUT->single_button($url, 'Edit submission');
 
-}
+    // File attachment is not compulsory therefore we enforce the submission form if the above is not submitted.
+    $foptions = peerwork_get_fileoptions($peerwork);
+    if (!$myassessments || $edit == true) {
+
+        $draftitemid = file_get_submitted_draft_itemid('submission');
+
+        file_prepare_draft_area($draftitemid, $context->id, 'mod_peerwork', 'submission', $mygroup, $foptions);
+
+        $entry = new stdClass();
+        $entry->submission = $draftitemid;
+
+        if ($myassessments) {
+            $data = peerwork_grade_by_user($peerwork, $USER, $membersgradeable);
+            $entry->grade = $data->grade;
+            $entry->feedback = $data->feedback;
+        }
+
+        // Check if there are any files at the time of opening the form.
+        $files = peerwork_submission_files($context, $group);
+
+        $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
+        $mform = new mod_peerwork_submissions_form($url->out(false), array('id' => $id, 'files' => count($files),
+            'peerworkid' => $peerwork->id, 'fileupload' => $foptions['maxfiles'] > 0, 'peers' => $membersgradeable,
+            'fileoptions' => $foptions, 'peerwork' => $peerwork));
+        $mform->set_data($entry);
+
+        $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
+        if ($mform->is_cancelled()) {
+            redirect($redirecturl);
+
+        } else if (($data = $mform->get_data())) {
+            peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable);
+            redirect(new moodle_url('view.php', array('id' => $cm->id)));
+        }
+
+        // Output starts here.
+        echo $OUTPUT->header();
+
+        // Show mod details.
+        echo $OUTPUT->heading(format_string($peerwork->name));
+        echo $OUTPUT->box(format_string($peerwork->intro));
+
+        $mform->display();
+        $params = array(
+            'context' => $context
+        );
+
+        $event = \mod_peerwork\event\submission_viewed::create($params);
+        $event->trigger();
+
+    } else {
+
+        // Output starts here.
+        echo $OUTPUT->header();
+
+        // Show mod details.
+        echo $OUTPUT->heading(format_string($peerwork->name));
+        echo $OUTPUT->box(format_string($peerwork->intro));
+
+        // If graded.
+        if ($status->code == PEERWORK_STATUS_GRADED && !$hidden) {
+            // My grade.
+            $data['mygrade'] = peerwork_get_grade($peerwork, $group, $USER);
+
+            // Feedback.
+            $data['feedback'] = $submission->feedbacktext;
+            $data['feedback_files'] = peerwork_feedback_files($context, $group);
+        }
+        $data['maxfiles'] = $foptions['maxfiles'];
+        $summary = new mod_peerwork\output\peerwork_summary($group, $data, $membersgradeable, $peerwork, $status->text .
+            '<p>' . get_string('editablebecause', 'mod_peerwork', $isopen->text) . '</p>');
+        echo $renderer->render($summary);
+        $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
+        echo $OUTPUT->single_button($url, get_string('editsubmission', 'mod_peerwork'), 'get');
+
+    }
+} // End of student output
 echo $OUTPUT->footer();

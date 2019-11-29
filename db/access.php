@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -24,7 +23,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-    'mod/peerassessment:addinstance' => array(
+    'mod/peerwork:addinstance' => array(
         'riskbitmask' => RISK_XSS,
 
         'captype' => 'write',
@@ -35,7 +34,7 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
-    'mod/peerassessment:view' => array(
+    'mod/peerwork:view' => array(
 
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -48,16 +47,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/peerassessment:submit' => array(
-
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'student' => CAP_ALLOW
-        )
-    ),
-
-    'mod/peerassessment:grade' => array(
+    'mod/peerwork:grade' => array(
         'riskbitmask' => RISK_XSS,
 
         'captype' => 'write',
@@ -68,27 +58,6 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-/***************************** remove these comment marks and modify the code as needed
-    'mod/peerassessment:view' => array(
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
-            'guest' => CAP_ALLOW,
-            'student' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
-        )
-    ),
 
-    'mod/peerassessment:submit' => array(
-        'riskbitmask' => RISK_SPAM,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
-            'student' => CAP_ALLOW
-        )
-    ),
-******************************/
 );
 

@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod
- * @subpackage peerassessment
+ * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -24,105 +23,30 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute peerassessment upgrade from the given old version
+ * Execute peerwork upgrade from the given old version
  *
  * @param int $oldversion
  * @return bool
  */
-function xmldb_peerassessment_upgrade($oldversion) {
+function xmldb_peerwork_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2014072101) {
+    if ($oldversion < 2019112800) {
 
-        $table = new xmldb_table('peerassessment');
-        $field = new xmldb_field('treat0asgrade', XMLDB_TYPE_INTEGER, '2', null,
-            XMLDB_NOTNULL, null, '0');
+        // Define field peergradesvisibility to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('peergradesvisibility', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'completiongradedpeers');
 
+        // Conditionally launch add field peergradesvisibility.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2014072101, 'peerassessment');
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019112800, 'peerwork');
     }
 
-    if ($oldversion < 2017030604) {
-
-        $table = new xmldb_table('peerassessment');
-        $field = new xmldb_field('calculationtype', XMLDB_TYPE_CHAR, '10', null,
-            XMLDB_NOTNULL, null, 'simple');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('standard_deviation', XMLDB_TYPE_FLOAT, '5,2', null,
-            XMLDB_NOTNULL, null, '1.15');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('moderation', XMLDB_TYPE_FLOAT, '5,2', null,
-            XMLDB_NOTNULL, null, '2');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('multiplyby', XMLDB_TYPE_INTEGER, '2', null,
-            XMLDB_NOTNULL, null, '4');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        upgrade_mod_savepoint(true, 2017030604, 'peerassessment');
-    }
-
-    if ($oldversion < 2017030605) {
-
-        $table = new xmldb_table('peerassessment');
-        $field = new xmldb_field('submissiongroupingid', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        upgrade_mod_savepoint(true, 2017030605, 'peerassessment');
-
-    }
-
-    if ($oldversion < 2017030608) {
-
-        $table = new xmldb_table('peerassessment_submission');
-        $field = new xmldb_field('groupaverage', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-
-        $field = new xmldb_field('individualaverage', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        $field = new xmldb_field('finalgrade', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        upgrade_mod_savepoint(true, 2017030608, 'peerassessment');
-
-    }
-
-
-    // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }
