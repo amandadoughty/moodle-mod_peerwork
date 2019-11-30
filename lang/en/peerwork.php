@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['addmorecriteria'] = 'Add {no} more criteria';
 $string['addmorecriteriastep'] = 'Add more criteria increments';
 $string['addmorecriteriastep_help'] = 'The number of assessment criteria to append to the form when an educator clicks the button to add more criteria.';
+$string['addsubmission'] = 'Add submission';
 $string['assessmentalreadygraded'] = 'Assessment already graded.';
 $string['assessmentclosedfor'] = 'Assessment closed for: {$a}';
 $string['assessmentopen'] = 'Assessment open.';

@@ -417,11 +417,20 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
  *
  * @param object $peerwork The intance.
  * @param object $group The group.
+ * @param int $userid Optionally, to get the number of grades rated by this user.
  */
-function peerwork_get_number_peers_graded($peerworkid, $groupid) {
+function peerwork_get_number_peers_graded($peerworkid, $groupid, $userid = null) {
     global $DB;
-    return $DB->count_records_select('peerwork_peers', 'peerwork = ? AND groupid = ?', [$peerworkid, $groupid],
-        'COUNT(DISTINCT gradedby)');
+
+    $sql = 'peerwork = ? AND groupid = ?';
+    $params = [$peerworkid, $groupid];
+
+    if (!empty($userid)) {
+        $sql .= ' AND gradedby = ?';
+        $params[] = $userid;
+    }
+
+    return $DB->count_records_select('peerwork_peers', $sql, $params, 'COUNT(DISTINCT gradedby)');
 }
 
 /**
