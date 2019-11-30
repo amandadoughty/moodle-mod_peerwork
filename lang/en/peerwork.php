@@ -114,6 +114,7 @@ $string['peerworkfieldset'] = 'Peer assessment settings';
 $string['peerworkname'] = 'Peer assessment';
 $string['peerworkname_help'] = '<strong>Description</strong><br />In the description field you can add your peer assessment instructions. We advise that this should include all details of the assignment (word count, number of files and accepted file types) and guidance around your peer grading criteria (explain range and what to look for). You can also add links to module handbooks with reference to assessment guidelines. We also recommend including information on the support available to students should they have any problems submitting their group task.';
 $string['peerwork'] = 'Peer Assessment';
+$string['pleaseproviderating'] = 'Please provide a rating for each one of your peers.';
 $string['pluginadministration'] = 'Peer Assessment administration';
 $string['pluginname'] = 'Peer Assessment';
 $string['privacy:metadata:core_files'] = 'The plugins stores submission and feedback files.';

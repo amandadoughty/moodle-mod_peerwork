@@ -36,6 +36,11 @@ require_once($CFG->libdir . '/grade/grade_scale.php');
  */
 class mod_peerwork_submissions_form extends moodleform {
 
+    /** @var object[] The criteria. */
+    protected $criteria;
+    /** @var grade_scale[] The scales. */
+    protected $scales;
+
     /**
      * Definition.
      *
@@ -75,9 +80,9 @@ class mod_peerwork_submissions_form extends moodleform {
         foreach ($pac->get_criteria() as $criteria) {
             foreach ($peers as $peer) {
                 $uniqueid = 'grade_idx_' . $criteria->id . '[' . $peer->id . ']';
-                $mform->addElement('hidden', $uniqueid, 0);
+                $mform->addElement('hidden', $uniqueid, -1);
                 $mform->setType($uniqueid, PARAM_INT);
-                $mform->setDefault($uniqueid, 0);
+                $mform->setDefault($uniqueid, -1);
             }
         }
     }
@@ -101,10 +106,8 @@ class mod_peerwork_submissions_form extends moodleform {
         $mform->setExpanded('peerstobegraded', true);
         $peers = $this->_customdata['peers'];
 
-        $scales = grade_scale::fetch_all_global();
-        $pac = new mod_peerwork_criteria($peerworkid);
-
-        foreach ($pac->get_criteria() as $criteria) {
+        $scales = $this->get_scales();
+        foreach ($this->get_criteria() as $criteria) {
 
             // Get the scale.
             $scaleid = abs($criteria->grade);
@@ -115,8 +118,15 @@ class mod_peerwork_submissions_form extends moodleform {
             $scaleitems = $scale->load_items();
 
             $html = '';
-            $html .= html_writer::start_div('mod_peerwork_criteria');
+            $html .= html_writer::start_div('mod_peerwork_criteria', ['data-criterionid' => $criteria->id]);
             $html .= html_writer::div($criteria->description, 'mod_peerwork_criteriaheader');
+            $html .= html_writer::div(
+                get_string('pleaseproviderating', 'mod_peerwork'),
+                'mod_peerwork_criteriaerror text-danger',
+                [
+                    'role' => 'alert'
+                ]
+            );
 
             $html .= html_writer::start_div('mod_peerwork_criteriarating');
             $html .= html_writer::div(implode('', array_map(function($item) {
@@ -130,7 +140,7 @@ class mod_peerwork_submissions_form extends moodleform {
                 $namedisplay = $peer->id == $USER->id ? get_string('peernameisyou', 'mod_peerwork', $fullname) : $fullname;
 
                 $o = '';
-                $o .= html_writer::start_div('mod_peerwork_peer');
+                $o .= html_writer::start_div('mod_peerwork_peer', ['data-peerid' => $peer->id]);
                 $o .= html_writer::div($namedisplay, 'mod_peerwork_peername');
                 $o .= html_writer::start_div('mod_peerwork_ratings');
                 $o .= implode('', array_map(function($item, $key) use ($peer, $uniqueid, $currentvalue, $fullname) {
@@ -188,6 +198,44 @@ class mod_peerwork_submissions_form extends moodleform {
         }
 
         $this->add_action_buttons(false);
+    }
+
+    /**
+     * Display.
+     *
+     * Hijack to use some JavaScript to display the errors in our custom grading form.
+     *
+     * @return string
+     */
+    public function display() {
+        global $PAGE;
+        parent::display();
+
+        $gradeerrors = [];
+        foreach ($this->_form->_errors as $key => $error) {
+            $matches = [];
+            if (preg_match('/^grade_idx_([0-9]+)\[([0-9]+)\]$/', $key, $matches)) {
+                $criterionid = $matches[1];
+                $peerid = $matches[2];
+                $gradeerrors[] = [$criterionid, $peerid];
+            }
+        }
+
+        $gradeerrorsencoded = json_encode($gradeerrors);
+        $js = "
+            require(['jquery'], function($) {
+                var gradeErrors = $gradeerrorsencoded;
+                $.each(gradeErrors, function(i, v) {
+                    var critid = v[0];
+                    var peerid = v[1];
+                    var critNode = $('.mod_peerwork_criteria[data-criterionid=' + critid + ']');
+                    var peerNode = critNode.find('.mod_peerwork_peer[data-peerid=' + peerid + ']');
+                    critNode.addClass('has-error');
+                    peerNode.addClass('has-error');
+                    peerNode.addClass('text-danger');
+                });
+            });";
+        echo $PAGE->requires->js_amd_inline($js);
     }
 
     /**
@@ -253,7 +301,58 @@ class mod_peerwork_submissions_form extends moodleform {
             }
         }
 
+        $foundgradererror = false;
+        $criteria = $this->get_criteria();
+        $scales = $this->get_scales();
+
+        foreach ($data as $key => $value) {
+            $matches = [];
+
+            // Validate the grades.
+            if (preg_match('/^grade_idx_([0-9]+)$/', $key, $matches)) {
+                $criterion = $criteria[$matches[1]];
+                $scale = $scales[abs($criterion->grade)];
+                $scaleitems = $scale->load_items();
+                $maxgrade = count($scaleitems) - 1;
+                foreach ($value as $userid => $grade) {
+                    if ($grade < 0 || $grade > $maxgrade) {
+                        $errors[$key . "[$userid]"] = get_string('invaliddata', 'error');
+                        $foundgradererror = true;
+                    }
+                }
+            }
+
+        }
+
+        if ($foundgradererror) {
+            $errors['peerstobegraded'] = 'asdasdasd';
+        }
+
         return $errors;
     }
 
+    /**
+     * Get the criteria.
+     *
+     * @return void
+     */
+    public function get_criteria() {
+        if (!$this->criteria) {
+            $pac = new mod_peerwork_criteria($this->_customdata['peerworkid']);
+            $this->criteria = $pac->get_criteria();
+        }
+        return $this->criteria;
+    }
+
+    /**
+     * Get the scales.
+     *
+     * @return void
+     */
+    public function get_scales() {
+        if (!$this->scales) {
+            $this->scales = grade_scale::fetch_all_global();
+        }
+        return $this->scales;
+    }
 }
