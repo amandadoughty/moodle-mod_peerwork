@@ -83,4 +83,12 @@ if ($ADMIN->fulltree) {
         $zerotohundredpcopts
     ));
 
+    $settings->add(new admin_setting_configtext(
+        'peerwork/justificationmaxlength',
+        get_string('justificationmaxlength', 'mod_peerwork'),
+        get_string('justificationmaxlength_help', 'mod_peerwork'),
+        280,
+        PARAM_INT
+    ));
+
 }

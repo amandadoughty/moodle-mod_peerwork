@@ -841,7 +841,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             if (!$record) {
                 $record = (object) $params;
             }
-            $record->justification = isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '';
+            $record->justification = trim(isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '');
             if (!empty($record->id)) {
                 $DB->update_record('peerwork_justification', $record);
             } else {

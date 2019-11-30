@@ -176,11 +176,14 @@ class mod_peerwork_submissions_form extends moodleform {
                 html_writer::empty_tag('br') .
                 html_writer::tag('strong', get_string($notestr, 'mod_peerwork')));
 
+            $textareaattrs = ['rows' => 2, 'style' => 'width: 100%'];
+            if ($peerwork->justificationmaxlength) {
+                $textareaattrs['maxlength'] = $peerwork->justificationmaxlength;
+            }
             foreach ($peers as $peer) {
                 $fullname = fullname($peer);
                 $namedisplay = $peer->id == $USER->id ? get_string('peernameisyou', 'mod_peerwork', $fullname) : $fullname;
-                $mform->addElement('textarea', 'justifications[' . $peer->id . ']', $namedisplay, ['rows' => 2,
-                    'style' => 'width: 100%']);
+                $mform->addElement('textarea', 'justifications[' . $peer->id . ']', $namedisplay, $textareaattrs);
             }
         }
 
@@ -239,9 +242,13 @@ class mod_peerwork_submissions_form extends moodleform {
 
         if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
             foreach ($peers as $peer) {
-                $justification = isset($data['justifications'][$peer->id]) ? $data['justifications'][$peer->id] : '';
-                if (empty(trim($justification))) {
+                $justification = trim(isset($data['justifications'][$peer->id]) ? $data['justifications'][$peer->id] : '');
+                $length = core_text::strlen($justification);
+                if (!$length) {
                     $errors['justifications[' . $peer->id . ']'] = get_string('provideajustification', 'mod_peerwork');
+                } else if ($peerwork->justificationmaxlength && $length > $peerwork->justificationmaxlength) {
+                    $errors['justifications[' . $peer->id . ']'] = get_string('err_maxlength', 'core_form',
+                        ['format' => $peerwork->justificationmaxlength]);
                 }
             }
         }

@@ -140,6 +140,11 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addElement('select', 'justification', get_string('requirejustification', 'mod_peerwork'), $options);
         $mform->addHelpButton('justification', 'requirejustification', 'peerwork');
 
+        $mform->addElement('text', 'justificationmaxlength', get_string('justificationmaxlength', 'mod_peerwork'));
+        $mform->addHelpButton('justificationmaxlength', 'justificationmaxlength', 'mod_peerwork');
+        $mform->setType('justificationmaxlength', PARAM_INT);
+        $mform->hideIf('justificationmaxlength', 'justification', 'eq', MOD_PEERWORK_JUSTIFICATION_DISABLED);
+
         // Preparing repeated element.
         $elements = [];
         $repeatopts = [];

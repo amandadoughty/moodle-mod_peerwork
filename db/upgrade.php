@@ -48,5 +48,21 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019112800, 'peerwork');
     }
 
+    if ($oldversion < 2019113000) {
+
+        // Define field justificationmaxlength to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('justificationmaxlength', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'justification');
+
+        // Conditionally launch add field justificationmaxlength.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019113000, 'peerwork');
+    }
+
+
     return true;
 }
