@@ -103,12 +103,15 @@ if (has_capability('mod/peerwork:grade', $context)) {
         get_string('nomembers', 'mod_peerwork'),
         get_string('nopeergrades', 'mod_peerwork'),
         get_string('status'),
+        get_string('grade', 'mod_peerwork'),
         ''
     ];
     foreach ($allgroups as $group) {
         $members = groups_get_members($group->id);
-        $status = peerwork_get_status($peerwork, $group);
-        $wasgraded = peerwork_was_submission_graded_from_status($status);
+        $submission = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $group->id));
+        $status = peerwork_get_status($peerwork, $group, $submission);
+        $grader = new mod_peerwork\group_grader($peerwork, $group->id, $submission);
+        $wasgraded = $grader->was_graded();
         $detailsurl = new moodle_url('details.php', ['id' => $cm->id, 'groupid' => $group->id]);
 
         $menu = new action_menu();
@@ -127,12 +130,24 @@ if (has_capability('mod/peerwork:grade', $context)) {
             ));
         }
 
+        $gradeinplace = new core\output\inplace_editable(
+            'mod_peerwork',
+            'groupgrade_' . $peerwork->id,
+            $group->id,
+            true,
+            $wasgraded ? $grader->get_grade() : '-',
+            $wasgraded ? $grader->get_grade() : null
+        );
+        $gradecell = new html_table_cell($OUTPUT->render($gradeinplace));
+        $gradecell->attributes['class'] = 'inplace-grading';
+
         $row = new html_table_row();
         $row->cells = array(
             $OUTPUT->action_link($detailsurl, $group->name),
             count($members),
             peerwork_get_number_peers_graded($peerwork->id, $group->id),
             $status->text,
+            $gradecell,
             $OUTPUT->render($menu)
         );
         $t->data[] = $row;

@@ -7,6 +7,15 @@
     width: 70px;
 }
 
+#mod-peerwork-summary-table .inplace-grading {
+    width: 100px;
+    max-width: 100px;
+}
+
+#mod-peerwork-summary-table .inplace-grading input {
+  max-width: 100%;
+}
+
 #mod-peerwork-grader-table .grading-summary-totals td:first-child {
     font-weight: bold;
 }

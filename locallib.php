@@ -108,13 +108,24 @@ function peerwork_get_mygroup($courseid, $userid, $groupingid = 0, $die = true) 
 }
 
 /**
- * Gets the status, one of PEERWORK_STATUS_*
- * @param $peerwork
- * @param int $group returns only groups in the specified grouping.
+ * Gets the status, one of PEERWORK_STATUS_*.
+ *
+ * @param stdClass $peerwork The instance.
+ * @param stdClass $group The group.
+ * @param stdClass $submission The submission, if already known.
+ * @param object Returns the status.
  */
-function peerwork_get_status($peerwork, $group) {
+function peerwork_get_status($peerwork, $group, $submission = null) {
     global $DB;
-    $submission = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $group->id));
+
+    if ($submission === null) {
+        $submission = $DB->get_record('peerwork_submission', ['peerworkid' => $peerwork->id, 'groupid' => $group->id]);
+    }
+
+    if ($submission && ($submission->peerworkid != $peerwork->id || $submission->groupid != $group->id)) {
+        throw new coding_exception('Invalid submission object');
+    }
+
     $status = new stdClass();
     $duedate = peerwork_due_date($peerwork);
 
