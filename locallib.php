@@ -93,12 +93,12 @@ function peerwork_get_mygroup($courseid, $userid, $groupingid = 0, $die = true) 
 
     if (count($mygroups) == 0) {
         if ($die) {
-            print_error("You do not belong to any group.");
+            print_error('youdonotbelongtoanygroup', 'mod_peerwork');
         }
         return null;
     } else if (count($mygroups) > 1) {
         if ($die) {
-            print_error("You belong to more than one group, this is currently not supported.");
+            print_error('youbelongtomorethanonegroup', 'mod_peerwork');
         }
         return null;
     }
