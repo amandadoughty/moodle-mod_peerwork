@@ -21,46 +21,51 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import $ from 'jquery';
+define(['jquery'], function($) {
 
-/**
- * Revised grades total calculator.
- *
- * @param {String} tableSelector The table selector.
- */
-function revisedGradesTotalCalculator(tableSelector) {
-    const tableNode = $(tableSelector);
-    const fieldNodes = tableNode.find('input[name^="grade_"]');
-    const totalNode = tableNode.find('.total-revised-grade');
+    /**
+     * Revised grades total calculator.
+     *
+     * @param {String} tableSelector The table selector.
+     */
+    function revisedGradesTotalCalculator(tableSelector) {
+        var tableNode = $(tableSelector);
+        var fieldNodes = tableNode.find('input[name^="grade_"]');
+        var totalNode = tableNode.find('.total-revised-grade');
 
 
-    const getRevisedTotal = () => {
-        let total = null;
-        fieldNodes.each(function(i, field) {
-            const node = $(field);
-            const value = parseFloat(node.val().replace(',', '.')); // Minor handling of formatted values.
-            if (!value || isNaN(value)) {
-                return;
+        var getRevisedTotal = () => {
+            let total = null;
+            fieldNodes.each(function(i, field) {
+                var node = $(field);
+                var value = parseFloat(node.val().replace(',', '.')); // Minor handling of formatted values.
+                if (!value || isNaN(value)) {
+                    return;
+                }
+                total = (total || 0) + value;
+            });
+            return total;
+        };
+
+        var updateTotal = () => {
+            var loadedTotal = getRevisedTotal();
+            if (loadedTotal !== null) {
+                totalNode.text(loadedTotal.toFixed(2));
+            } else {
+                totalNode.text('');
             }
-            total = (total || 0) + value;
+        };
+
+        fieldNodes.on('change', function() {
+            updateTotal();
         });
-        return total;
-    };
 
-    const updateTotal = () => {
-        const loadedTotal = getRevisedTotal();
-        if (loadedTotal !== null) {
-            totalNode.text(loadedTotal.toFixed(2));
-        } else {
-            totalNode.text('');
-        }
-    };
-
-    fieldNodes.on('change', function() {
         updateTotal();
-    });
+    }
 
-    updateTotal();
-}
+    return {
+        init: revisedGradesTotalCalculator
+    };
 
-export const init = revisedGradesTotalCalculator;
+});
+
