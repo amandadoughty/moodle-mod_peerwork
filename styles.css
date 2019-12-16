@@ -7,6 +7,15 @@
     width: 70px;
 }
 
+#mod-peerwork-summary-table .inplace-grading {
+    width: 100px;
+    max-width: 100px;
+}
+
+#mod-peerwork-summary-table .inplace-grading input {
+  max-width: 100%;
+}
+
 #mod-peerwork-grader-table .grading-summary-totals td:first-child {
     font-weight: bold;
 }
@@ -40,6 +49,15 @@
     border-top: none;
     padding-top: 0;
 }
+
+.mod_peerwork_criteriaerror {
+    margin-bottom: 1em;
+    display: none;
+}
+.mod_peerwork_criteria.has-error .mod_peerwork_criteriaerror {
+    display: block;
+}
+
 .mod_peerwork_scaleheaders,
 .mod_peerwork_peer,
 .mod_peerwork_ratings {

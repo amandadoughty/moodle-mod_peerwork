@@ -58,7 +58,10 @@ $headers = [
     get_string('groupgrade', 'mod_peerwork'),
     get_string('groupsubmittedon', 'mod_peerwork'),
     get_string('student', 'core_grades'),
-    get_string('studentgrade', 'mod_peerwork'),
+    get_string('username', 'core'),
+    get_string('email', 'core'),
+    get_string('studentfinalweightedgrade', 'mod_peerwork'),
+    get_string('studentrevisedgrade', 'mod_peerwork'),
     get_string('studentfinalgrade', 'mod_peerwork'),
     get_string('feedback', 'mod_peerwork'),
     get_string('gradedby', 'mod_peerwork'),
@@ -78,24 +81,27 @@ if (!empty($groupids)) {
     list($ingroupsql, $ingroupparams) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
 }
 
-$stufields = user_picture::fields('u', null, 'user_id', 'user_');
+$stufields = user_picture::fields('u', ['email', 'username'], 'user_id', 'user_');
 $graderfields = user_picture::fields('ug', null, 'grader_id', 'grader_');
 $releaserfields = user_picture::fields('ur', null, 'reluser_id', 'reluser_');
 
-$uniqid = $DB->sql_concat_join("'-'", ['g.id', 'COALESCE(s.id, 0)', 'COALESCE(g.id, 0)']);
+$uniqid = $DB->sql_concat_join("'-'", ['g.id', 'COALESCE(s.id, 0)', 'COALESCE(u.id, 0)']);
 $sql = "SELECT $uniqid, $stufields, $graderfields, $releaserfields,
                s.id AS submissionid, s.grade as groupgrade, s.timegraded, s.released, s.timecreated,
                s.feedbacktext, gg.grade AS studentgrade, gg.revisedgrade, g.name as groupname
           FROM {peerwork} p
           JOIN {groups} g
             ON g.id $ingroupsql
+          JOIN {groups_members} gm
+            ON gm.groupid = g.id
+     LEFT JOIN {user} u
+            ON u.id = gm.userid
      LEFT JOIN {peerwork_submission} s
             ON s.groupid = g.id
            AND s.peerworkid = p.id
      LEFT JOIN {peerwork_grades} gg
             ON gg.submissionid = s.id
-     LEFT JOIN {user} u
-            ON u.id = gg.userid
+           AND gg.userid = u.id
      LEFT JOIN {user} ug
             ON ug.id = s.gradedby
      LEFT JOIN {user} ur
@@ -106,23 +112,20 @@ $params = ['peerworkid' => $peerwork->id] + $ingroupparams;
 $recordset = $DB->get_recordset_sql($sql, $params);
 
 foreach ($recordset as $record) {
-    $student = user_picture::unalias($record, null, 'user_id', 'user_');
+    $student = user_picture::unalias($record, ['email', 'username'], 'user_id', 'user_');
     $grader = user_picture::unalias($record, null, 'grader_id', 'grader_');
     $releaser = user_picture::unalias($record, null, 'reluser_id', 'reluser_');
 
-    // We did not find a submission.
-    if (!$record->submissionid) {
-        $csvexport->add_data([$record->groupname, '', '', '', '', '', '', '', '', ]);
-        continue;
-    }
-
     $csvexport->add_data([
         $record->groupname,
-        $record->groupgrade,
+        $record->groupgrade ?? '',
         !empty($record->timecreated) ? userdate($record->timecreated) : '',
-        !empty($student->id) ? fullname($student) : '',
+        fullname($student),
+        $student->username,
+        $student->email,
         $record->studentgrade ?? '',
-        $record->revisedgrade ?? $record->studentgrade,
+        $record->revisedgrade ?? '',
+        $record->revisedgrade ?? $record->studentgrade ?? '',
         trim(html_to_text($record->feedbacktext ?? '')),
         !empty($grader->id) ? fullname($grader) : '',
         !empty($record->timegraded) ? userdate($record->timegraded) : '',

@@ -481,3 +481,60 @@ function peerwork_extend_navigation(navigation_node $navref, stdclass $course, s
 function peerwork_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $peerworknode = null) {
 
 }
+
+/**
+ * Inplace editable callback.
+ *
+ * @param string $rawitemtype The item type.
+ * @param int $itemid The item ID.
+ * @param mixed $newvalue The new value.
+ * @return void
+ */
+function mod_peerwork_inplace_editable($rawitemtype, $itemid, $newvalue) {
+    global $DB, $PAGE;
+
+    $peerworkid = 0;
+    $itemtype = $rawitemtype;
+    if (strpos($rawitemtype, '_') > 0) {
+        list($itemtype, $peerworkid) = explode('_', $itemtype, 2);
+        $peerworkid = (int) $peerworkid;
+    }
+
+    $value = null;
+    $displayvalue = '';
+
+    switch ($itemtype) {
+        case 'groupgrade':
+            $groupid = $itemid;
+            $peerwork = $DB->get_record('peerwork', ['id' => $peerworkid], '*', MUST_EXIST);
+
+            // We must validate context, permissions, login, etc.
+            list($course, $cm) = get_course_and_cm_from_instance($peerworkid, 'peerwork');
+            $context = context_module::instance($cm->id);
+            $PAGE->set_context($context);
+            require_login($course, false, $cm);
+            require_capability('mod/peerwork:grade', $context);
+
+            $grader = new mod_peerwork\group_grader($peerwork, $groupid);
+            $wasgraded = $grader->was_graded();
+            $grade = clean_param($newvalue, PARAM_INT);
+
+            // The user did not really want to grade this.
+            if (!$wasgraded && !$grade && ($newvalue === '' || $newvalue === '-')) {
+                $displayvalue = '-';
+                $value = $grader->get_grade();
+                break;
+            }
+
+            // From this moment, we must assign a grade.
+            $grader->set_grade($grade);
+            $grader->commit();
+            $value = $displayvalue = $grader->get_grade();
+            break;
+
+        default:
+            throw new coding_exception('Invalid inplace editable');
+    }
+
+    return new core\output\inplace_editable('mod_peerwork', $rawitemtype, $itemid, true, $displayvalue, $value);
+}

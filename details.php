@@ -136,54 +136,17 @@ if (peerwork_was_submission_graded_from_status($status)) {
 }
 $mform->set_data($data);
 
-
 if ($mform->is_cancelled()) {
     // Form cancelled, redirect.
     redirect(new moodle_url('view.php', array('id' => $cm->id)));
-    return;
+
 } else if (($data = $mform->get_data())) {
-    //
-    // Form has been submitted, save form values to database then redirect to re-display form.
-    //
-    if (!$submission) {
-        $submission = new stdClass();
-        $submission->peerworkid = $peerwork->id;
-        $submission->groupid = $group->id;
-    }
-    $submission->grade = $data->grade;
-    $submission->paweighting = $data->paweighting;
-    $submission->gradedby = $USER->id;
-    $submission->timegraded = time();
-    $submission->feedbacktext = $data->feedback['text'];
-    $submission->feedbackformat = $data->feedback['format'];
-
-    if (isset($submission->id)) {
-        $DB->update_record('peerwork_submission', $submission);
-    } else {
-        // Insert and fetch, so we have the full record to pass as snapshot to the event below.
-        $submission->id = $DB->insert_record('peerwork_submission', $submission);
-        $submission = $DB->get_record('peerwork_submission', ['id' => $submission->id], '*', MUST_EXIST);
-    }
-
-    // Save the file submitted.
-    file_save_draft_area_files($draftitemid, $context->id, 'mod_peerwork', 'feedback_files', $group->id, $fileoptions);
-
-    // Save the grades.
-    peerwork_update_local_grades($peerwork, $group, $submission, array_keys($members), $data->revisedgrades);
-
-    $params = array(
-        'objectid' => $submission->id,
-        'context' => $context,
-        'other' => array(
-            'groupid' => $group->id,
-            'groupname' => $group->name,
-            'grade' => $data->grade
-        )
-    );
-    $event = \mod_peerwork\event\submission_graded::create($params);
-    $event->add_record_snapshot('peerwork_submission', $submission);
-    $event->trigger();
-
+    // Form has been submitted.
+    $grader = new mod_peerwork\group_grader($peerwork, $groupid, $submission);
+    $grader->set_grade($data->grade, $data->paweighting);
+    $grader->set_feedback($data->feedback['text'], $data->feedback['format'], $draftitemid);
+    $grader->set_revised_grades($data->revisedgrades);
+    $grader->commit();
     redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)));
 }
 
