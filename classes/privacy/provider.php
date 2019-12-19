@@ -93,6 +93,7 @@ class provider implements
 
         $collection->add_database_table('peerwork_grades', [
             'userid' => 'privacy:metadata:grades:userid',
+            'prelimgrade' => 'privacy:metadata:grades:prelimgrade',
             'grade' => 'privacy:metadata:grades:grade',
             'revisedgrade' => 'privacy:metadata:grades:revisedgrade',
         ], 'privacy:metadata:grades');
@@ -209,8 +210,8 @@ class provider implements
         list($insql, $inparams) = $DB->get_in_or_equal($peerworkids, SQL_PARAMS_NAMED);
 
         // Fetch the record for the overall grade.
-        $sql = "SELECT g.id, g.grade, g.revisedgrade, s.grade AS groupgrade, s.timegraded, s.timecreated, s.timemodified,
-                       s.feedbacktext, s.feedbackformat, s.peerworkid, s.groupid
+        $sql = "SELECT g.id, g.prelimgrade, g.grade, g.revisedgrade, s.grade AS groupgrade, s.timegraded, s.timecreated,
+                    s.timemodified, s.feedbacktext, s.feedbackformat, s.peerworkid, s.groupid
                   FROM {peerwork_grades} g
                   JOIN {peerwork_submission} s
                     ON s.id = g.submissionid
@@ -228,6 +229,7 @@ class provider implements
                 'group_feedback' => format_text($record->feedbacktext, $record->feedbackformat, ['context' => $context]),
                 'group_submission_created_on' => $record->timecreated ? transform::datetime($record->timecreated) : '-',
                 'group_submission_updated_on' => $record->timemodified ? transform::datetime($record->timemodified) : '-',
+                'your_calculated_grade' => $record->prelimgrade,
                 'your_grade' => $record->grade,
                 'your_revised_grade' => $record->revisedgrade ?? '-',
                 'time_graded' => $record->timegraded ? transform::datetime($record->timegraded) : '-',

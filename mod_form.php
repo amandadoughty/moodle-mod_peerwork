@@ -131,6 +131,10 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addElement('select', 'peergradesvisibility', get_string('peergradesvisibility', 'mod_peerwork'), $options);
         $mform->addHelpButton('peergradesvisibility', 'peergradesvisibility', 'peerwork');
 
+        $mform->addElement('selectyesno', 'displaypeergradestotals', get_string('displaypeergradestotals', 'mod_peerwork'));
+        $mform->addHelpButton('displaypeergradestotals', 'displaypeergradestotals', 'peerwork');
+        $mform->hideIf('displaypeergradestotals', 'peergradesvisibility', 'eq', MOD_PEERWORK_PEER_GRADES_HIDDEN);
+
         $options = [
             MOD_PEERWORK_JUSTIFICATION_DISABLED => get_string('justificationdisabled', 'mod_peerwork'),
             MOD_PEERWORK_JUSTIFICATION_HIDDEN => get_string('justificationhiddenfromstudents', 'mod_peerwork'),

@@ -155,6 +155,9 @@ class mod_peerwork_generator extends testing_module_generator {
             throw new coding_exception('Missing gradefor');
         }
 
+        if (!isset($record->prelimgrade)) {
+            $record->prelimgrade = 0;
+        }
         if (!isset($record->grade)) {
             $record->grade = 0;
         }

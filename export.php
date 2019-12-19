@@ -55,11 +55,12 @@ $event->trigger();
 
 $headers = [
     get_string('group'),
-    get_string('groupgrade', 'mod_peerwork'),
     get_string('groupsubmittedon', 'mod_peerwork'),
     get_string('student', 'core_grades'),
     get_string('username', 'core'),
     get_string('email', 'core'),
+    get_string('groupgrade', 'mod_peerwork'),
+    get_string('studentcalculatedgrade', 'mod_peerwork'),
     get_string('studentfinalweightedgrade', 'mod_peerwork'),
     get_string('studentrevisedgrade', 'mod_peerwork'),
     get_string('studentfinalgrade', 'mod_peerwork'),
@@ -88,7 +89,8 @@ $releaserfields = user_picture::fields('ur', null, 'reluser_id', 'reluser_');
 $uniqid = $DB->sql_concat_join("'-'", ['g.id', 'COALESCE(s.id, 0)', 'COALESCE(u.id, 0)']);
 $sql = "SELECT $uniqid, $stufields, $graderfields, $releaserfields,
                s.id AS submissionid, s.grade as groupgrade, s.timegraded, s.released, s.timecreated,
-               s.feedbacktext, gg.grade AS studentgrade, gg.revisedgrade, g.name as groupname
+               s.feedbacktext, gg.prelimgrade AS studentcalculatedgrade, gg.grade AS studentgrade,
+               gg.revisedgrade, g.name as groupname
           FROM {peerwork} p
           JOIN {groups} g
             ON g.id $ingroupsql
@@ -118,11 +120,12 @@ foreach ($recordset as $record) {
 
     $csvexport->add_data([
         $record->groupname,
-        $record->groupgrade ?? '',
         !empty($record->timecreated) ? userdate($record->timecreated) : '',
         fullname($student),
         $student->username,
         $student->email,
+        $record->groupgrade ?? '',
+        $record->studentcalculatedgrade ?? '',
         $record->studentgrade ?? '',
         $record->revisedgrade ?? '',
         $record->revisedgrade ?? $record->studentgrade ?? '',
