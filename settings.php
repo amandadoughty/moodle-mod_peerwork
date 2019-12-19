@@ -83,6 +83,13 @@ if ($ADMIN->fulltree) {
         $zerotohundredpcopts
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'peerwork/displaypeergradestotals',
+        get_string('displaypeergradestotals', 'mod_peerwork'),
+        get_string('displaypeergradestotals_help', 'mod_peerwork'),
+        false
+    ));
+
     $settings->add(new admin_setting_configtext(
         'peerwork/justificationmaxlength',
         get_string('justificationmaxlength', 'mod_peerwork'),

@@ -138,12 +138,14 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $displayscalelabel = false;
             $scales = grade_scale::fetch_all_global();
             $isanon = $peerwork->peergradesvisibility != MOD_PEERWORK_PEER_GRADES_VISIBLE_USER;
+            $displaytotals = !empty($peerwork->displaypeergradestotals);
             $members = (array) (object) $membersgradeable;
             if ($isanon) {
                 shuffle($members);
             }
 
-            $parts = array_map(function($criteriaid, $criteria) use ($data, $displayscalelabel, $isanon, $members, $scales) {
+            $parts = array_map(function($criteriaid, $criteria) use ($data, $displaytotals, $displayscalelabel,
+                    $isanon, $members, $scales) {
                 $gradeinfo = $data['peergrades'][$criteriaid] ?? [];
                 $html = html_writer::start_div();
                 $html .= html_writer::div($criteria->description);
@@ -155,9 +157,12 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                 }
 
                 $ratings = [];
+                $totalscore = 0;
+                $totalmax = 0;
                 foreach ($members as $member) {
                     $grade = $gradeinfo[$member->id] ?? null;
                     $scalevalue = '-';
+
                     if (!$grade && $isanon) {
                         continue;
                     } else if ($grade && $scale) {
@@ -166,7 +171,11 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                         } else {
                             $scalevalue = ($grade->grade + 1) . ' / ' . count($scaleitems);
                         }
+
+                        $totalscore += ($grade->grade + 1);
+                        $totalmax += count($scaleitems);
                     }
+
 
                     if ($isanon) {
                         $ratings[] = $scalevalue;
@@ -185,6 +194,12 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                         return html_writer::tag('li', $rating);
                     }, $ratings)));
                 }
+
+                if ($displaytotals) {
+                    $html .= html_writer::tag('p', get_string('peergradetotal', 'mod_peerwork',
+                        $totalmax > 0 ? format_float($totalscore / $totalmax * 100, 2). '%' : '-'));
+                }
+
                 $html .= html_writer::end_div();
                 return $html;
 

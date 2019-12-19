@@ -63,6 +63,20 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019113000, 'peerwork');
     }
 
+    if ($oldversion < 2019121900) {
+
+        // Define field displaypeergradestotals to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('displaypeergradestotals', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'peergradesvisibility');
+
+        // Conditionally launch add field displaypeergradestotals.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019121900, 'peerwork');
+    }
 
     return true;
 }

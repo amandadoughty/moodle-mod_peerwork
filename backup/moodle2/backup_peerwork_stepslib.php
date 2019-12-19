@@ -49,7 +49,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'allowlatesubmissions', 'peergradesvisibility',
             'justification', 'justificationmaxlength',
-            'paweighting', 'noncompletionpenalty', 'completiongradedpeers'));
+            'paweighting', 'noncompletionpenalty', 'completiongradedpeers', 'displaypeergradestotals'));
 
         $criteria = new backup_nested_element('criteria');
         $criterion = new backup_nested_element('criterion', ['id'], [
