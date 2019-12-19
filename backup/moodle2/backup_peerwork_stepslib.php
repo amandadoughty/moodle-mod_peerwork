@@ -72,7 +72,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         $grades = new backup_nested_element('grades');
         $grade = new backup_nested_element('grade', ['id'], [
-            'submissionid', 'userid', 'grade', 'revisedgrade'
+            'submissionid', 'userid', 'prelimgrade', 'grade', 'revisedgrade'
         ]);
 
         // Build the tree.

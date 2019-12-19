@@ -633,7 +633,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
             'gradefor' => $u2->id, 'gradedby' => $u1->id, 'justification' => 'Def']);
 
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u1->id, 'submissionid' => $sub->id, 'grade' => 54.32,
-            'revisedgrade' => 60]);
+            'revisedgrade' => 60, 'prelimgrade' => 1.34]);
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u2->id, 'submissionid' => $sub->id, 'grade' => 12.30]);
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u3->id, 'submissionid' => $sub2->id, 'grade' => 13.37]);
 
@@ -650,6 +650,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $this->assertTrue(strpos($grade->group_feedback, $sub->feedbacktext) > -1);
         $this->assertEquals(transform::datetime($sub->timecreated), $grade->group_submission_created_on);
         $this->assertEquals(transform::datetime($sub->timemodified), $grade->group_submission_updated_on);
+        $this->assertEquals(1.34, $grade->your_calculated_grade);
         $this->assertEquals(54.32, $grade->your_grade);
         $this->assertEquals(60, $grade->your_revised_grade);
         $this->assertEquals(transform::datetime($sub->timegraded), $grade->time_graded);
