@@ -11,9 +11,15 @@
     width: 100px;
     max-width: 100px;
 }
-
 #mod-peerwork-summary-table .inplace-grading input {
   max-width: 100%;
+}
+#mod-peerwork-summary-table .inplace-grading .inplaceeditable.inplaceeditingon {
+    display: block;
+}
+#mod-peerwork-summary-table .inplace-grading .inplaceeditable.inplaceeditingon .editinstructions {
+    left: auto;
+    right: 0;
 }
 
 #mod-peerwork-grader-table .grading-summary-totals td:first-child {
