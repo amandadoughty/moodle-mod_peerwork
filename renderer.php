@@ -135,6 +135,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('peergrades', 'mod_peerwork'));
 
+            $displayscalelabel = false;
             $scales = grade_scale::fetch_all_global();
             $isanon = $peerwork->peergradesvisibility != MOD_PEERWORK_PEER_GRADES_VISIBLE_USER;
             $members = (array) (object) $membersgradeable;
@@ -142,9 +143,9 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                 shuffle($members);
             }
 
-            $html = '';
-            foreach ($data['criteria'] as $criteriaid => $criteria) {
+            $parts = array_map(function($criteriaid, $criteria) use ($data, $displayscalelabel, $isanon, $members, $scales) {
                 $gradeinfo = $data['peergrades'][$criteriaid] ?? [];
+                $html = html_writer::start_div();
                 $html .= html_writer::div($criteria->description);
 
                 $scaleid = abs($criteria->grade);
@@ -160,7 +161,11 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                     if (!$grade && $isanon) {
                         continue;
                     } else if ($grade && $scale) {
-                        $scalevalue = $scaleitems[$grade->grade];
+                        if ($displayscalelabel) {
+                            $scalevalue = $scaleitems[$grade->grade];
+                        } else {
+                            $scalevalue = ($grade->grade + 1) . ' / ' . count($scaleitems);
+                        }
                     }
 
                     if ($isanon) {
@@ -180,10 +185,12 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                         return html_writer::tag('li', $rating);
                     }, $ratings)));
                 }
+                $html .= html_writer::end_div();
+                return $html;
 
-            }
+            }, array_keys($data['criteria']), $data['criteria']);
 
-            $cell2 = new html_table_cell($html);
+            $cell2 = new html_table_cell(implode('<hr>', $parts));
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
         }
