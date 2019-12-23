@@ -33,6 +33,7 @@ $string['assessmentnotopenyet'] = 'Assessment not open yet.';
 $string['calculatedgrade'] = 'Calculated grade';
 $string['calculatedgrade_help'] = 'The grade prior to applying weighting and penalties.';
 $string['calculatedgrades'] = 'Calculated grades';
+$string['charactersremaining'] = '{$a} character(s) remaining';
 $string['completiongradedpeers'] = 'Require peers graded';
 $string['completiongradedpeers_desc'] = 'Students must grade all their peers';
 $string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';
