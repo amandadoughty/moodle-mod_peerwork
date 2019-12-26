@@ -93,5 +93,20 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019121902, 'peerwork');
     }
 
+    if ($oldversion < 2019122600) {
+
+        // Define field releasednotified to be added to peerwork_submission.
+        $table = new xmldb_table('peerwork_submission');
+        $field = new xmldb_field('releasednotified', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'releasedby');
+
+        // Conditionally launch add field releasednotified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019122600, 'peerwork');
+    }
+
     return true;
 }

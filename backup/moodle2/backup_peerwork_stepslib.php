@@ -68,7 +68,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $submission = new backup_nested_element('submission', array('id'), array(
             'userid', 'timecreated', 'timemodified', 'groupid',
             'grade', 'feedbacktext', 'feedbackformat', 'timegraded',
-            'gradedby', 'released', 'releasedby', 'paweighting'));
+            'gradedby', 'released', 'releasedby', 'releasednotified', 'paweighting'));
 
         $grades = new backup_nested_element('grades');
         $grade = new backup_nested_element('grade', ['id'], [
