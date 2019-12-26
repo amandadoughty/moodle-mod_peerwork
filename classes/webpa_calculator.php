@@ -93,7 +93,7 @@ class webpa_calculator {
      * ];
      *
      * @param array $grades The list of marks given.
-     * @param int $groupmap The mark given to the group.
+     * @param int $groupmark The mark given to the group.
      */
     public function calculate($grades, $groupmark) {
         $memberids = array_keys($grades);

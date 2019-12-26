@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Local lib.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -113,7 +115,7 @@ function peerwork_get_mygroup($courseid, $userid, $groupingid = 0, $die = true) 
  * @param stdClass $peerwork The instance.
  * @param stdClass $group The group.
  * @param stdClass $submission The submission, if already known.
- * @param object Returns the status.
+ * @return object Returns the status.
  */
 function peerwork_get_status($peerwork, $group, $submission = null) {
     global $DB;
@@ -248,7 +250,9 @@ function peerwork_get_peer_grades_received($peerworkid, $groupid, $userid) {
 
 /**
  * Was due date used and has it passed?
- * @param $peerwork
+ *
+ * @param object $peerwork The instance.
+ * @return int PEERWORK_DUEDATE_* constant.
  */
 function peerwork_due_date($peerwork) {
     if (!$peerwork->duedate) {
@@ -264,7 +268,9 @@ function peerwork_due_date($peerwork) {
 
 /**
  * Was from date used and is it after?
- * @param $peerwork
+ *
+ * @param object $peerwork The instance.
+ * @return int PEERWORK_FROMDATE_* constant.
  */
 function peerwork_from_date($peerwork) {
     if (!$peerwork->fromdate) {
@@ -326,7 +332,10 @@ function peerwork_was_submission_graded_from_status($status) {
 
 /**
  * Can student $user submit/edit based on the current status?
- * @param $peerwork
+ *
+ * @param object $peerwork The instance.
+ * @param int $groupid The group ID.
+ * @return object
  */
 function peerwork_is_open($peerwork, $groupid = 0) {
     global $DB;
@@ -369,9 +378,13 @@ function peerwork_is_open($peerwork, $groupid = 0) {
 }
 
 /**
- * Get grades for all peers in a group
- * @param $peerwork
- * @param $group
+ * Get grades for all peers in a group.
+ *
+ * @param object $peerwork The instance.
+ * @param object $group The group.
+ * @param object[] $membersgradeable The members that are gradeable.
+ * @param bool $full Whether to return a full result.
+ * @return object
  */
 function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $full = true) {
     global $DB;
@@ -415,9 +428,10 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
 /**
  * Get the number of peers graded.
  *
- * @param object $peerwork The intance.
- * @param object $group The group.
+ * @param int $peerworkid The intance.
+ * @param int $groupid The group ID.
  * @param int $userid Optionally, to get the number of grades rated by this user.
+ * @return int The number.
  */
 function peerwork_get_number_peers_graded($peerworkid, $groupid, $userid = null) {
     global $DB;
@@ -488,8 +502,10 @@ function peerwork_get_webpa_result($peerwork, $group, $submission = null) {
 
 /**
  * Create HTML links to files that have been submitted to the assignment.
- * Used by view.php and details.php
- * @return string[] array of formated <A href= strings, possibly empty array
+ *
+ * @param context $context The context.
+ * @param object $group The group.
+ * @return string[] Array of formatted HTML strings.
  */
 function peerwork_submission_files($context, $group) {
     $allfiles = array();
@@ -505,7 +521,13 @@ function peerwork_submission_files($context, $group) {
     return $allfiles;
 }
 
-
+/**
+ * Get feedback files.
+ *
+ * @param context $context The context.
+ * @param object $group The group.
+ * @return string[]
+ */
 function peerwork_feedback_files($context, $group) {
     $allfiles = array();
     $fs = get_file_storage();
@@ -568,8 +590,10 @@ function peerwork_get_fileoptions($peerwork) {
 
 /**
  * Find members of the group that did not submit feedback and graded peers.
- * @param $peerwork
- * @param $group
+ *
+ * @param object $peerwork The instance.
+ * @param object $group The group.
+ * @return object[] The outstanding members.
  */
 function peerwork_outstanding($peerwork, $group) {
     global $DB;
@@ -585,6 +609,12 @@ function peerwork_outstanding($peerwork, $group) {
     return $members;
 }
 
+/**
+ * Get teachers.
+ *
+ * @param context $context The context.
+ * @return object[]
+ */
 function peerwork_teachers($context) {
     global $CFG;
 
@@ -919,31 +949,4 @@ function mod_peerwork_mail_confirmation_submission($course, $submission, $draftf
 
     $body = get_string('confirmationmailbody', 'peerwork', $a);
     return email_to_user($USER, core_user::get_noreply_user(), $subject, $body);
-}
-
-function peerwork_get_pstd_dev(array $a, $sample = false) {
-    $n = count($a);
-
-    if ($n === 0) {
-        trigger_error("The array has zero elements", E_USER_WARNING);
-        return false;
-    }
-    if ($sample && $n === 1) {
-        trigger_error("The array has only 1 element", E_USER_WARNING);
-        return false;
-    }
-    $mean = array_sum($a) / $n;
-
-    $carry = 0.0;
-    foreach ($a as $val) {
-        $d = ((double) $val) - $mean;
-
-        $carry += ($d * $d);
-    }
-
-    if ($sample) {
-        --$n;
-    }
-
-    return sqrt($carry / $n);
 }

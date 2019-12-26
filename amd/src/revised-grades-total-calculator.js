@@ -33,7 +33,6 @@ define(['jquery'], function($) {
         var fieldNodes = tableNode.find('input[name^="grade_"]');
         var totalNode = tableNode.find('.total-revised-grade');
 
-
         var getRevisedTotal = () => {
             let total = null;
             fieldNodes.each(function(i, field) {
@@ -68,4 +67,3 @@ define(['jquery'], function($) {
     };
 
 });
-

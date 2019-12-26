@@ -79,8 +79,6 @@ define(['jquery', 'core/str', 'core/notification'], function($, Str, Notificatio
             return null;
 
         }).catch(Notification.exception);
-
-
     }
 
     return {
@@ -88,4 +86,3 @@ define(['jquery', 'core/str', 'core/notification'], function($, Str, Notificatio
     };
 
 });
-

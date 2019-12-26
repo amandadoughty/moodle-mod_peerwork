@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Details form.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,6 +34,7 @@ class mod_peerwork_details_form extends moodleform {
     /** @var bool Whether the page requirements were initialised. */
     protected $pageinitialised = false;
 
+    /** @var array File manager options. */
     public static $fileoptions = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,
         'accepted_types' => '*', 'return_types' => null);
 
@@ -138,6 +141,8 @@ class mod_peerwork_details_form extends moodleform {
 
     /**
      * Called from details.php to populate the form from existing data.
+     *
+     * @param array $data The data.
      */
     public function set_data($data) {
         global $OUTPUT, $PAGE;

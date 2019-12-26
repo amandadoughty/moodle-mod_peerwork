@@ -516,9 +516,8 @@ class provider implements
     /**
      * Transform scale grade.
      *
-     * @param competency $competency The competency.
+     * @param grade_scale $scale The scale.
      * @param int $grade The grade.
-     * @param performance_helper $helper The performance helper.
      * @return string
      */
     protected static function transform_scale_grade(grade_scale $scale, $grade) {

@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Lib.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -64,8 +66,8 @@ function peerwork_supports($feature) {
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param object $peerwork An object from the form in mod_form.php
- * @param mod_peerwork_mod_form $mform
+ * @param stdClass $peerwork An object from the form in mod_form.php
+ * @param mod_peerwork_mod_form $mform The form.
  * @return int The id of the newly inserted peerwork record
  */
 function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform = null) {
@@ -93,10 +95,9 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
- * @param object $peerwork An object from the form in mod_form.php
- * @param mod_peerwork_mod_form $mform
+ * @param stdClass $peerwork An object from the form in mod_form.php
+ * @param mod_peerwork_mod_form $mform The form.
  * @return boolean Success/Fail
- *
  */
 function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mform = null) {
     global $DB;
@@ -174,16 +175,18 @@ function peerwork_get_completion_state($course, $cm, $userid, $type) {
 }
 
 /**
- * Returns a small object with summary information about what a
- * user has done with a given particular instance of this module
- * Used for user activity reports.
+ * Returns a small object with summary information about what a user has done.
+ *
  * $return->time = the time they did it
  * $return->info = a short text description
  *
+ * @param stdClass $course The current course record.
+ * @param stdClass $user The record of the user we are generating report for.
+ * @param cm_info $mod The course module info.
+ * @param stdClass $peerwork The module instance record.
  * @return stdClass|null
  */
 function peerwork_user_outline($course, $user, $mod, $peerwork) {
-
     $return = new stdClass();
     $return->time = 0;
     $return->info = '';
@@ -191,14 +194,13 @@ function peerwork_user_outline($course, $user, $mod, $peerwork) {
 }
 
 /**
- * Prints a detailed representation of what a user has done with
- * a given particular instance of this module, for user activity reports.
+ * Prints a detailed representation of what a user has done.
  *
- * @param stdClass $course the current course record
- * @param stdClass $user the record of the user we are generating report for
- * @param cm_info $mod course module info
- * @param stdClass $peerwork the module instance record
- * @return void, is supposed to echp directly
+ * @param stdClass $course The current course record.
+ * @param stdClass $user The record of the user we are generating report for.
+ * @param cm_info $mod The course module info.
+ * @param stdClass $peerwork The module instance record.
+ * @return void, is supposed to echo directly.
  */
 function peerwork_user_complete($course, $user, $mod, $peerwork) {
 }
@@ -208,6 +210,9 @@ function peerwork_user_complete($course, $user, $mod, $peerwork) {
  * that has occurred in peerwork activities and print it out.
  * Return true if there was output, or false is there was none.
  *
+ * @param object $course The course.
+ * @param bool $viewfullnames Whether to view full names.
+ * @param int $timestart Time start.
  * @return boolean
  */
 function peerwork_print_recent_activity($course, $viewfullnames, $timestart) {
@@ -216,7 +221,7 @@ function peerwork_print_recent_activity($course, $viewfullnames, $timestart) {
 }
 
 /**
- * Prepares the recent activity data
+ * Prepares the recent activity data.
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
@@ -236,11 +241,16 @@ function peerwork_get_recent_mod_activity(&$activities, &$index, $timestart, $co
 }
 
 /**
- * Prints single activity item prepared by {@see peerwork_get_recent_mod_activity()}
+ * Prints single activity item prepared by {@link peerwork_get_recent_mod_activity()}.
+ *
+ * @param object $activity The activity.
+ * @param int $courseid The course ID.
+ * @param object $detail The detail.
+ * @param array $modnames The module names.
+ * @param bool $viewfullnames Whether to view full names.
  * @return void
  */
 function peerwork_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
-
 }
 
 /**
@@ -256,9 +266,8 @@ function peerwork_cron() {
 }
 
 /**
- * Returns all other caps used in the module
+ * Returns all other caps used in the module.
  *
- * @example return array('moodle/site:accessallgroups');
  * @return array
  */
 function peerwork_get_extra_capabilities() {
@@ -282,6 +291,7 @@ function peerwork_scale_used_anywhere($scaleid) {
  * Needed by grade_update_mod_grades() in lib/gradelib.php
  *
  * @param stdClass $peerwork instance object with extra cmidnumber and modname property
+ * @param array $grades The grades.
  * @return void
  */
 function peerwork_grade_item_update(stdClass $peerwork, $grades = null) {
@@ -307,6 +317,7 @@ function peerwork_grade_item_update(stdClass $peerwork, $grades = null) {
  *
  * @param stdClass $peerwork instance object with extra cmidnumber and modname property
  * @param int $userid update grade of specific user only, 0 means all participants
+ * @param bool $nullifnone Whether to use null if none.
  * @return void
  */
 function peerwork_update_grades(stdClass $peerwork, $userid = 0, $nullifnone = true) {
@@ -461,25 +472,24 @@ function peerwork_reset_userdata($data) {
  * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
  *
  * @param navigation_node $navref An object representing the navigation tree node of the peerwork module instance
- * @param stdClass $course
- * @param stdClass $module
- * @param cm_info $cm
+ * @param stdClass $course The course.
+ * @param stdClass $module The module.
+ * @param cm_info $cm The CM.
+ * @return void
  */
-function peerwork_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm) {
-
+function peerwork_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
 }
 
 /**
- * Extends the settings navigation with the peerwork settings
+ * Extends the settings navigation with the peerwork settings.
  *
  * This function is called when the context for the page is a peerwork module. This is not called by AJAX
  * so it is safe to rely on the $PAGE.
  *
- * @param settings_navigation $settingsnav {@link settings_navigation}
- * @param navigation_node $peerworknode {@link navigation_node}
+ * @param settings_navigation $settingsnav The navigation.
+ * @param navigation_node $peerworknode The navigation.
  */
 function peerwork_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $peerworknode = null) {
-
 }
 
 /**
