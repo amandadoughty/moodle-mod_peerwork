@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Language strings.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -33,6 +35,7 @@ $string['assessmentnotopenyet'] = 'Assessment not open yet.';
 $string['calculatedgrade'] = 'Calculated grade';
 $string['calculatedgrade_help'] = 'The grade prior to applying weighting and penalties.';
 $string['calculatedgrades'] = 'Calculated grades';
+$string['charactersremaining'] = '{$a} character(s) remaining';
 $string['completiongradedpeers'] = 'Require peers graded';
 $string['completiongradedpeers_desc'] = 'Students must grade all their peers';
 $string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';

@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Version.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2019121902;
+$plugin->version   = 2019122600;
 $plugin->requires  = 2018120300;      // Moodle 3.6.0.
 $plugin->component = 'mod_peerwork';
 $plugin->maturity  = MATURITY_STABLE;

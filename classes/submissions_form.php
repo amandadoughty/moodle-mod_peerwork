@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Submissions form.
+ *
  * @package mod_peerwork
  * @copyright 2013 LEARNING TECHNOLOGY SERVICES
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -96,7 +98,7 @@ class mod_peerwork_submissions_form extends moodleform {
      * @return void
      */
     public function definition_after_data() {
-        global $USER;
+        global $PAGE, $USER;
         $mform = $this->_form;
         $peerworkid = $this->_customdata['peerworkid'];
         $peerwork = $this->_customdata['peerwork'];
@@ -186,14 +188,17 @@ class mod_peerwork_submissions_form extends moodleform {
                 html_writer::empty_tag('br') .
                 html_writer::tag('strong', get_string($notestr, 'mod_peerwork')));
 
+            // Don't set the maxlength property because it does not work well with UTF-8 characters.
             $textareaattrs = ['rows' => 2, 'style' => 'width: 100%'];
-            if ($peerwork->justificationmaxlength) {
-                $textareaattrs['maxlength'] = $peerwork->justificationmaxlength;
-            }
             foreach ($peers as $peer) {
                 $fullname = fullname($peer);
                 $namedisplay = $peer->id == $USER->id ? get_string('peernameisyou', 'mod_peerwork', $fullname) : $fullname;
                 $mform->addElement('textarea', 'justifications[' . $peer->id . ']', $namedisplay, $textareaattrs);
+            }
+
+            if ($peerwork->justificationmaxlength) {
+                $PAGE->requires->js_call_amd('mod_peerwork/justification-character-limit', 'init',
+                    ['textarea[id^=id_justifications_]', $peerwork->justificationmaxlength]);
             }
         }
 

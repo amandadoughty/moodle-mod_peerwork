@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Upgrade paths.
+ *
  * @package    mod_peerwork
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -91,6 +93,21 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Peerwork savepoint reached.
         upgrade_mod_savepoint(true, 2019121902, 'peerwork');
+    }
+
+    if ($oldversion < 2019122600) {
+
+        // Define field releasednotified to be added to peerwork_submission.
+        $table = new xmldb_table('peerwork_submission');
+        $field = new xmldb_field('releasednotified', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'releasedby');
+
+        // Conditionally launch add field releasednotified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2019122600, 'peerwork');
     }
 
     return true;

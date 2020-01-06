@@ -187,7 +187,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     // Collect data on how this user graded their peers.
     $data = array();
-    // $data['igraded']     = peerwork_grade_by_user($peerwork, $USER, $membersgradeable);
     $data['files']       = peerwork_submission_files($context, $group);
     $data['outstanding'] = peerwork_outstanding($peerwork, $group);
 
