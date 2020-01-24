@@ -110,5 +110,20 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019122600, 'peerwork');
     }
 
+    if ($oldversion < 2020012400) {
+
+        // Define field score to be added to peerwork_grades.
+        $table = new xmldb_table('peerwork_grades');
+        $field = new xmldb_field('score', XMLDB_TYPE_NUMBER, '10, 8', null, XMLDB_NOTNULL, null, '0', 'userid');
+
+        // Conditionally launch add field score.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020012400, 'peerwork');
+    }
+
     return true;
 }

@@ -173,6 +173,7 @@ $string['revisedgrade'] = 'Revised grade';
 $string['revisedgrade_help'] = 'Use this field to override the final weighted grade, if needed.';
 $string['search:activity'] = 'Peer work - activity information';
 $string['studentcalculatedgrade'] = 'Student calculated grade';
+$string['studentcontribution'] = 'Student contribution';
 $string['studentrevisedgrade'] = 'Student revised grade';
 $string['studentfinalgrade'] = 'Student final grade';
 $string['studentfinalweightedgrade'] = 'Student final weighted grade';

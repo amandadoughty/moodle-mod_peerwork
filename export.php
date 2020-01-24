@@ -62,6 +62,7 @@ $headers = [
     get_string('username', 'core'),
     get_string('email', 'core'),
     get_string('groupgrade', 'mod_peerwork'),
+    get_string('studentcontribution', 'mod_peerwork'),
     get_string('studentcalculatedgrade', 'mod_peerwork'),
     get_string('studentfinalweightedgrade', 'mod_peerwork'),
     get_string('studentrevisedgrade', 'mod_peerwork'),
@@ -91,8 +92,8 @@ $releaserfields = user_picture::fields('ur', null, 'reluser_id', 'reluser_');
 $uniqid = $DB->sql_concat_join("'-'", ['g.id', 'COALESCE(s.id, 0)', 'COALESCE(u.id, 0)']);
 $sql = "SELECT $uniqid, $stufields, $graderfields, $releaserfields,
                s.id AS submissionid, s.grade as groupgrade, s.timegraded, s.released, s.timecreated,
-               s.feedbacktext, gg.prelimgrade AS studentcalculatedgrade, gg.grade AS studentgrade,
-               gg.revisedgrade, g.name as groupname
+               s.feedbacktext, gg.score as studentcontribution, gg.prelimgrade AS studentcalculatedgrade,
+               gg.grade AS studentgrade, gg.revisedgrade, g.name as groupname
           FROM {peerwork} p
           JOIN {groups} g
             ON g.id $ingroupsql
@@ -127,6 +128,7 @@ foreach ($recordset as $record) {
         $student->username,
         $student->email,
         $record->groupgrade ?? '',
+        $record->studentcontribution ?? '',
         $record->studentcalculatedgrade ?? '',
         $record->studentgrade ?? '',
         $record->revisedgrade ?? '',

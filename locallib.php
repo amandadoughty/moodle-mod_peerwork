@@ -697,6 +697,7 @@ function peerwork_update_local_grades($peerwork, $group, $submission, $userids, 
             ];
         }
 
+        $record->score = $result->get_score($userid);
         $record->prelimgrade = $result->get_preliminary_grade($userid);
         $record->grade = $result->get_grade($userid);
         if ($revisedgrades !== null) {
