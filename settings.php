@@ -60,6 +60,14 @@ if ($ADMIN->fulltree) {
         [0 => 0, 1, 2, 3, 4, 5]
     ));
 
+    $settings->add(new admin_setting_configselect(
+        'peerwork/critscale',
+        get_string('critscale', 'mod_peerwork'),
+        get_string('critscale_help', 'mod_peerwork'),
+        null,
+        get_scales_menu()
+    ));
+
     $settings->add(new admin_setting_configcheckbox(
         'peerwork/selfgrading',
         get_string('selfgrading', 'mod_peerwork'),

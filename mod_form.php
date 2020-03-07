@@ -168,7 +168,8 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $scale = $mform->createElement('select', 'critscale',
             get_string('assessmentcriteria:scoretype', 'mod_peerwork'), get_scales_menu());
         $repeatopts['critscale'] = [
-            'helpbutton' => ['assessmentcriteria:scoretype', 'mod_peerwork']
+            'helpbutton' => ['assessmentcriteria:scoretype', 'mod_peerwork'],
+            'default' => get_config('peerwork', 'critscale')
         ];
 
         // Repeat stuff.
