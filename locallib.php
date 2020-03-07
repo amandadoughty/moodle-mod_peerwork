@@ -951,3 +951,53 @@ function mod_peerwork_mail_confirmation_submission($course, $submission, $draftf
     $body = get_string('confirmationmailbody', 'peerwork', $a);
     return email_to_user($USER, core_user::get_noreply_user(), $subject, $body);
 }
+
+/**
+ * Clear the submissions.
+ *
+ * @param object $peerwork The peerwork.
+ * @param context $context The context.
+ * @param int $groupid The group ID, or 0 for all groups.
+ * @return void
+ */
+function mod_peerwork_clear_submissions($peerwork, $context, $groupid = 0) {
+    global $DB;
+
+    if ($groupid > 0) {
+        $sql = 'peerworkid = :peerworkid AND groupid = :groupid AND COALESCE(timegraded, 0) = 0';
+        $submissions = $DB->get_records_select('peerwork_submission', $sql, [
+            'peerworkid' => $peerwork->id,
+            'groupid' => $groupid
+        ]);
+    } else {
+        $sql = 'peerworkid = :peerworkid AND COALESCE(timegraded, 0) = 0 AND released = 0';
+        $submissions = $DB->get_records_select('peerwork_submission', $sql, ['peerworkid' => $peerwork->id]);
+    }
+
+    foreach ($submissions as $submission) {
+        $id = $submission->id;
+        $groupid = $submission->groupid;
+
+        // Delete database values.
+        $DB->delete_records('peerwork_peers', ['peerwork' => $peerwork->id, 'groupid' => $groupid]);
+        $DB->delete_records('peerwork_justification', ['peerworkid' => $peerwork->id, 'groupid' => $groupid]);
+        $DB->delete_records('peerwork_grades', ['peerworkid' => $peerwork->id, 'submissionid' => $id]);
+        $DB->delete_records('peerwork_submission', ['id' => $id]);
+
+        // Delete the submission files.
+        $fs = get_file_storage();
+        $fs->delete_area_files($context->id, 'mod_peerwork', 'submission', $groupid);
+
+        // Trigger the event.
+        $params = [
+            'objectid' => $id,
+            'context' => $context,
+            'other' => [
+                'groupid' => $groupid
+            ]
+        ];
+        $event = \mod_peerwork\event\submission_cleared::create($params);
+        $event->add_record_snapshot('peerwork_submission', $submission);
+        $event->trigger();
+    }
+}
