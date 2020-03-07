@@ -63,15 +63,15 @@ $params = array(
     'context' => $context
 );
 
-$event = \mod_peerwork\event\course_module_viewed::create($params);
-$event->add_record_snapshot('course', $course);
-$event->add_record_snapshot($cm->modname, $peerwork);
-$event->trigger();
-
 $PAGE->set_url('/mod/peerwork/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
+
+$event = \mod_peerwork\event\course_module_viewed::create($params);
+$event->add_record_snapshot('course', $course);
+$event->add_record_snapshot($cm->modname, $peerwork);
+$event->trigger();
 
 // Teacher view.
 if (has_capability('mod/peerwork:grade', $context)) {
