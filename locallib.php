@@ -879,7 +879,7 @@ function mod_peerwork_save_submission($peerwork, $submission, $group, $context, 
     global $DB, $USER;
 
     // Early bail when the submission is locked.
-    if ($submission->locked) {
+    if ($submission && $submission->locked) {
         return [$submission, []];
     }
 
