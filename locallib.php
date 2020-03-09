@@ -1119,7 +1119,7 @@ function mod_peerwork_get_late_peers($peerwork, $submission) {
 /**
  * Lock editing across the entire activity.
  *
- * @param int $peerwork The peerwork instance.
+ * @param object $peerwork The peerwork instance.
  * @return void
  */
 function mod_peerwork_lock_editing($peerwork) {
@@ -1131,13 +1131,49 @@ function mod_peerwork_lock_editing($peerwork) {
 /**
  * Unlock editing across the entire activity.
  *
- * @param int $peerwork The peerwork instance.
+ * @param object $peerwork The peerwork instance.
  * @return void
  */
 function mod_peerwork_unlock_editing($peerwork) {
     global $DB;
     $DB->execute("UPDATE {peerwork_peers} SET locked = 0 WHERE peerwork = ?", [$peerwork->id]);
     $DB->execute("UPDATE {peerwork_submission} SET locked = 0 WHERE peerworkid = ?", [$peerwork->id]);
+}
+
+/**
+ * Unlock editing for a single student.
+ *
+ * @param int $peerwork The peerwork instance.
+ * @param int $graderid The student ID.
+ * @return void
+ */
+function mod_peerwork_unlock_grader($peerworkid, $graderid) {
+    global $DB;
+    $DB->execute("UPDATE {peerwork_peers} SET locked = 0 WHERE peerwork = ? AND gradedby = ?", [$peerworkid, $graderid]);
+}
+
+/**
+ * Unlock editing for of a submission.
+ *
+ * @param int $submissionid The submission ID.
+ * @return void
+ */
+function mod_peerwork_unlock_submission($submissionid) {
+    global $DB;
+    $DB->execute("UPDATE {peerwork_submission} SET locked = 0 WHERE id = ?", [$submissionid]);
+}
+
+/**
+ * Get the list of locked graders.
+ *
+ * A grader is considered locked when any of their grades are being locked.
+ *
+ * @param int $peerworkid The module ID.
+ * @return array
+ */
+function mod_peerwork_get_locked_graders($peerworkid) {
+    global $DB;
+    return $DB->get_fieldset_select('peerwork_peers', 'DISTINCT gradedby', 'peerwork = ? AND locked = 1', [$peerworkid]);
 }
 
 /**

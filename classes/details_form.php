@@ -40,7 +40,7 @@ class mod_peerwork_details_form extends moodleform {
 
     // Define the form.
     protected function definition() {
-        global $USER, $CFG, $COURSE;
+        global $USER, $CFG, $COURSE, $OUTPUT, $PAGE;
 
         $this->init_page_requirements();
 
@@ -51,13 +51,22 @@ class mod_peerwork_details_form extends moodleform {
         $peerwork = $this->_customdata['peerwork'];
         $members = $this->_customdata['members'];
         $justifications = $this->_customdata['justifications'];
+        $submission = $this->_customdata['submission'];
+        $canunlock = $this->_customdata['canunlock'];
 
         $mform->addElement('header', 'mod_peerwork_details', get_string('general'));
         $mform->addElement('static', 'groupname', get_string('group'));
         $mform->addElement('static', 'status', get_string('status'));
 
         $mform->addElement('header', 'mod_peerwork_peers', get_string('peersubmissionandgrades', 'mod_peerwork'));
-        $mform->addElement('static', 'submission', get_string('submission', 'peerwork'));
+        $submissionlabel = get_string('submission', 'peerwork');
+        if ($canunlock && $submission->locked) {
+            $submissionlabel .= $OUTPUT->action_icon('#', new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'), null, [
+                'id' => 'unlock_submission_btn',
+                'data-submissionid' => $submission->id
+            ]);
+        }
+        $mform->addElement('static', 'submission', $submissionlabel);
         $mform->addHelpButton('submission', 'submission', 'peerwork');
 
         // This gets replaced in details.php with a table of grades peers have awarded.
@@ -242,5 +251,6 @@ class mod_peerwork_details_form extends moodleform {
         }
         $this->pageinitialised = true;
         $PAGE->requires->js_call_amd('mod_peerwork/revised-grades-total-calculator', 'init', ['#mod-peerwork-grader-table']);
+        $PAGE->requires->js_call_amd('mod_peerwork/unlock-editing', 'init', ['#unlock_submission_btn', '[data-graderunlock]']);
     }
 }

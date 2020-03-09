@@ -72,10 +72,15 @@ if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
     $justifications = peerwork_get_justifications($peerwork->id, $group->id);
 }
 
+$lockedgraders = mod_peerwork_get_locked_graders($peerwork->id);
+$isopen = peerwork_is_open($peerwork, $group->id);
+$canunlock = !empty($isopen->code) && $submission && !$submission->timegraded;
 $mform = new mod_peerwork_details_form($PAGE->url->out(false), [
     'peerwork' => $peerwork,
     'justifications' => $justifications,
+    'submission' => $submission,
     'members' => $members,
+    'canunlock' => $canunlock,
 ]);
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
@@ -101,9 +106,24 @@ foreach ($pac->get_criteria() as $criteria) {
 
     foreach ($members as $member) {
         $t->head[] = fullname($member);
+
+        $label = fullname($member);
+        if ($canunlock && in_array($member->id, $lockedgraders)) {
+            $label .= $OUTPUT->action_icon('#',
+                new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'),
+                null,
+                [
+                    'data-peerworkid' => $peerwork->id,
+                    'data-graderid' => $member->id,
+                    'data-graderfullname' => fullname($member),
+                    'data-graderunlock' => 'true',
+                ]
+            );
+        }
+
         $row = new html_table_row();
         $row->cells = array();
-        $row->cells[] = fullname($member);
+        $row->cells[] = $label;
 
         foreach ($members as $peer) {
             if (!isset($grades->grades[$critid]) || !isset($grades->grades[$critid][$member->id])

@@ -18,7 +18,7 @@
  * Submission cleared event.
  *
  * @package    mod_peerwork
- * @copyright  2020 Coventry University
+ * @copyright  2020 Xi'an Jiaotong-Liverpool University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * }
  *
  * @package    mod_peerwork
- * @copyright  2020 Coventry University
+ * @copyright  2020 Xi'an Jiaotong-Liverpool University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

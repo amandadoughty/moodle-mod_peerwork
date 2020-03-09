@@ -15,31 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Clear submissions.
+ * Services.
  *
  * @package    mod_peerwork
  * @copyright  2020 Xi'an Jiaotong-Liverpool University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/locallib.php');
-require_once(__DIR__ . '/lib.php');
 
-$id = required_param('id', PARAM_INT);
-$groupid = required_param('groupid', PARAM_INT);
+defined('MOODLE_INTERNAL') || die();
 
-list($course, $cm) = get_course_and_cm_from_cmid($id, 'peerwork');
-$context = context_module::instance($cm->id);
-
-require_login($course, false, $cm);
-require_sesskey();
-require_capability('mod/peerwork:grade', $context);
-
-$PAGE->set_url('/mod/peerwork/clearsubmissions.php', ['id' => $cm->id, 'groupid' => $groupid]);
-
-$peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
-
-mod_peerwork_clear_submissions($peerwork, $context, $groupid);
-
-redirect(new moodle_url('/mod/peerwork/view.php', ['id' => $cm->id]));
+$functions = [
+    'mod_peerwork_unlock_grader' => [
+        'classname' => 'mod_peerwork\external',
+        'methodname' => 'unlock_grader',
+        'description' => 'Unlock a student\'s editing status.',
+        'type' => 'write',
+        'ajax' => true,
+    ],
+    'mod_peerwork_unlock_submission' => [
+        'classname' => 'mod_peerwork\external',
+        'methodname' => 'unlock_submission',
+        'description' => 'Unlock a submission allowing students to change it.',
+        'type' => 'write',
+        'ajax' => true,
+    ],
+];
