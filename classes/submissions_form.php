@@ -40,6 +40,8 @@ class mod_peerwork_submissions_form extends moodleform {
 
     /** @var object[] The criteria. */
     protected $criteria;
+    /** @var array Cache of locked peers. */
+    protected $lockedpeers;
     /** @var grade_scale[] The scales. */
     protected $scales;
 
@@ -55,7 +57,9 @@ class mod_peerwork_submissions_form extends moodleform {
         $userid = $USER->id;
         $peers = $this->_customdata['peers'];
         $peerworkid = $this->_customdata['peerworkid'];
+        $files = $this->_customdata['files'];
         $strrequired = get_string('required');
+        $submissionlocked = !empty($this->_customdata['submission']) && $this->_customdata['submission']->locked;
 
         // The CM id.
         $mform->addElement('hidden', 'id');
@@ -64,16 +68,23 @@ class mod_peerwork_submissions_form extends moodleform {
 
         $mform->addElement('hidden', 'files');
         $mform->setType('files', PARAM_INT);
-        if (isset($this->_customdata['files'])) {
-            $mform->setDefault('files', $this->_customdata['files']);
+        if (isset($this->_customdata['filecount'])) {
+            $mform->setDefault('files', $this->_customdata['filecount']);
         }
 
         if ($this->_customdata['fileupload']) {
             $mform->addElement('header', 'peerssubmission', get_string('assignment', 'peerwork'));
             $mform->setExpanded('peerssubmission', true);
-            $mform->addElement('filemanager', 'submission', get_string('assignment', 'peerwork'),
-                null, $this->_customdata['fileoptions']);
-            $mform->addHelpButton('submission', 'submission', 'peerwork');
+
+            if (!$submissionlocked) {
+                $mform->addElement('filemanager', 'submission', get_string('assignment', 'peerwork'),
+                    null, $this->_customdata['fileoptions']);
+                $mform->addHelpButton('submission', 'submission', 'peerwork');
+            } else {
+                $mform->addElement('static', '', get_string('assignment', 'mod_peerwork'),
+                    html_writer::tag('ul', '<li>' . implode('</li><li>', $files) . '</li>')
+                );
+            }
         }
 
         // Create a hidden field for each possible rating, this is so that we can construct the radio
@@ -159,6 +170,9 @@ class mod_peerwork_submissions_form extends moodleform {
                     if ($currentvalue == $key) {
                         $attrs['checked'] = 'checked';
                     }
+                    if ($this->is_peer_locked($peer->id)) {
+                        $attrs['disabled'] = 'disabled';
+                    }
                     return html_writer::div(
                         html_writer::tag('label', html_writer::empty_tag('input', $attrs) .
                         html_writer::tag('span', $label, ['class' => 'sr-only'])
@@ -194,6 +208,9 @@ class mod_peerwork_submissions_form extends moodleform {
                 $fullname = fullname($peer);
                 $namedisplay = $peer->id == $USER->id ? get_string('peernameisyou', 'mod_peerwork', $fullname) : $fullname;
                 $mform->addElement('textarea', 'justifications[' . $peer->id . ']', $namedisplay, $textareaattrs);
+                if ($this->is_peer_locked($peer->id)) {
+                    $mform->hardFreeze('justifications[' . $peer->id . ']');
+                }
             }
 
             if ($peerwork->justificationmaxlength) {
@@ -244,6 +261,39 @@ class mod_peerwork_submissions_form extends moodleform {
     }
 
     /**
+     * Get data.
+     *
+     * @return object
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return $data;
+        }
+
+        // Remove the locked grades.
+        $data = (array) $data;
+        foreach ($data as $key => $value) {
+            if (preg_match('/^grade_idx_([0-9]+)$/', $key, $matches)) {
+                foreach ($value as $userid => $grade) {
+                    if ($this->is_peer_locked($userid)) {
+                        unset($data[$key][$userid]);
+                    }
+                }
+            }
+        }
+
+        // Remove the locked justifications.
+        foreach ($data['justifications'] as $userid => $value) {
+            if ($this->is_peer_locked($userid)) {
+                unset($data['justifications'][$userid]);
+            }
+        }
+
+        return (object) $data;
+    }
+
+    /**
      * Massages the data.
      *
      * @param stdClass $data
@@ -253,21 +303,10 @@ class mod_peerwork_submissions_form extends moodleform {
         global $DB, $USER;
 
         $peerworkid = $this->_customdata['peerworkid'];
+        $myassessments = $this->_customdata['myassessments'];
 
-        // Get information about each criteria and grades awarded to peers and add to the form data.
-        $pac = new mod_peerwork_criteria($peerworkid);
-
-        foreach ($pac->get_criteria() as $id => $record) {
-
-            $mygrades = $DB->get_records('peerwork_peers', [
-                'peerwork' => $record->peerworkid,
-                'criteriaid' => $record->id,
-                'gradedby' => $USER->id,
-            ], '', 'id,gradefor,feedback,grade');
-
-            foreach ($mygrades as $grade) {
-                $data->{'grade_idx_' . $record->id . '[' . $grade->gradefor . ']'} = $grade->grade;
-            }
+        foreach ($myassessments as $grade) {
+            $data->{'grade_idx_' . $grade->criteriaid . '[' . $grade->gradefor . ']'} = $grade->grade;
         }
 
         $justifications = $DB->get_records('peerwork_justification', [
@@ -295,6 +334,9 @@ class mod_peerwork_submissions_form extends moodleform {
 
         if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
             foreach ($peers as $peer) {
+                if ($this->is_peer_locked($peer->id)) {
+                    continue;
+                }
                 $justification = trim(isset($data['justifications'][$peer->id]) ? $data['justifications'][$peer->id] : '');
                 $length = core_text::strlen($justification);
                 if (!$length) {
@@ -320,6 +362,9 @@ class mod_peerwork_submissions_form extends moodleform {
                 $scaleitems = $scale->load_items();
                 $maxgrade = count($scaleitems) - 1;
                 foreach ($value as $userid => $grade) {
+                    if ($this->is_peer_locked($userid)) {
+                        continue;
+                    }
                     if ($grade < 0 || $grade > $maxgrade) {
                         $errors[$key . "[$userid]"] = get_string('invaliddata', 'error');
                         $foundgradererror = true;
@@ -330,7 +375,7 @@ class mod_peerwork_submissions_form extends moodleform {
         }
 
         if ($foundgradererror) {
-            $errors['peerstobegraded'] = 'asdasdasd';
+            $errors['peerstobegraded'] = 'error';
         }
 
         return $errors;
@@ -359,5 +404,18 @@ class mod_peerwork_submissions_form extends moodleform {
             $this->scales = grade_scale::fetch_all_global();
         }
         return $this->scales;
+    }
+
+    /**
+     * Check if peer is locked.
+     *
+     * @return bool
+     */
+    public function is_peer_locked($peerid) {
+        global $USER;
+        if (!isset($this->lockedpeers)) {
+            $this->lockedpeers = mod_peerwork_get_locked_peers($this->_customdata['peerwork'], $USER->id);
+        }
+        return in_array($peerid, $this->lockedpeers);
     }
 }
