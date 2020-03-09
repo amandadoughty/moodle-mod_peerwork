@@ -86,6 +86,9 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->setType('allowlatesubmissions', PARAM_BOOL);
         $mform->addHelpButton('allowlatesubmissions', 'allowlatesubmissions', 'peerwork');
 
+        $mform->addElement('selectyesno', 'lockediting', get_string('lockediting', 'peerwork'));
+        $mform->addHelpButton('lockediting', 'lockediting', 'peerwork');
+
         // How many submission files to be allowed. Zero means dont offer a file upload at all.
         $choices = [0 => 0, 1, 2, 3, 4, 5];
         $mform->addElement('select', 'maxfiles', get_string('setup.maxfiles', 'peerwork'), $choices);

@@ -140,5 +140,20 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020030900, 'peerwork');
     }
 
+    if ($oldversion < 2020030901) {
+
+        // Define field lockediting to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('lockediting', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'displaypeergradestotals');
+
+        // Conditionally launch add field lockediting.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020030901, 'peerwork');
+    }
+
     return true;
 }
