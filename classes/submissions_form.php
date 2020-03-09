@@ -51,15 +51,19 @@ class mod_peerwork_submissions_form extends moodleform {
      * @return void
      */
     protected function definition() {
-        global $USER, $CFG, $COURSE;
+        global $USER, $CFG, $COURSE, $PAGE;
 
         $mform = $this->_form;
         $userid = $USER->id;
         $peers = $this->_customdata['peers'];
         $peerworkid = $this->_customdata['peerworkid'];
+        $peerwork = $this->_customdata['peerwork'];
         $files = $this->_customdata['files'];
         $strrequired = get_string('required');
         $submissionlocked = !empty($this->_customdata['submission']) && $this->_customdata['submission']->locked;
+
+        $lockableitems = 0;
+        $lockeditems = 0;
 
         // The CM id.
         $mform->addElement('hidden', 'id');
@@ -76,11 +80,13 @@ class mod_peerwork_submissions_form extends moodleform {
             $mform->addElement('header', 'peerssubmission', get_string('assignment', 'peerwork'));
             $mform->setExpanded('peerssubmission', true);
 
+            $lockableitems++;
             if (!$submissionlocked) {
                 $mform->addElement('filemanager', 'submission', get_string('assignment', 'peerwork'),
                     null, $this->_customdata['fileoptions']);
                 $mform->addHelpButton('submission', 'submission', 'peerwork');
             } else {
+                $lockeditems++;
                 $mform->addElement('static', '', get_string('assignment', 'mod_peerwork'),
                     html_writer::tag('ul', '<li>' . implode('</li><li>', $files) . '</li>')
                 );
@@ -96,7 +102,18 @@ class mod_peerwork_submissions_form extends moodleform {
                 $mform->addElement('hidden', $uniqueid, -1);
                 $mform->setType($uniqueid, PARAM_INT);
                 $mform->setDefault($uniqueid, -1);
+
+                $lockableitems++;
+                if ($this->is_peer_locked($peer->id)) {
+                    $lockeditems++;
+                }
             }
+        }
+
+        // When locking is enabled, and there are things that the user can change, we
+        // warm them that they won't be allowed to make further changes afterwards.
+        if ($peerwork->lockediting && $lockableitems != $lockeditems) {
+            $PAGE->requires->js_call_amd('mod_peerwork/confirm-lock-aware', 'init', ['#' . $mform->getAttribute('id')]);
         }
     }
 

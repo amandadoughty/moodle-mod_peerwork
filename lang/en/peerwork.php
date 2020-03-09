@@ -45,6 +45,7 @@ $string['completiongradedpeers_desc'] = 'Students must grade all their peers';
 $string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';
 $string['confimrclearsubmission'] = 'Are you sure that you would like to clear the submission of this group? This will remove the information provided by all students.';
 $string['confimrclearsubmissions'] = 'Are you sure that you would like to clear the submission for all groups? This will remove the information provided by all students.';
+$string['confirmlockeditingaware'] = 'You will no longer be allowed to make changes to your submission and peer grades once they have been saved. Are you sure that you would like to continue?';
 $string['defaultsettings'] = 'Default settings';
 $string['defaultsettings_desc'] = 'The values to use as defaults when adding a new instance of this module to a course.';
 $string['displaypeergradestotals'] = 'Display peer grades totals';
