@@ -58,7 +58,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peers = new backup_nested_element('peers');
         $peer = new backup_nested_element('peer', array('id'), array(
             'criteriaid', 'grade', 'groupid', 'gradedby', 'gradefor',
-            'feedback', 'timecreated'));
+            'feedback', 'timecreated', 'timemodified'));
 
         $justifications = new backup_nested_element('justifications');
         $justification = new backup_nested_element('justification', ['id'], [

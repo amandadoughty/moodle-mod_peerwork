@@ -146,6 +146,7 @@ $string['privacy:metadata:peers:grade'] = 'The grade given to a group member by 
 $string['privacy:metadata:peers:gradedby'] = 'The ID of the user who has graded a peer';
 $string['privacy:metadata:peers:gradefor'] = 'The ID of the user who has been graded by a peer';
 $string['privacy:metadata:peers:timecreated'] = 'The time at which the grade was submitted';
+$string['privacy:metadata:peers:timemodified'] = 'The time at which the grade was updated';
 $string['privacy:metadata:submission'] = 'Information about the group submissions made';
 $string['privacy:metadata:submission:feedbacktext'] = 'The feedback given to the group given by the grader';
 $string['privacy:metadata:submission:grade'] = 'The grade that the group submission was given by the grader';

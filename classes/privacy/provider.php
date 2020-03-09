@@ -83,6 +83,7 @@ class provider implements
             'gradefor' => 'privacy:metadata:peers:gradefor',
             'feedback' => 'privacy:metadata:peers:feedback',
             'timecreated' => 'privacy:metadata:peers:timecreated',
+            'timemodified' => 'privacy:metadata:peers:timemodified',
         ], 'privacy:metadata:peers');
 
         $collection->add_database_table('peerwork_justification', [
@@ -282,7 +283,7 @@ class provider implements
         };
 
         // Fetch the records for peer grading stuff.
-        $sql = "SELECT p.id, p.peerwork AS peerworkid, p.grade, p.gradedby, p.gradefor, p.feedback, p.timecreated,
+        $sql = "SELECT p.id, p.peerwork AS peerworkid, p.grade, p.gradedby, p.gradefor, p.feedback, p.timecreated, p.timemodified
                        c.description AS c_desc, c.descriptionformat AS c_descformat, c.grade AS c_grade,
                        j.justification, pw.justification AS pw_justification
                   FROM {peerwork_peers} p
@@ -318,6 +319,7 @@ class provider implements
                     'feedback_given' => $record->feedback,
                     'justification_given' => $showjustification ? $record->justification : '',
                     'time_graded' => transform::datetime($record->timecreated),
+                    'time_grade_updated' => transform::datetime($record->timemodified),
                     'criterion' => format_text($record->c_desc, $record->c_descformat, ['context' => $context])
                 ];
                 return $carry;

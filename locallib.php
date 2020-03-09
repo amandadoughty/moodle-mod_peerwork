@@ -839,15 +839,22 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             peerwork_get_fileoptions($peerwork));
     }
 
+    $peeruserparams = ['peerwork' => $peerwork->id, 'groupid' => $group->id, 'gradedby' => $USER->id];
+
+    // Capture all timecreated to maintain them across saves.
+    $uniqid = $DB->sql_concat('criteriaid', "'-'", 'gradefor');
+    $origtimecreated =$DB->get_records_menu('peerwork_peers', $peeruserparams, '',  "$uniqid, timecreated");
+
     // Remove existing grades, in case it's an update.
-    $DB->delete_records('peerwork_peers',
-        array('peerwork' => $peerwork->id, 'groupid' => $group->id, 'gradedby' => $USER->id));
+    $DB->delete_records('peerwork_peers', $peeruserparams);
 
     // Save the grades.
     $pac = new mod_peerwork_criteria($peerwork->id);
     $criteria = $pac->get_criteria();
     foreach ($criteria as $criterion) {
         foreach ($membersgradeable as $member) {
+            $uniqid = "{$criterion->id}-{$member->id}";
+
             $peer = new stdClass();
             $peer->peerwork = $peerwork->id;
             $peer->criteriaid = $criterion->id;
@@ -855,7 +862,8 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             $peer->gradedby = $USER->id;
             $peer->gradefor = $member->id;
             $peer->feedback = null;
-            $peer->timecreated = time();
+            $peer->timecreated = isset($origtimecreated[$uniqid]) ? $origtimecreated[$uniqid] : time();
+            $peer->timemodified = time();
             $field = 'grade_idx_'. $criterion->id;
             if (isset($data->{$field}[$peer->gradefor])) {
                 $peer->grade = max(0, (int) $data->{$field}[$peer->gradefor]);
