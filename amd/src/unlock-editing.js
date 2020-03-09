@@ -31,7 +31,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification'], function($, Aja
         {key: 'confirmunlockeditinggrader', component: 'mod_peerwork'},
     ];
 
-
     /**
      * Init function.
      *
@@ -92,7 +91,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification'], function($, Aja
                         }).catch((e) => {
                             nodes.show();
                             return Notification.exception(e);
-                    });
+                        });
                     }
                 );
             }).catch(Notification.exception);

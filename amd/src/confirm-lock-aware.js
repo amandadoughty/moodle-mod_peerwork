@@ -30,7 +30,6 @@ define(['jquery', 'core/str', 'core/notification'], function($, Str, Notificatio
         {key: 'no', component: 'core'},
     ];
 
-
     /**
      * Init function.
      *

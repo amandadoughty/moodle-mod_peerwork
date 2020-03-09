@@ -426,6 +426,7 @@ class mod_peerwork_submissions_form extends moodleform {
     /**
      * Check if peer is locked.
      *
+     * @param int $peerid Peer ID.
      * @return bool
      */
     public function is_peer_locked($peerid) {

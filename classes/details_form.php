@@ -61,10 +61,13 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('header', 'mod_peerwork_peers', get_string('peersubmissionandgrades', 'mod_peerwork'));
         $submissionlabel = get_string('submission', 'peerwork');
         if ($canunlock && $submission->locked) {
-            $submissionlabel .= $OUTPUT->action_icon('#', new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'), null, [
-                'id' => 'unlock_submission_btn',
-                'data-submissionid' => $submission->id
-            ]);
+            $submissionlabel .= $OUTPUT->action_icon('#',
+                new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'),
+                null, [
+                    'id' => 'unlock_submission_btn',
+                    'data-submissionid' => $submission->id
+                ]
+            );
         }
         $mform->addElement('static', 'submission', $submissionlabel);
         $mform->addHelpButton('submission', 'submission', 'peerwork');

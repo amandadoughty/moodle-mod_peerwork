@@ -757,7 +757,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
 
     // Capture all timecreated to maintain them across saves.
     $uniqid = $DB->sql_concat('criteriaid', "'-'", 'gradefor');
-    $origtimecreated =$DB->get_records_menu('peerwork_peers', $peeruserparams, '',  "$uniqid, timecreated");
+    $origtimecreated = $DB->get_records_menu('peerwork_peers', $peeruserparams, '', "$uniqid, timecreated");
 
     // Selectively delete all records for peers that are guaranteed not to be locked. We can't just look at the
     // locked status of each row because we consider a user to be locked when one of their entries is locked.
@@ -1143,7 +1143,7 @@ function mod_peerwork_unlock_editing($peerwork) {
 /**
  * Unlock editing for a single student.
  *
- * @param int $peerwork The peerwork instance.
+ * @param int $peerworkid The peerwork instance ID.
  * @param int $graderid The student ID.
  * @return void
  */
