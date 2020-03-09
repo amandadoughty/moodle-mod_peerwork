@@ -171,6 +171,19 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
             'name' => fullname($user),
             'date' => userdate($submission->timecreated)
         ]) . ' ' . get_string('duedatepassedago', 'mod_peerwork', format_time(time() - $peerwork->duedate));
+
+        $latepeers = mod_peerwork_get_late_peers($peerwork, $submission);
+        if (!empty($latepeers)) {
+            $status->text .= ' ' . get_string('thesestudentspastduedate', 'mod_peerwork', implode(', ',
+                array_map(function($peer) {
+                    return get_string('studentondate', 'mod_peerwork', [
+                        'fullname' => fullname($peer),
+                        'date' => userdate($peer->timegraded, get_string('strftimedatetimeshort', 'core_langconfig'))
+                    ]);
+                }, $latepeers)
+            ));
+        }
+
         return $status;
 
     } else {
