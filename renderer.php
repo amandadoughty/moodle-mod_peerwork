@@ -193,6 +193,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                 if (empty($ratings)) {
                     $html .= html_writer::div(html_writer::tag('em', get_string('nonereceived', 'mod_peerwork')));
                 } else {
+                    $html .= html_writer::tag('p', get_string('youwereawardedthesepeergrades', 'mod_peerwork'));
                     $html .= html_writer::tag('ul', implode('', array_map(function($rating) {
                         return html_writer::tag('li', $rating);
                     }, $ratings)));

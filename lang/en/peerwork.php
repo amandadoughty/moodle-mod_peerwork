@@ -190,6 +190,7 @@ $string['timeremainingcolon'] = 'Time remaining: {$a}';
 $string['tutorgrading'] = 'Tutor grading';
 $string['youbelongtomorethanonegroup'] = 'You belong to more than one group, this is currently not supported.';
 $string['youdonotbelongtoanygroup'] = 'You do not belong to any group.';
+$string['youwereawardedthesepeergrades'] = 'For this criterion you were awarded the following scores from your peers.';
 $string['grade'] = 'Grade';
 $string['feedback'] = 'Feedback to group';
 $string['peers'] = 'Grade your peers';
