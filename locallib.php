@@ -1009,3 +1009,40 @@ function mod_peerwork_clear_submissions($peerwork, $context, $groupid = 0) {
         $event->trigger();
     }
 }
+
+/**
+ * Get the peers that submitted late.
+ *
+ * @param object $peerwork Peerwork record.
+ * @param object $submission Submission record.
+ * @return array Where keys are user IDs, and values are user_picture::fields() and timegraded.
+ */
+function mod_peerwork_get_late_peers($peerwork, $submission) {
+    global $DB;
+
+    if (peerwork_due_date($peerwork) !== PEERWORK_DUEDATE_PASSED) {
+        return [];
+    }
+
+    // Group all grades given and select the first grading time (they should be grading everyone
+    // at the same time anyway), for those graders where the first time was past the due date.
+    $ufields = user_picture::fields('u');
+    $sql = "SELECT $ufields, MIN(p.timecreated) AS timegraded
+              FROM {peerwork_peers} p
+              JOIN {user} u
+                ON u.id = p.gradedby
+             WHERE p.groupid = :groupid
+               AND p.peerwork = :peerworkid
+          GROUP BY p.gradedby, $ufields
+            HAVING MIN(p.timecreated) > :duedate";
+    $params = [
+        'groupid' => $submission->groupid,
+        'peerworkid' => $peerwork->id,
+        'duedate' => !empty($peerwork->duedate) ? $peerwork->duedate : time() + DAYSECS * 99
+    ];
+
+    return array_reduce($DB->get_records_sql($sql, $params), function($carry, $record) {
+        $carry[$record->id] = $record;
+        return $carry;
+    }, []);
+}
