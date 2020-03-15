@@ -104,7 +104,7 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('header', 'mod_peerwork_grading', get_string('tutorgrading', 'mod_peerwork'));
 
         $mform->addElement('text', 'grade', get_string('groupgradeoutof100', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
-        $mform->setType('grade', PARAM_INT);
+        $mform->setType('grade', PARAM_RAW);    // We do not use PARAM_INT to capture an empty field.
 
         $mform->addElement('text', 'paweighting', get_string('paweighting', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
         $mform->setType('paweighting', PARAM_INT);
@@ -122,11 +122,21 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('filemanager', 'feedback_files', get_string('feedbackfiles', 'peerwork'),
             null, self::$fileoptions);
 
+        // The submission was never graded, we disable/hide some fields until the grade is provided.
+        if (!$submission || empty($submission->timegraded)) {
+            $mform->disabledIf('paweighting', 'grade', 'eq', '');
+            $mform->hideIf('feedback[text]', 'grade', 'eq', '');
+            $mform->hideIf('feedback_files', 'grade', 'eq', '');
+        }
+
         $this->add_action_buttons();
     }
 
     /**
      * Get the data.
+     *
+     * When returning a grade of `null` the calling code should assume that the grade
+     * must not be set, or updated.
      *
      * @return object
      */
@@ -146,6 +156,7 @@ class mod_peerwork_details_form extends moodleform {
             }
         }
 
+        $data->grade = $this->clean_grade($data->grade);
         $data->revisedgrades = $revisedgrades;
 
         return $data;
@@ -230,8 +241,12 @@ class mod_peerwork_details_form extends moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        $submission = $this->_customdata['submission'];
 
-        if ($data['grade'] < 0 || $data['grade'] > 100) {
+        $grade = $this->clean_grade($data['grade']);
+        if ($grade === null && $submission && !empty($submission->timegraded)) {
+            $errors['grade'] = get_string('gradecannotberemoved', 'mod_peerwork');
+        } else if ($grade !== null && ($grade < 0 || $grade > 100)) {
             $errors['grade'] = get_string('invalidgrade', 'mod_peerwork');
         }
 
@@ -255,5 +270,19 @@ class mod_peerwork_details_form extends moodleform {
         $this->pageinitialised = true;
         $PAGE->requires->js_call_amd('mod_peerwork/revised-grades-total-calculator', 'init', ['#mod-peerwork-grader-table']);
         $PAGE->requires->js_call_amd('mod_peerwork/unlock-editing', 'init', ['#unlock_submission_btn', '[data-graderunlock]']);
+    }
+
+    /**
+     * Clean the grade coming from the form.
+     *
+     * We need this method because we receive the grade as PARAM_RAW in order to
+     * catch when it is submitted as an empty cell. Otherwise formslib converts it
+     * to 0.
+     *
+     * @param string $rawgrade The raw grade.
+     * @return int|null
+     */
+    protected static function clean_grade($rawgrade) {
+        return trim($rawgrade) === '' ? null : clean_param($rawgrade, PARAM_INT);
     }
 }

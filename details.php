@@ -160,16 +160,24 @@ $mform->set_data($data);
 
 if ($mform->is_cancelled()) {
     // Form cancelled, redirect.
-    redirect(new moodle_url('view.php', array('id' => $cm->id)));
+    redirect(new moodle_url('view.php', ['id' => $cm->id]));
 
 } else if (($data = $mform->get_data())) {
-    // Form has been submitted.
-    $grader = new mod_peerwork\group_grader($peerwork, $groupid, $submission);
-    $grader->set_grade($data->grade, $data->paweighting);
-    $grader->set_feedback($data->feedback['text'], $data->feedback['format'], $draftitemid);
-    $grader->set_revised_grades($data->revisedgrades);
-    $grader->commit();
-    redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)));
+
+    // We only save anything when the grade was given.
+    if ($data->grade !== null) {
+        $grader = new mod_peerwork\group_grader($peerwork, $groupid, $submission);
+        $grader->set_grade($data->grade, $data->paweighting);
+        $grader->set_revised_grades($data->revisedgrades);
+        $grader->set_feedback($data->feedback['text'], $data->feedback['format'], $draftitemid);
+        $grader->commit();
+
+        redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)),
+            get_string('gradesandfeedbacksaved', 'mod_peerwork'), null, \core\output\notification::NOTIFY_SUCCESS);
+    }
+
+    // Redirect to home page because there were no changes.
+    redirect(new moodle_url('view.php', ['id' => $cm->id]));
 }
 
 //
