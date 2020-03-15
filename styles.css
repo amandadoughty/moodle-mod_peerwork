@@ -21,6 +21,9 @@
     left: auto;
     right: 0;
 }
+#mod-peerwork-summary-table .submitted-past-due-date {
+    color: red;
+}
 
 #mod-peerwork-grader-table .grading-summary-totals td:first-child {
     font-weight: bold;

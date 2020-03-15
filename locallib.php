@@ -174,14 +174,14 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
 
         $latepeers = mod_peerwork_get_late_peers($peerwork, $submission);
         if (!empty($latepeers)) {
-            $status->text .= ' ' . get_string('thesestudentspastduedate', 'mod_peerwork', implode(', ',
+            $status->text .= ' ' . html_writer::tag('span', get_string('thesestudentspastduedate', 'mod_peerwork', implode(', ',
                 array_map(function($peer) {
                     return get_string('studentondate', 'mod_peerwork', [
                         'fullname' => fullname($peer),
                         'date' => userdate($peer->timegraded, get_string('strftimedatetimeshort', 'core_langconfig'))
                     ]);
                 }, $latepeers)
-            ));
+            )), ['class' => 'submitted-past-due-date']);
         }
 
         return $status;
