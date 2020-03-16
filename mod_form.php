@@ -221,7 +221,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
                 'text' => $crit->description,
                 'format' => $crit->descriptionformat
             ];
-            $defaultvalues['critscale'][$i] = -$crit->grade;    // Scales are saved as negative integers.
+            $defaultvalues["critscale[$i]"] = -$crit->grade;    // Scales are saved as negative integers.
         }
     }
 
