@@ -102,6 +102,8 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
 function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mform = null) {
     global $DB;
 
+    $prevlockediting = $DB->get_field('peerwork', 'lockediting', ['id' => $peerwork->instance], IGNORE_MISSING);
+
     $peerwork->timemodified = time();
     $peerwork->id = $peerwork->instance;
     $return1 = $DB->update_record('peerwork', $peerwork);
@@ -109,6 +111,15 @@ function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mfo
     // Now save all the criteria.
     $pac = new mod_peerwork_criteria($peerwork->id);
     $return2 = $pac->update_instance($peerwork);
+
+    // Update locking across activity.
+    if ($prevlockediting != $peerwork->lockediting) {
+        if ($peerwork->lockediting) {
+            mod_peerwork_lock_editing($peerwork);
+        } else {
+            mod_peerwork_unlock_editing($peerwork);
+        }
+    }
 
     peerwork_update_grades($peerwork);
 

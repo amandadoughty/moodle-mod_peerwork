@@ -72,10 +72,15 @@ if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
     $justifications = peerwork_get_justifications($peerwork->id, $group->id);
 }
 
+$lockedgraders = mod_peerwork_get_locked_graders($peerwork->id);
+$isopen = peerwork_is_open($peerwork, $group->id);
+$canunlock = !empty($isopen->code) && $submission && !$submission->timegraded;
 $mform = new mod_peerwork_details_form($PAGE->url->out(false), [
     'peerwork' => $peerwork,
     'justifications' => $justifications,
+    'submission' => $submission,
     'members' => $members,
+    'canunlock' => $canunlock,
 ]);
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
@@ -101,9 +106,24 @@ foreach ($pac->get_criteria() as $criteria) {
 
     foreach ($members as $member) {
         $t->head[] = fullname($member);
+
+        $label = fullname($member);
+        if ($canunlock && in_array($member->id, $lockedgraders)) {
+            $label .= $OUTPUT->action_icon('#',
+                new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'),
+                null,
+                [
+                    'data-peerworkid' => $peerwork->id,
+                    'data-graderid' => $member->id,
+                    'data-graderfullname' => fullname($member),
+                    'data-graderunlock' => 'true',
+                ]
+            );
+        }
+
         $row = new html_table_row();
         $row->cells = array();
-        $row->cells[] = fullname($member);
+        $row->cells[] = $label;
 
         foreach ($members as $peer) {
             if (!isset($grades->grades[$critid]) || !isset($grades->grades[$critid][$member->id])
@@ -140,16 +160,24 @@ $mform->set_data($data);
 
 if ($mform->is_cancelled()) {
     // Form cancelled, redirect.
-    redirect(new moodle_url('view.php', array('id' => $cm->id)));
+    redirect(new moodle_url('view.php', ['id' => $cm->id]));
 
 } else if (($data = $mform->get_data())) {
-    // Form has been submitted.
-    $grader = new mod_peerwork\group_grader($peerwork, $groupid, $submission);
-    $grader->set_grade($data->grade, $data->paweighting);
-    $grader->set_feedback($data->feedback['text'], $data->feedback['format'], $draftitemid);
-    $grader->set_revised_grades($data->revisedgrades);
-    $grader->commit();
-    redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)));
+
+    // We only save anything when the grade was given.
+    if ($data->grade !== null) {
+        $grader = new mod_peerwork\group_grader($peerwork, $groupid, $submission);
+        $grader->set_grade($data->grade, $data->paweighting);
+        $grader->set_revised_grades($data->revisedgrades);
+        $grader->set_feedback($data->feedback['text'], $data->feedback['format'], $draftitemid);
+        $grader->commit();
+
+        redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)),
+            get_string('gradesandfeedbacksaved', 'mod_peerwork'), null, \core\output\notification::NOTIFY_SUCCESS);
+    }
+
+    // Redirect to home page because there were no changes.
+    redirect(new moodle_url('view.php', ['id' => $cm->id]));
 }
 
 //

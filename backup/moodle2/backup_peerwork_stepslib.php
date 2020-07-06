@@ -49,7 +49,8 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'allowlatesubmissions', 'peergradesvisibility',
             'justification', 'justificationmaxlength',
-            'paweighting', 'noncompletionpenalty', 'completiongradedpeers', 'displaypeergradestotals'));
+            'paweighting', 'noncompletionpenalty', 'completiongradedpeers', 'displaypeergradestotals',
+            'lockediting'));
 
         $criteria = new backup_nested_element('criteria');
         $criterion = new backup_nested_element('criterion', ['id'], [
@@ -58,7 +59,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peers = new backup_nested_element('peers');
         $peer = new backup_nested_element('peer', array('id'), array(
             'criteriaid', 'grade', 'groupid', 'gradedby', 'gradefor',
-            'feedback', 'timecreated'));
+            'feedback', 'locked', 'timecreated', 'timemodified'));
 
         $justifications = new backup_nested_element('justifications');
         $justification = new backup_nested_element('justification', ['id'], [
@@ -68,11 +69,11 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $submission = new backup_nested_element('submission', array('id'), array(
             'userid', 'timecreated', 'timemodified', 'groupid',
             'grade', 'feedbacktext', 'feedbackformat', 'timegraded',
-            'gradedby', 'released', 'releasedby', 'releasednotified', 'paweighting'));
+            'gradedby', 'released', 'releasedby', 'releasednotified', 'paweighting', 'locked'));
 
         $grades = new backup_nested_element('grades');
         $grade = new backup_nested_element('grade', ['id'], [
-            'submissionid', 'userid', 'prelimgrade', 'grade', 'revisedgrade'
+            'submissionid', 'userid', 'score', 'prelimgrade', 'grade', 'revisedgrade'
         ]);
 
         // Build the tree.

@@ -61,7 +61,9 @@ $headers = [
     get_string('student', 'core_grades'),
     get_string('username', 'core'),
     get_string('email', 'core'),
+    get_string('idnumber', 'core'),
     get_string('groupgrade', 'mod_peerwork'),
+    get_string('studentcontribution', 'mod_peerwork'),
     get_string('studentcalculatedgrade', 'mod_peerwork'),
     get_string('studentfinalweightedgrade', 'mod_peerwork'),
     get_string('studentrevisedgrade', 'mod_peerwork'),
@@ -84,15 +86,15 @@ if (!empty($groupids)) {
     list($ingroupsql, $ingroupparams) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
 }
 
-$stufields = user_picture::fields('u', ['email', 'username'], 'user_id', 'user_');
+$stufields = user_picture::fields('u', ['email', 'username', 'idnumber'], 'user_id', 'user_');
 $graderfields = user_picture::fields('ug', null, 'grader_id', 'grader_');
 $releaserfields = user_picture::fields('ur', null, 'reluser_id', 'reluser_');
 
 $uniqid = $DB->sql_concat_join("'-'", ['g.id', 'COALESCE(s.id, 0)', 'COALESCE(u.id, 0)']);
 $sql = "SELECT $uniqid, $stufields, $graderfields, $releaserfields,
                s.id AS submissionid, s.grade as groupgrade, s.timegraded, s.released, s.timecreated,
-               s.feedbacktext, gg.prelimgrade AS studentcalculatedgrade, gg.grade AS studentgrade,
-               gg.revisedgrade, g.name as groupname
+               s.feedbacktext, gg.score as studentcontribution, gg.prelimgrade AS studentcalculatedgrade,
+               gg.grade AS studentgrade, gg.revisedgrade, g.name as groupname
           FROM {peerwork} p
           JOIN {groups} g
             ON g.id $ingroupsql
@@ -116,7 +118,7 @@ $params = ['peerworkid' => $peerwork->id] + $ingroupparams;
 $recordset = $DB->get_recordset_sql($sql, $params);
 
 foreach ($recordset as $record) {
-    $student = user_picture::unalias($record, ['email', 'username'], 'user_id', 'user_');
+    $student = user_picture::unalias($record, ['email', 'username', 'idnumber'], 'user_id', 'user_');
     $grader = user_picture::unalias($record, null, 'grader_id', 'grader_');
     $releaser = user_picture::unalias($record, null, 'reluser_id', 'reluser_');
 
@@ -126,7 +128,9 @@ foreach ($recordset as $record) {
         fullname($student),
         $student->username,
         $student->email,
+        $student->idnumber,
         $record->groupgrade ?? '',
+        $record->studentcontribution ?? '',
         $record->studentcalculatedgrade ?? '',
         $record->studentgrade ?? '',
         $record->revisedgrade ?? '',

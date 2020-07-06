@@ -139,7 +139,6 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('peergrades', 'mod_peerwork'));
 
-            $displayscalelabel = false;
             $scales = grade_scale::fetch_all_global();
             $isanon = $peerwork->peergradesvisibility != MOD_PEERWORK_PEER_GRADES_VISIBLE_USER;
             $displaytotals = !empty($peerwork->displaypeergradestotals);
@@ -148,17 +147,24 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                 shuffle($members);
             }
 
-            $parts = array_map(function($criteriaid, $criteria) use ($data, $displaytotals, $displayscalelabel,
-                    $isanon, $members, $scales) {
+            $parts = array_map(function($criteriaid, $criteria) use ($data, $displaytotals, $isanon, $members, $scales) {
                 $gradeinfo = $data['peergrades'][$criteriaid] ?? [];
                 $html = html_writer::start_div();
                 $html .= html_writer::div($criteria->description);
 
                 $scaleid = abs($criteria->grade);
                 $scale = isset($scales[$scaleid]) ? $scales[$scaleid] : null;
+                $scaleitems = [];
                 if ($scale) {
                     $scaleitems = $scale->load_items();
                 }
+
+                $scaleisnumeric = array_reduce($scaleitems, function($carry, $item) {
+                    return $carry && ctype_digit($item); // Strict evaluation of the string.
+                }, !empty($scaleitems));
+
+                $startsatzero = $scaleisnumeric && $scaleitems[0] == '0';
+                $outof = $scaleisnumeric ? (int) end($scaleitems) : count($scaleitems);
 
                 $ratings = [];
                 $totalscore = 0;
@@ -169,15 +175,21 @@ class mod_peerwork_renderer extends plugin_renderer_base {
 
                     if (!$grade && $isanon) {
                         continue;
+
                     } else if ($grade && $scale) {
-                        if ($displayscalelabel) {
+
+                        $score = 0;
+                        if (!$scaleisnumeric) {
                             $scalevalue = $scaleitems[$grade->grade];
+                            $score = $grade->grade + 1;
+
                         } else {
-                            $scalevalue = ($grade->grade + 1) . ' / ' . count($scaleitems);
+                            $score = (int) $scaleitems[$grade->grade];
+                            $scalevalue = $score . ' / ' . $outof;
                         }
 
-                        $totalscore += ($grade->grade + 1);
-                        $totalmax += count($scaleitems);
+                        $totalscore += $score;
+                        $totalmax += $outof;
                     }
 
                     if ($isanon) {
@@ -193,6 +205,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                 if (empty($ratings)) {
                     $html .= html_writer::div(html_writer::tag('em', get_string('nonereceived', 'mod_peerwork')));
                 } else {
+                    $html .= html_writer::tag('p', get_string('youwereawardedthesepeergrades', 'mod_peerwork'));
                     $html .= html_writer::tag('ul', implode('', array_map(function($rating) {
                         return html_writer::tag('li', $rating);
                     }, $ratings)));

@@ -171,6 +171,19 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
             'name' => fullname($user),
             'date' => userdate($submission->timecreated)
         ]) . ' ' . get_string('duedatepassedago', 'mod_peerwork', format_time(time() - $peerwork->duedate));
+
+        $latepeers = mod_peerwork_get_late_peers($peerwork, $submission);
+        if (!empty($latepeers)) {
+            $status->text .= ' ' . html_writer::tag('span', get_string('thesestudentspastduedate', 'mod_peerwork', implode(', ',
+                array_map(function($peer) {
+                    return get_string('studentondate', 'mod_peerwork', [
+                        'fullname' => fullname($peer),
+                        'date' => userdate($peer->timegraded, get_string('strftimedatetimeshort', 'core_langconfig'))
+                    ]);
+                }, $latepeers)
+            )), ['class' => 'submitted-past-due-date']);
+        }
+
         return $status;
 
     } else {
@@ -515,7 +528,7 @@ function peerwork_submission_files($context, $group) {
             $fileurl = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
                 $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
 
-            $allfiles[] = "<a href='$fileurl'>" . $file->get_filename() . '</a>';
+            $allfiles[] = "<a href='$fileurl'>" . s($file->get_filename()) . '</a>';
         }
     }
     return $allfiles;
@@ -697,6 +710,7 @@ function peerwork_update_local_grades($peerwork, $group, $submission, $userids, 
             ];
         }
 
+        $record->score = $result->get_score($userid);
         $record->prelimgrade = $result->get_preliminary_grade($userid);
         $record->grade = $result->get_grade($userid);
         if ($revisedgrades !== null) {
@@ -724,7 +738,7 @@ function peerwork_update_local_grades($peerwork, $group, $submission, $userids, 
  * @param unknown $course
  * @param unknown $cm
  * @param unknown $context
- * @param unknown $data
+ * @param object $data Must include all non-locked data from the submissions form.
  * @param unknown $draftitemid
  * @param unknown $membersgradeable
  * @throws Exception
@@ -735,6 +749,140 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     $event = \mod_peerwork\event\assessable_submitted::create(['context' => $context]);
     $event->trigger();
 
+    // Create or update the submission.
+    list($submission, $draftfiles) = mod_peerwork_save_submission($peerwork, $submission, $group, $context, $data, $draftitemid);
+
+    $lockedpeerids = mod_peerwork_get_locked_peers($peerwork, $USER->id);
+    $peeruserparams = ['peerwork' => $peerwork->id, 'groupid' => $group->id, 'gradedby' => $USER->id];
+
+    // Capture all timecreated to maintain them across saves.
+    $uniqid = $DB->sql_concat('criteriaid', "'-'", 'gradefor');
+    $origtimecreated = $DB->get_records_menu('peerwork_peers', $peeruserparams, '', "$uniqid, timecreated");
+
+    // Selectively delete all records for peers that are guaranteed not to be locked. We can't just look at the
+    // locked status of each row because we consider a user to be locked when one of their entries is locked.
+    // The reason why we delete all records in the table is because it's the legacy method that was used.
+    $notlockedpeersql = '!= 0';
+    $notlockedpeerparams = [];
+    if (!empty($lockedpeerids)) {
+        list($notlockedpeersql, $notlockedpeerparams) = $DB->get_in_or_equal($lockedpeerids, SQL_PARAMS_NAMED, 'param', false);
+    }
+    $sql = "peerwork = :peerwork
+        AND groupid = :groupid
+        AND gradedby = :gradedby
+        AND locked = 0
+        AND gradefor $notlockedpeersql";
+    $DB->delete_records_select('peerwork_peers', $sql, array_merge($peeruserparams, $notlockedpeerparams));
+
+    // Save the grades.
+    $pac = new mod_peerwork_criteria($peerwork->id);
+    $criteria = $pac->get_criteria();
+    foreach ($criteria as $criterion) {
+        foreach ($membersgradeable as $member) {
+
+            // Skipped the locked peers. This should theoretically never happen as we
+            // should not be receiving data for peers that have been marked locked.
+            if (in_array($member->id, $lockedpeerids)) {
+                continue;
+            }
+
+            $uniqid = "{$criterion->id}-{$member->id}";
+
+            $peer = new stdClass();
+            $peer->peerwork = $peerwork->id;
+            $peer->criteriaid = $criterion->id;
+            $peer->groupid = $group->id;
+            $peer->gradedby = $USER->id;
+            $peer->gradefor = $member->id;
+            $peer->feedback = null;
+            $peer->locked = $peerwork->lockediting;
+            $peer->timecreated = isset($origtimecreated[$uniqid]) ? $origtimecreated[$uniqid] : time();
+            $peer->timemodified = time();
+            $field = 'grade_idx_'. $criterion->id;
+            if (isset($data->{$field}[$peer->gradefor])) {
+                $peer->grade = max(0, (int) $data->{$field}[$peer->gradefor]);
+            } else {
+                $peer->grade = 0;
+            }
+
+            $peer->id = $DB->insert_record('peerwork_peers', $peer, true);
+
+            $params = array(
+                'objectid' => $peer->id,
+                'context' => $context,
+                'relateduserid' => $member->id,
+                'other' => array(
+                    'grade' => $peer->grade,
+                )
+            );
+
+            $event = \mod_peerwork\event\peer_grade_created::create($params);
+            $event->add_record_snapshot('peerwork_peers', $peer);
+            $event->trigger();
+        }
+    }
+
+    // Save the justification.
+    if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
+        foreach ($membersgradeable as $member) {
+
+            // Skip the locked peers.
+            if (in_array($member->id, $lockedpeerids)) {
+                continue;
+            }
+
+            $params = [
+                'peerworkid' => $peerwork->id,
+                'groupid' => $group->id,
+                'gradefor' => $member->id,
+                'gradedby' => $USER->id
+            ];
+            $record = $DB->get_record('peerwork_justification', $params);
+            if (!$record) {
+                $record = (object) $params;
+            }
+            $record->justification = trim(isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '');
+            if (!empty($record->id)) {
+                $DB->update_record('peerwork_justification', $record);
+            } else {
+                $DB->insert_record('peerwork_justification', $record);
+            }
+        }
+    }
+
+    // Suggest to check, and eventually update, the completion state.
+    $completion = new completion_info($course);
+    if ($completion->is_enabled($cm) && $peerwork->completiongradedpeers) {
+        $completion->update_state($cm, COMPLETION_COMPLETE);
+    }
+
+    // Send email confirmation.
+    if (!mod_peerwork_mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data)) {
+        throw new moodle_exception("Submission saved but no email sent.");
+    }
+}
+
+/**
+ * Save the submission.
+ *
+ * Do not call directly, this is handled through {@link peerwork_save}.
+ *
+ * @param object $peerwork The module.
+ * @param object $submission The submission.
+ * @param object $group The group.
+ * @param context $context The context.
+ * @param object $data The form data.
+ * @param int $draftitemid The draft item ID.
+ * @return array First value is the submission, second is the array of draft files.
+ */
+function mod_peerwork_save_submission($peerwork, $submission, $group, $context, $data, $draftitemid) {
+    global $DB, $USER;
+
+    // Early bail when the submission is locked.
+    if ($submission && $submission->locked) {
+        return [$submission, []];
+    }
+
     // Create submission record if none yet.
     if (!$submission) {
         $submission = new stdClass();
@@ -743,6 +891,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
         $submission->timecreated = time();
         $submission->timemodified = time();
         $submission->groupid = $group->id;
+        $submission->locked = $peerwork->lockediting;
 
         $submission->id = $DB->insert_record('peerwork_submission', $submission);
 
@@ -758,6 +907,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     } else {
         // Just update.
         $submission->timemodified = time();
+        $submission->locked = $peerwork->lockediting;
         $DB->update_record('peerwork_submission', $submission);
 
         $params = array(
@@ -838,79 +988,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
             peerwork_get_fileoptions($peerwork));
     }
 
-    // Remove existing grades, in case it's an update.
-    $DB->delete_records('peerwork_peers',
-        array('peerwork' => $peerwork->id, 'groupid' => $group->id, 'gradedby' => $USER->id));
-
-    // Save the grades.
-    $pac = new mod_peerwork_criteria($peerwork->id);
-    $criteria = $pac->get_criteria();
-    foreach ($criteria as $criterion) {
-        foreach ($membersgradeable as $member) {
-            $peer = new stdClass();
-            $peer->peerwork = $peerwork->id;
-            $peer->criteriaid = $criterion->id;
-            $peer->groupid = $group->id;
-            $peer->gradedby = $USER->id;
-            $peer->gradefor = $member->id;
-            $peer->feedback = null;
-            $peer->timecreated = time();
-            $field = 'grade_idx_'. $criterion->id;
-            if (isset($data->{$field}[$peer->gradefor])) {
-                $peer->grade = max(0, (int) $data->{$field}[$peer->gradefor]);
-            } else {
-                $peer->grade = 0;
-            }
-
-            $peer->id = $DB->insert_record('peerwork_peers', $peer, true);
-
-            $params = array(
-                'objectid' => $peer->id,
-                'context' => $context,
-                'relateduserid' => $member->id,
-                'other' => array(
-                    'grade' => $peer->grade,
-                )
-            );
-
-            $event = \mod_peerwork\event\peer_grade_created::create($params);
-            $event->add_record_snapshot('peerwork_peers', $peer);
-            $event->trigger();
-        }
-    }
-
-    // Save the justification.
-    if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
-        foreach ($membersgradeable as $member) {
-            $params = [
-                'peerworkid' => $peerwork->id,
-                'groupid' => $group->id,
-                'gradefor' => $member->id,
-                'gradedby' => $USER->id
-            ];
-            $record = $DB->get_record('peerwork_justification', $params);
-            if (!$record) {
-                $record = (object) $params;
-            }
-            $record->justification = trim(isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '');
-            if (!empty($record->id)) {
-                $DB->update_record('peerwork_justification', $record);
-            } else {
-                $DB->insert_record('peerwork_justification', $record);
-            }
-        }
-    }
-
-    // Suggest to check, and eventually update, the completion state.
-    $completion = new completion_info($course);
-    if ($completion->is_enabled($cm) && $peerwork->completiongradedpeers) {
-        $completion->update_state($cm, COMPLETION_COMPLETE);
-    }
-
-    // Send email confirmation.
-    if (!mod_peerwork_mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data)) {
-        throw new moodle_exception("Submission saved but no email sent.");
-    }
+    return [$submission, $draftfiles];
 }
 
 /**
@@ -949,4 +1027,172 @@ function mod_peerwork_mail_confirmation_submission($course, $submission, $draftf
 
     $body = get_string('confirmationmailbody', 'peerwork', $a);
     return email_to_user($USER, core_user::get_noreply_user(), $subject, $body);
+}
+
+/**
+ * Clear the submissions.
+ *
+ * @param object $peerwork The peerwork.
+ * @param context $context The context.
+ * @param int $groupid The group ID, or 0 for all groups.
+ * @return void
+ */
+function mod_peerwork_clear_submissions($peerwork, $context, $groupid = 0) {
+    global $DB;
+
+    if ($groupid > 0) {
+        $sql = 'peerworkid = :peerworkid AND groupid = :groupid AND COALESCE(timegraded, 0) = 0';
+        $submissions = $DB->get_records_select('peerwork_submission', $sql, [
+            'peerworkid' => $peerwork->id,
+            'groupid' => $groupid
+        ]);
+    } else {
+        $sql = 'peerworkid = :peerworkid AND COALESCE(timegraded, 0) = 0 AND released = 0';
+        $submissions = $DB->get_records_select('peerwork_submission', $sql, ['peerworkid' => $peerwork->id]);
+    }
+
+    foreach ($submissions as $submission) {
+        $id = $submission->id;
+        $groupid = $submission->groupid;
+
+        // Delete database values.
+        $DB->delete_records('peerwork_peers', ['peerwork' => $peerwork->id, 'groupid' => $groupid]);
+        $DB->delete_records('peerwork_justification', ['peerworkid' => $peerwork->id, 'groupid' => $groupid]);
+        $DB->delete_records('peerwork_grades', ['peerworkid' => $peerwork->id, 'submissionid' => $id]);
+        $DB->delete_records('peerwork_submission', ['id' => $id]);
+
+        // Delete the submission files.
+        $fs = get_file_storage();
+        $fs->delete_area_files($context->id, 'mod_peerwork', 'submission', $groupid);
+
+        // Trigger the event.
+        $params = [
+            'objectid' => $id,
+            'context' => $context,
+            'other' => [
+                'groupid' => $groupid
+            ]
+        ];
+        $event = \mod_peerwork\event\submission_cleared::create($params);
+        $event->add_record_snapshot('peerwork_submission', $submission);
+        $event->trigger();
+    }
+}
+
+/**
+ * Get the peers that submitted late.
+ *
+ * @param object $peerwork Peerwork record.
+ * @param object $submission Submission record.
+ * @return array Where keys are user IDs, and values are user_picture::fields() and timegraded.
+ */
+function mod_peerwork_get_late_peers($peerwork, $submission) {
+    global $DB;
+
+    if (peerwork_due_date($peerwork) !== PEERWORK_DUEDATE_PASSED) {
+        return [];
+    }
+
+    // Group all grades given and select the first grading time (they should be grading everyone
+    // at the same time anyway), for those graders where the first time was past the due date.
+    $ufields = user_picture::fields('u');
+    $sql = "SELECT $ufields, MIN(p.timecreated) AS timegraded
+              FROM {peerwork_peers} p
+              JOIN {user} u
+                ON u.id = p.gradedby
+             WHERE p.groupid = :groupid
+               AND p.peerwork = :peerworkid
+          GROUP BY p.gradedby, $ufields
+            HAVING MIN(p.timecreated) > :duedate";
+    $params = [
+        'groupid' => $submission->groupid,
+        'peerworkid' => $peerwork->id,
+        'duedate' => !empty($peerwork->duedate) ? $peerwork->duedate : time() + DAYSECS * 99
+    ];
+
+    return array_reduce($DB->get_records_sql($sql, $params), function($carry, $record) {
+        $carry[$record->id] = $record;
+        return $carry;
+    }, []);
+}
+
+/**
+ * Lock editing across the entire activity.
+ *
+ * @param object $peerwork The peerwork instance.
+ * @return void
+ */
+function mod_peerwork_lock_editing($peerwork) {
+    global $DB;
+    $DB->execute("UPDATE {peerwork_peers} SET locked = 1 WHERE peerwork = ?", [$peerwork->id]);
+    $DB->execute("UPDATE {peerwork_submission} SET locked = 1 WHERE peerworkid = ?", [$peerwork->id]);
+}
+
+/**
+ * Unlock editing across the entire activity.
+ *
+ * @param object $peerwork The peerwork instance.
+ * @return void
+ */
+function mod_peerwork_unlock_editing($peerwork) {
+    global $DB;
+    $DB->execute("UPDATE {peerwork_peers} SET locked = 0 WHERE peerwork = ?", [$peerwork->id]);
+    $DB->execute("UPDATE {peerwork_submission} SET locked = 0 WHERE peerworkid = ?", [$peerwork->id]);
+}
+
+/**
+ * Unlock editing for a single student.
+ *
+ * @param int $peerworkid The peerwork instance ID.
+ * @param int $graderid The student ID.
+ * @return void
+ */
+function mod_peerwork_unlock_grader($peerworkid, $graderid) {
+    global $DB;
+    $DB->execute("UPDATE {peerwork_peers} SET locked = 0 WHERE peerwork = ? AND gradedby = ?", [$peerworkid, $graderid]);
+}
+
+/**
+ * Unlock editing for of a submission.
+ *
+ * @param int $submissionid The submission ID.
+ * @return void
+ */
+function mod_peerwork_unlock_submission($submissionid) {
+    global $DB;
+    $DB->execute("UPDATE {peerwork_submission} SET locked = 0 WHERE id = ?", [$submissionid]);
+}
+
+/**
+ * Get the list of locked graders.
+ *
+ * A grader is considered locked when any of their grades are being locked.
+ *
+ * @param int $peerworkid The module ID.
+ * @return array
+ */
+function mod_peerwork_get_locked_graders($peerworkid) {
+    global $DB;
+    return $DB->get_fieldset_select('peerwork_peers', 'DISTINCT gradedby', 'peerwork = ? AND locked = 1', [$peerworkid]);
+}
+
+/**
+ * Get the list of locked peers.
+ *
+ * Note that as of time of writing, a student is locked when at one of their entries is
+ * flagged as being locked. Thus, we do not currently support unlocking a specific criterion
+ * for a specific user. If any criterion is locked, then justifications and peer grades are
+ * locked for the student being graded.
+ *
+ * @param object $peerwork The module.
+ * @param int $gradedby The grading user.
+ * @return array
+ */
+function mod_peerwork_get_locked_peers($peerwork, $gradedby) {
+    global $DB;
+    $sql = 'peerwork = :peerworkid AND gradedby = :gradedby AND locked = 1';
+    return $DB->get_fieldset_select('peerwork_peers', 'DISTINCT gradefor', $sql, [
+        'peerworkid' => $peerwork->id,
+        'gradedby' => $gradedby
+    ]);
 }
