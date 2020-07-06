@@ -61,6 +61,7 @@ $headers = [
     get_string('student', 'core_grades'),
     get_string('username', 'core'),
     get_string('email', 'core'),
+    get_string('idnumber', 'core'),
     get_string('groupgrade', 'mod_peerwork'),
     get_string('studentcontribution', 'mod_peerwork'),
     get_string('studentcalculatedgrade', 'mod_peerwork'),
@@ -85,7 +86,7 @@ if (!empty($groupids)) {
     list($ingroupsql, $ingroupparams) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
 }
 
-$stufields = user_picture::fields('u', ['email', 'username'], 'user_id', 'user_');
+$stufields = user_picture::fields('u', ['email', 'username', 'idnumber'], 'user_id', 'user_');
 $graderfields = user_picture::fields('ug', null, 'grader_id', 'grader_');
 $releaserfields = user_picture::fields('ur', null, 'reluser_id', 'reluser_');
 
@@ -117,7 +118,7 @@ $params = ['peerworkid' => $peerwork->id] + $ingroupparams;
 $recordset = $DB->get_recordset_sql($sql, $params);
 
 foreach ($recordset as $record) {
-    $student = user_picture::unalias($record, ['email', 'username'], 'user_id', 'user_');
+    $student = user_picture::unalias($record, ['email', 'username', 'idnumber'], 'user_id', 'user_');
     $grader = user_picture::unalias($record, null, 'grader_id', 'grader_');
     $releaser = user_picture::unalias($record, null, 'reluser_id', 'reluser_');
 
@@ -127,6 +128,7 @@ foreach ($recordset as $record) {
         fullname($student),
         $student->username,
         $student->email,
+        $student->idnumber,
         $record->groupgrade ?? '',
         $record->studentcontribution ?? '',
         $record->studentcalculatedgrade ?? '',

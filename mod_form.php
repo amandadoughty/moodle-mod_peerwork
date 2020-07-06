@@ -86,6 +86,9 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->setType('allowlatesubmissions', PARAM_BOOL);
         $mform->addHelpButton('allowlatesubmissions', 'allowlatesubmissions', 'peerwork');
 
+        $mform->addElement('selectyesno', 'lockediting', get_string('lockediting', 'peerwork'));
+        $mform->addHelpButton('lockediting', 'lockediting', 'peerwork');
+
         // How many submission files to be allowed. Zero means dont offer a file upload at all.
         $choices = [0 => 0, 1, 2, 3, 4, 5];
         $mform->addElement('select', 'maxfiles', get_string('setup.maxfiles', 'peerwork'), $choices);
@@ -168,7 +171,8 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $scale = $mform->createElement('select', 'critscale',
             get_string('assessmentcriteria:scoretype', 'mod_peerwork'), get_scales_menu());
         $repeatopts['critscale'] = [
-            'helpbutton' => ['assessmentcriteria:scoretype', 'mod_peerwork']
+            'helpbutton' => ['assessmentcriteria:scoretype', 'mod_peerwork'],
+            'default' => get_config('peerwork', 'critscale')
         ];
 
         // Repeat stuff.
@@ -217,7 +221,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
                 'text' => $crit->description,
                 'format' => $crit->descriptionformat
             ];
-            $defaultvalues['critscale'][$i] = -$crit->grade;    // Scales are saved as negative integers.
+            $defaultvalues["critscale[$i]"] = -$crit->grade;    // Scales are saved as negative integers.
         }
     }
 

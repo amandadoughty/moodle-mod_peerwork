@@ -125,5 +125,65 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020012400, 'peerwork');
     }
 
+    if ($oldversion < 2020030900) {
+
+        // Define field timemodified to be added to peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timecreated');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020030900, 'peerwork');
+    }
+
+    if ($oldversion < 2020030901) {
+
+        // Define field lockediting to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('lockediting', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'displaypeergradestotals');
+
+        // Conditionally launch add field lockediting.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020030901, 'peerwork');
+    }
+
+    if ($oldversion < 2020030902) {
+
+        // Define field locked to be added to peerwork_submission.
+        $table = new xmldb_table('peerwork_submission');
+        $field = new xmldb_field('locked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'releasednotified');
+
+        // Conditionally launch add field locked.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020030902, 'peerwork');
+    }
+
+    if ($oldversion < 2020030903) {
+
+        // Define field locked to be added to peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $field = new xmldb_field('locked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'feedback');
+
+        // Conditionally launch add field locked.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020030903, 'peerwork');
+    }
+
     return true;
 }

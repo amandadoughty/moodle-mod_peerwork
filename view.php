@@ -63,15 +63,15 @@ $params = array(
     'context' => $context
 );
 
-$event = \mod_peerwork\event\course_module_viewed::create($params);
-$event->add_record_snapshot('course', $course);
-$event->add_record_snapshot($cm->modname, $peerwork);
-$event->trigger();
-
 $PAGE->set_url('/mod/peerwork/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
+
+$event = \mod_peerwork\event\course_module_viewed::create($params);
+$event->add_record_snapshot('course', $course);
+$event->add_record_snapshot($cm->modname, $peerwork);
+$event->trigger();
 
 // Teacher view.
 if (has_capability('mod/peerwork:grade', $context)) {
@@ -94,6 +94,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
     }
 
     $allgroups = groups_get_all_groups($course->id, 0, $groupingid);
+    $anynongraded = false;
 
     $t = new html_table();
     $t->attributes['class'] = 'userenrolment';
@@ -113,6 +114,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
         $grader = new mod_peerwork\group_grader($peerwork, $group->id, $submission);
         $wasgraded = $grader->was_graded();
         $detailsurl = new moodle_url('details.php', ['id' => $cm->id, 'groupid' => $group->id]);
+        $anynongraded = $anynongraded || !$wasgraded;
 
         $menu = new action_menu();
         $menu->add_secondary_action(new action_link(
@@ -123,6 +125,15 @@ if (has_capability('mod/peerwork:grade', $context)) {
             new moodle_url('export.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),
             get_string('export', 'mod_peerwork')
         ));
+
+        if (!$wasgraded) {
+            $menu->add_secondary_action(new action_link(
+                new moodle_url('clearsubmissions.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),
+                get_string('clearsubmission', 'mod_peerwork'),
+                new confirm_action(get_string('confimrclearsubmission', 'mod_peerwork'))
+            ));
+        }
+
         if ($status->code == PEERWORK_STATUS_GRADED) {
             $menu->add_secondary_action(new action_link(
                 new moodle_url('release.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),
@@ -161,6 +172,15 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id,  'groupid' => 0, 'sesskey' => sesskey()]),
         get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');
+
+    if ($anynongraded) {
+        $clearbutton = new single_button(
+            new moodle_url('clearsubmissions.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),
+            get_string('clearallsubmissionsforallgroups', 'mod_peerwork')
+        );
+        $clearbutton->add_confirm_action(get_string('confimrclearsubmissions', 'mod_peerwork'));
+        echo $OUTPUT->render($clearbutton);
+    }
 
     echo $OUTPUT->box_end();
 
@@ -258,9 +278,10 @@ if (has_capability('mod/peerwork:grade', $context)) {
     $files = peerwork_submission_files($context, $group);
 
     $url = new moodle_url('view.php', array('edit' => true, 'id' => $id));
-    $mform = new mod_peerwork_submissions_form($url->out(false), array('id' => $id, 'files' => count($files),
+    $mform = new mod_peerwork_submissions_form($url->out(false), array('id' => $id, 'filecount' => count($files),
         'peerworkid' => $peerwork->id, 'fileupload' => $foptions['maxfiles'] > 0, 'peers' => $membersgradeable,
-        'fileoptions' => $foptions, 'peerwork' => $peerwork));
+        'fileoptions' => $foptions, 'peerwork' => $peerwork, 'submission' => $submission, 'files' => $files,
+        'myassessments' => $myassessments));
     $mform->set_data($entry);
 
     $redirecturl = new moodle_url('view.php', array('id' => $cm->id));
