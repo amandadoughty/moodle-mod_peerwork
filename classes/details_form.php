@@ -53,6 +53,9 @@ class mod_peerwork_details_form extends moodleform {
         $justifications = $this->_customdata['justifications'];
         $submission = $this->_customdata['submission'];
         $canunlock = $this->_customdata['canunlock'];
+        $pac = new mod_peerwork_criteria( $peerwork->id );
+        $criteria = $pac->get_criteria();
+        $justificationtype = $peerwork->justificationtype;
 
         $mform->addElement('header', 'mod_peerwork_details', get_string('general'));
         $mform->addElement('static', 'groupname', get_string('group'));
@@ -76,28 +79,38 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('static', 'peergradesawarded', '');
 
         if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
-            $mform->addElement('header', 'justificationshdr', get_string('justifications', 'mod_peerwork'));
-            foreach ($members as $gradedby) {
-                $rows = [];
-                $theirjustifs = !empty($justifications[$gradedby->id]) ? $justifications[$gradedby->id] : [];
-                foreach ($members as $gradefor) {
-                    if (!$peerwork->selfgrading && $gradedby->id == $gradefor->id) {
-                        continue;
+            if ($justificationtype == MOD_PEERWORK_JUSTIFICATION_SUMMARY) {
+                $mform->addElement('header', 'justificationshdr', get_string('justifications', 'mod_peerwork'));
+
+                foreach ($members as $gradedby) {
+                    $rows = [];
+                    $theirjustifs = !empty($justifications[$gradedby->id][0]) ? $justifications[$gradedby->id][0] : [];
+
+                    foreach ($members as $gradefor) {
+                        if (!$peerwork->selfgrading && $gradedby->id == $gradefor->id) {
+                            continue;
+                        }
+
+                        $justif = isset($theirjustifs[$gradefor->id]) ? $theirjustifs[$gradefor->id]->justification : null;
+                        $rows[] = new html_table_row([
+                            fullname($gradefor),
+                            ($justif ? s($justif) : html_writer::tag('em', get_string('nonegiven', 'mod_peerwork')))
+                        ]);
                     }
-                    $justif = isset($theirjustifs[$gradefor->id]) ? $theirjustifs[$gradefor->id]->justification : null;
-                    $rows[] = new html_table_row([
-                        fullname($gradefor),
-                        ($justif ? s($justif) : html_writer::tag('em', get_string('nonegiven', 'mod_peerwork')))
-                    ]);
+
+                    $t = new html_table();
+                    $t->data = $rows;
+                    $mform->addElement(
+                        'static',
+                        "justif_{$gradedby->id}",
+                        get_string('justificationbyfor', 'mod_peerwork', fullname($gradedby)),
+                        html_writer::table($t)
+                    );
                 }
-                $t = new html_table();
-                $t->data = $rows;
-                $mform->addElement(
-                    'static',
-                    "justif_{$gradedby->id}",
-                    get_string('justificationbyfor', 'mod_peerwork', fullname($gradedby)),
-                    html_writer::table($t)
-                );
+            } else if ($justificationtype == MOD_PEERWORK_JUSTIFICATION_CRITERIA) {
+                // Justification needs to calculate height and height is 0 when
+                // parent set to display none.
+                $mform->setExpanded('mod_peerwork_peers');
             }
         }
 

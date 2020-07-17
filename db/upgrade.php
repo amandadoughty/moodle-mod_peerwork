@@ -39,7 +39,16 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Define field peergradesvisibility to be added to peerwork.
         $table = new xmldb_table('peerwork');
-        $field = new xmldb_field('peergradesvisibility', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'completiongradedpeers');
+        $field = new xmldb_field(
+            'peergradesvisibility',
+            XMLDB_TYPE_INTEGER,
+            '1',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'completiongradedpeers'
+        );
 
         // Conditionally launch add field peergradesvisibility.
         if (!$dbman->field_exists($table, $field)) {
@@ -54,7 +63,16 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Define field justificationmaxlength to be added to peerwork.
         $table = new xmldb_table('peerwork');
-        $field = new xmldb_field('justificationmaxlength', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'justification');
+        $field = new xmldb_field(
+            'justificationmaxlength',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'justification'
+        );
 
         // Conditionally launch add field justificationmaxlength.
         if (!$dbman->field_exists($table, $field)) {
@@ -69,7 +87,16 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Define field displaypeergradestotals to be added to peerwork.
         $table = new xmldb_table('peerwork');
-        $field = new xmldb_field('displaypeergradestotals', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'peergradesvisibility');
+        $field = new xmldb_field(
+            'displaypeergradestotals',
+            XMLDB_TYPE_INTEGER,
+            '1',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'peergradesvisibility'
+        );
 
         // Conditionally launch add field displaypeergradestotals.
         if (!$dbman->field_exists($table, $field)) {
@@ -84,7 +111,16 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Define field prelimgrade to be added to peerwork_grades.
         $table = new xmldb_table('peerwork_grades');
-        $field = new xmldb_field('prelimgrade', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0', 'userid');
+        $field = new xmldb_field(
+            'prelimgrade',
+            XMLDB_TYPE_NUMBER,
+            '10, 5',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'userid'
+        );
 
         // Conditionally launch add field prelimgrade.
         if (!$dbman->field_exists($table, $field)) {
@@ -99,7 +135,16 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Define field releasednotified to be added to peerwork_submission.
         $table = new xmldb_table('peerwork_submission');
-        $field = new xmldb_field('releasednotified', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'releasedby');
+        $field = new xmldb_field(
+            'releasednotified',
+            XMLDB_TYPE_INTEGER,
+            '1',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'releasedby'
+        );
 
         // Conditionally launch add field releasednotified.
         if (!$dbman->field_exists($table, $field)) {
@@ -132,11 +177,7 @@ function xmldb_peerwork_upgrade($oldversion) {
         $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timecreated');
 
         // Conditionally launch add field timemodified.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Peerwork savepoint reached.
+                // Peerwork savepoint reached.
         upgrade_mod_savepoint(true, 2020030900, 'peerwork');
     }
 
@@ -177,12 +218,69 @@ function xmldb_peerwork_upgrade($oldversion) {
         $field = new xmldb_field('locked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'feedback');
 
         // Conditionally launch add field locked.
+        upgrade_mod_savepoint(true, 2020030903, 'peerwork');
+    }
+
+    if ($oldversion < 2020051300) {
+
+        // Define field criteriaid to be added to peerwork_justification.
+        $table = new xmldb_table('peerwork_justification');
+        $field = new xmldb_field(
+            'criteriaid',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'gradefor'
+        );
+
+        // Conditionally launch add field prelimgrade.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add criteriaid to index.
+        $oldindex = new xmldb_index(
+            'justif',
+            XMLDB_KEY_UNIQUE,
+            ['peerworkid', 'gradedby', 'gradefor']
+        );
+        $index = new xmldb_index(
+            'justif',
+            XMLDB_KEY_UNIQUE,
+            ['peerworkid', 'gradedby', 'gradefor', 'criteriaid']
+        );
+
+        if ($dbman->index_exists($table, $oldindex)) {
+            $dbman->drop_index($table, $oldindex);
+        }
+
+        if (!$dbman->index_exists($table, $oldindex)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define field justificationtype to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field(
+            'justificationtype',
+            XMLDB_TYPE_INTEGER,
+            '1',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'justification'
+        );
+
+        // Conditionally launch add field prelimgrade.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Peerwork savepoint reached.
-        upgrade_mod_savepoint(true, 2020030903, 'peerwork');
+        upgrade_mod_savepoint(true, 2020051300, 'peerwork');
     }
 
     return true;

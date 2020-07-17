@@ -19,6 +19,7 @@
         <FIELD NAME="fromdate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="allowlatesubmissions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="justification" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="justificationtype" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="justificationmaxlength" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="paweighting" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="50" SEQUENCE="false"/>
         <FIELD NAME="noncompletionpenalty" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -103,13 +104,14 @@
         <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="gradedby" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="gradefor" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="criteriaid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="justification" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="justif" UNIQUE="true" FIELDS="peerworkid, gradedby, gradefor"/>
+        <INDEX NAME="justif" UNIQUE="true" FIELDS="peerworkid, gradedby, gradefor, criteriaid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="peerwork_grades" COMMENT="The individual grades for each user">

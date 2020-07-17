@@ -52,6 +52,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
             return $i . '%';
         }, $steps));
+        $hassubmissions = $this->has_submissions();
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -98,6 +99,9 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'selfgrading', get_string('selfgrading', 'peerwork'));
         $mform->setType('selfgrading', PARAM_BOOL);
         $mform->addHelpButton('selfgrading', 'selfgrading', 'peerwork');
+        if ($hassubmissions) {
+            $mform->freeze('selfgrading');
+        }
 
         $mform->addElement('select', 'paweighting', get_string('paweighting', 'peerwork'), $zerotohundredpcopts);
         $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
@@ -123,9 +127,13 @@ class mod_peerwork_mod_form extends moodleform_mod {
      * @return void
      */
     protected function add_assessment_criteria() {
-        $mform = $this->_form;
+        global $COURSE;
 
+        $mform = $this->_form;
+        $ctx = null;
+        $hassubmissions = $this->has_submissions();
         $criteria = $this->pac->get_criteria();
+
         $mform->addElement('header', 'assessmentcriteriasettings', get_string('assessmentcriteria:header', 'peerwork'));
 
         $options = [
@@ -135,6 +143,9 @@ class mod_peerwork_mod_form extends moodleform_mod {
         ];
         $mform->addElement('select', 'peergradesvisibility', get_string('peergradesvisibility', 'mod_peerwork'), $options);
         $mform->addHelpButton('peergradesvisibility', 'peergradesvisibility', 'peerwork');
+        if ($hassubmissions) {
+            $mform->freeze('peergradesvisibility');
+        }
 
         $mform->addElement('selectyesno', 'displaypeergradestotals', get_string('displaypeergradestotals', 'mod_peerwork'));
         $mform->addHelpButton('displaypeergradestotals', 'displaypeergradestotals', 'peerwork');
@@ -148,16 +159,33 @@ class mod_peerwork_mod_form extends moodleform_mod {
         ];
         $mform->addElement('select', 'justification', get_string('requirejustification', 'mod_peerwork'), $options);
         $mform->addHelpButton('justification', 'requirejustification', 'peerwork');
+        if ($hassubmissions) {
+            $mform->freeze('justification');
+        }
+
+        $options = [
+            MOD_PEERWORK_JUSTIFICATION_SUMMARY => get_string('justificationtype0', 'mod_peerwork'),
+            MOD_PEERWORK_JUSTIFICATION_CRITERIA => get_string('justificationtype1', 'mod_peerwork')
+        ];
+        $mform->addElement('select', 'justificationtype', get_string('justificationtype', 'mod_peerwork'), $options);
+        $mform->addHelpButton('justificationtype', 'justificationtype', 'peerwork');
+        $mform->hideIf('justificationtype', 'justification', 'eq', MOD_PEERWORK_JUSTIFICATION_DISABLED);
+        if ($hassubmissions) {
+            $mform->freeze('justificationtype');
+        }
 
         $mform->addElement('text', 'justificationmaxlength', get_string('justificationmaxlength', 'mod_peerwork'));
         $mform->addHelpButton('justificationmaxlength', 'justificationmaxlength', 'mod_peerwork');
         $mform->setType('justificationmaxlength', PARAM_INT);
         $mform->hideIf('justificationmaxlength', 'justification', 'eq', MOD_PEERWORK_JUSTIFICATION_DISABLED);
+        if ($hassubmissions) {
+            $mform->freeze('justificationmaxlength');
+        }
 
         // Preparing repeated element.
         $elements = [];
         $repeatopts = [];
-        $initialrepeat = max(count($criteria), 3);
+        $initialrepeat = count($criteria) ? count($criteria) : (int) get_config('peerwork', 'numcrit');
         $repeatsteps = max(1, (int) get_config('peerwork', 'addmorecriteriastep'));
 
         // Editor.
@@ -169,15 +197,45 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         // Scale.
         $scale = $mform->createElement('select', 'critscale',
-            get_string('assessmentcriteria:scoretype', 'mod_peerwork'), get_scales_menu());
+            get_string('assessmentcriteria:scoretype', 'mod_peerwork'), get_scales_menu($COURSE->id));
         $repeatopts['critscale'] = [
             'helpbutton' => ['assessmentcriteria:scoretype', 'mod_peerwork'],
             'default' => get_config('peerwork', 'critscale')
         ];
 
         // Repeat stuff.
-        $this->repeat_elements([$editor, $scale], $initialrepeat, $repeatopts, 'assessmentcriteria_count',
+        $repeatels = $this->repeat_elements([$editor, $scale], $initialrepeat, $repeatopts, 'assessmentcriteria_count',
             'assessmentcriteria_add', $repeatsteps, get_string('addmorecriteria', 'mod_peerwork'), true);
+
+        // If this is an 'add' form use site defaults.
+        if ($this->current  && !$this->current->coursemodule) {
+            $config = get_config('peerwork');
+            // Add the default values.
+            for ($i = 0; $i < $repeatels; $i++) {
+                // The max number of default criteria is 5 and we may
+                // have default text and a scale for each one.
+                if ($i <= 5) {
+                    $text = $config->{'defaultcrit' . $i};
+                    $selected = $config->{'defaultscale' . $i};
+
+                    // If there is no scale set for this criteria
+                    // use the default for all.
+                    if ($selected === 0) {
+                        $selected = $config->critscale;
+                    }
+
+                    $mform->setDefault(
+                            'critdesc[' . $i . ']',
+                            [
+                                'text' => $text,
+                                'format' => FORMAT_HTML
+                            ]
+                        );
+
+                    $mform->getElement('critscale[' . $i . ']')->setSelected($selected);
+                }
+            }
+        }
     }
 
     /**
@@ -194,7 +252,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         return ['completiongradedpeers'];
     }
-
 
     /**
      * Whether any custom completion rule is enabled.
@@ -216,13 +273,43 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $defaultvalues['scale'] = empty($defaultvalues['scale']) ? [] : $defaultvalues['scale'];
 
         $crits = array_values($this->pac->get_criteria());   // Drop the keys.
+
         foreach ($crits as $i => $crit) {
             $defaultvalues['critdesc'][$i] = [
                 'text' => $crit->description,
                 'format' => $crit->descriptionformat
             ];
+
             $defaultvalues["critscale[$i]"] = -$crit->grade;    // Scales are saved as negative integers.
         }
+    }
+
+    public function definition_after_data() {
+        global $CFG, $COURSE;
+        $mform =& $this->_form;
+        $hassubmissions = $this->has_submissions();
+        $criteria = $this->pac->get_criteria();
+        $i = 0;
+
+        if ($hassubmissions) {
+            for ($i; $i < count($criteria); $i++) {
+                // Cannot currently freeze editor elements MDL-29421.
+
+                $elname = 'critscale[' . $i . ']';
+
+                if ($mform->elementExists($elname)) {
+                    $mform->freeze($elname); // Prevent removing of existing scales.
+                }
+            }
+
+            $elname = 'assessmentcriteria_add';
+
+            if ($mform->elementExists($elname)) {
+                $mform->freeze($elname); // Prevent adding more criteria.
+            }
+        }
+
+        parent::definition_after_data();
     }
 
     /**
@@ -287,4 +374,35 @@ class mod_peerwork_mod_form extends moodleform_mod {
         return $errors;
     }
 
+    /**
+     * Check if the activity has submissions.
+     *
+     * @return bool $hassubmissions
+     */
+    public function has_submissions() {
+        $hassubmissions = false;
+
+        if ($this->current && $this->current->coursemodule) {
+            $cm = get_coursemodule_from_instance('peerwork', $this->current->id, 0, false, MUST_EXIST);
+            $hassubmissions = peerwork_has_submissions($cm);
+        }
+
+        return $hassubmissions;
+    }
+
+    /**
+     * Check if the grades have been released.
+     *
+     * @return bool $gradesreleased
+     */
+    public function is_grades_released() {
+        $gradesreleased = false;
+
+        if ($this->current && $this->current->coursemodule) {
+            $cm = get_coursemodule_from_instance('peerwork', $this->current->id, 0, false, MUST_EXIST);
+            $gradesreleased = peerwork_has_released_grades($cm);
+        }
+
+        return $gradesreleased;
+    }
 }

@@ -42,6 +42,9 @@ define('MOD_PEERWORK_JUSTIFICATION_HIDDEN', 1);         // Justification hidden 
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON', 2);   // Justification visible to all but anonymously.
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER', 3);   // Justification visible to all with identity visible.
 
+define('MOD_PEERWORK_JUSTIFICATION_SUMMARY', 0);       // Single justification for grades.
+define('MOD_PEERWORK_JUSTIFICATION_CRITERIA', 1);      // Justification for each criteria.
+
 define('MOD_PEERWORK_PEER_GRADES_HIDDEN', 0);           // Peer grades hidden to students.
 define('MOD_PEERWORK_PEER_GRADES_VISIBLE_ANON', 2);     // Peer grades visible to all but anonymously.
 define('MOD_PEERWORK_PEER_GRADES_VISIBLE_USER', 3);     // Peer grades visible to all with identity visible.
@@ -198,6 +201,37 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
 }
 
 /**
+ * Determine if there are any submissions.
+ *
+ * @param course_module $cm
+ * @return bool
+ */
+function peerwork_has_submissions($cm) {
+    global $DB;
+
+    $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
+    $hassubmissions = $DB->record_exists('peerwork_submission', ['peerworkid' => $peerwork->id]);
+
+    return $hassubmissions;
+}
+
+/**
+ * Determine if there are any submissions with grades released.
+ *
+ * @param course_module $cm
+ * @return bool
+ */
+function peerwork_has_released_grades($cm) {
+    global $DB;
+
+    $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
+    $sql = 'peerworkid = :peerworkid AND timegraded > 0 AND released > 0';
+    $gradesreleased = $DB->record_exists_select('peerwork_submission', $sql, ['peerworkid' => $peerwork->id]);
+
+    return $gradesreleased;
+}
+
+/**
  * Get the justifications.
  *
  * @param int $peerworkid The peerwork ID.
@@ -209,9 +243,9 @@ function peerwork_get_justifications($peerworkid, $groupid) {
     $justifications = $DB->get_records('peerwork_justification', ['peerworkid' => $peerworkid, 'groupid' => $groupid]);
     return array_reduce($justifications, function($carry, $row) {
         if (!isset($carry[$row->gradedby])) {
-            $carry[$row->gradedby] = [];
+            $carry[$row->gradedby][$row->criteriaid] = [];
         }
-        $carry[$row->gradedby][$row->gradefor] = $row;
+        $carry[$row->gradedby][$row->criteriaid][$row->gradefor] = $row;
         return $carry;
     }, []);
 }
@@ -232,7 +266,7 @@ function peerwork_get_justifications_received($peerworkid, $groupid, $userid) {
         'gradefor' => $userid
     ]);
     return array_reduce($justifications, function($carry, $row) {
-        $carry[$row->gradedby] = $row;
+        $carry[$row->criteriaid][$row->gradedby] = $row;
         return $carry;
     }, []);
 }
@@ -823,6 +857,8 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     }
 
     // Save the justification.
+    $justificationtype = $peerwork->justificationtype;
+
     if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
         foreach ($membersgradeable as $member) {
 
@@ -835,17 +871,41 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
                 'peerworkid' => $peerwork->id,
                 'groupid' => $group->id,
                 'gradefor' => $member->id,
-                'gradedby' => $USER->id
+                'gradedby' => $USER->id,
+                'criteriaid' => 0
             ];
-            $record = $DB->get_record('peerwork_justification', $params);
-            if (!$record) {
-                $record = (object) $params;
-            }
-            $record->justification = trim(isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '');
-            if (!empty($record->id)) {
-                $DB->update_record('peerwork_justification', $record);
-            } else {
-                $DB->insert_record('peerwork_justification', $record);
+            if ($justificationtype == MOD_PEERWORK_JUSTIFICATION_SUMMARY) {
+                $record = $DB->get_record('peerwork_justification', $params);
+
+                if (!$record) {
+                    $record = (object) $params;
+                }
+
+                $record->justification = trim(isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '');
+
+                if (!empty($record->id)) {
+                    $DB->update_record('peerwork_justification', $record);
+                } else {
+                    $DB->insert_record('peerwork_justification', $record);
+                }
+            } else if ($justificationtype == MOD_PEERWORK_JUSTIFICATION_CRITERIA) {
+                foreach ($criteria as $id => $criterion) {
+                    $params['criteriaid'] = $criterion->id;
+                    $record = $DB->get_record('peerwork_justification', $params);
+
+                    if (!$record) {
+                        $record = (object) $params;
+                    }
+
+                    $text = isset($data->{'justification_' . $id}[$member->id]) ? $data->{'justification_' . $id}[$member->id] : '';
+                    $record->justification = trim($text);
+
+                    if (!empty($record->id)) {
+                        $DB->update_record('peerwork_justification', $record);
+                    } else {
+                        $DB->insert_record('peerwork_justification', $record);
+                    }
+                }
             }
         }
     }

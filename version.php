@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020031500;
+$plugin->version   = 2020051300;
 $plugin->requires  = 2018120300;      // Moodle 3.6.0.
 $plugin->component = 'mod_peerwork';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.0.0';
+$plugin->release   = '1.1.0';

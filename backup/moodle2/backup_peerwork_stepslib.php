@@ -48,7 +48,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'name', 'intro', 'introformat', 'timecreated',
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'allowlatesubmissions', 'peergradesvisibility',
-            'justification', 'justificationmaxlength',
+            'justification', 'justificationtype', 'justificationmaxlength',
             'paweighting', 'noncompletionpenalty', 'completiongradedpeers', 'displaypeergradestotals',
             'lockediting'));
 
@@ -63,7 +63,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         $justifications = new backup_nested_element('justifications');
         $justification = new backup_nested_element('justification', ['id'], [
-            'groupid', 'gradedby', 'gradefor', 'justification']);
+            'groupid', 'gradedby', 'gradefor', 'criteriaid', 'justification']);
 
         $submissions = new backup_nested_element('submissions');
         $submission = new backup_nested_element('submission', array('id'), array(
@@ -115,6 +115,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $justification->annotate_ids('user', 'gradedby');
         $justification->annotate_ids('user', 'gradefor');
         $justification->annotate_ids('group', 'groupid');
+        $justification->annotate_ids('criteria', 'criteriaid');
 
         $submission->annotate_ids('user', 'userid');
         $submission->annotate_ids('user', 'gradedby');
