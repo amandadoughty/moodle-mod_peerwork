@@ -1,0 +1,5 @@
+This files describes API changes for peerwork calculator plugins.
+
+=== 1.0 ===
+
+* This plugin type was new in Peerwork 2.0.0

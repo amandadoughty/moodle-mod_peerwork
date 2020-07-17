@@ -43,6 +43,8 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
         $paths[] = new restore_path_element('peerwork', '/activity/peerwork');
         $paths[] = new restore_path_element('peerwork_criterion', '/activity/peerwork/criteria/criterion');
+        $paths[] = new restore_path_element('peerwork_plugin_config',
+                                            '/activity/peerwork/plugin_configs/plugin_config');
 
         if ($userinfo) {
             $paths[] = new restore_path_element('peerwork_peer', '/activity/peerwork/peers/peer');
@@ -90,6 +92,22 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
         $newitemid = $DB->insert_record('peerwork_criteria', $data);
         $this->set_mapping('peerwork_criteria', $oldid, $newitemid);
+    }
+
+    /**
+     * Process a plugin-config restore
+     * @param object $data The data in object form
+     * @return void
+     */
+    protected function process_peerwork_plugin_config($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->peerwork = $this->get_new_parentid('peerwork');
+
+        $newitemid = $DB->insert_record('peerwork_plugin_config', $data);
     }
 
     /**

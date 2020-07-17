@@ -17,38 +17,31 @@
 /**
  * WebPA calculator.
  *
- * @package    mod_peerwork
+ * @package    peerworkcalculator_webpa
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_peerwork;
+namespace peerworkcalculator_webpa;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * WebPA calculator.
  *
- * @package    mod_peerwork
+ * @package    peerworkcalculator_webpa
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class webpa_calculator {
-
-    /** @var float The non completion penalty. */
-    protected $noncompletionpenalty;
-    /** @var float The PA weighting. */
-    protected $paweighting;
+class calculator extends \mod_peerwork\peerworkcalculator_plugin {
 
     /**
-     * Constructor.
-     *
-     * @param float $paweighting The PA weighting.
-     * @param float $noncompletionpenalty The completion penalty.
+     * Get the name of the webPA calculator plugin
+     * @return string
      */
-    public function __construct($paweighting = 1, $noncompletionpenalty = 0) {
-        $this->paweighting = $paweighting;
-        $this->noncompletionpenalty = $noncompletionpenalty;
+    public function get_name() {
+        return get_string('webpa', 'peerworkcalculator_webpa');
     }
 
     /**
@@ -60,49 +53,67 @@ class webpa_calculator {
      *
      * In the example below, Alice rated Bob 4, and Elaine did not submit any marks..
      *
-     * $grades = [
-     *     'alice' => [
-     *         'alice' => 4,
-     *         'bob' => 4,
-     *         'claire' => 3,
-     *         'david' => 2,
-     *         'elaine' => 1
-     *     ],
-     *     'bob' => [
-     *         'alice' => 3,
-     *         'bob' => 5,
-     *         'claire' => 3,
-     *         'david' => 2,
-     *         'elaine' => 0
-     *     ],
-     *     'claire' => [
-     *         'alice' => 4,
-     *         'bob' => 4,
-     *         'claire' => 4,
-     *         'david' => 4,
-     *         'elaine' => 4
-     *     ],
-     *     'david' => [
-     *         'alice' => 3,
-     *         'bob' => 5,
-     *         'claire' => 4,
-     *         'david' => 3,
-     *         'elaine' => 1
-     *     ],
-     *     'elaine' => []
+     * [
+     *  'alice' => [
+     *       'alice' => [2,2],
+     *       'bob' => [1,3],
+     *       'claire' => [3, 0],
+     *       'david' => [1,1],
+     *       'elaine' => [1,0]
+     *   ],
+     *   'bob' => [
+     *       'alice' => [2,1],
+     *       'bob' => [2,3],
+     *       'claire' => [2,1],
+     *       'david' => [1,1],
+     *       'elaine' => [0,0]
+     *   ],
+     *   'claire' => [
+     *       'alice' => [2,2],
+     *       'bob' => [2,2],
+     *       'claire' => [2,2],
+     *       'david' => [2,2],
+     *       'elaine' => [2,2]
+     *   ],
+     *   'david' => [
+     *       'alice' => [2,1],
+     *       'bob' => [3,2],
+     *       'claire' => [2,2],
+     *       'david' => [1,2],
+     *       'elaine' => [1,0]
+     *   ],
+     *   'elaine' => []
      * ];
      *
      * @param array $grades The list of marks given.
      * @param int $groupmark The mark given to the group.
      */
-    public function calculate($grades, $groupmark) {
+    public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1) {
         $memberids = array_keys($grades);
-
-        // Calculate the factional scores, and record whether scores were submitted.
+        $totalscores = [];
         $fracscores = [];
         $numsubmitted = 0;
+
+        // Calculate the total scores.
         foreach ($memberids as $memberid) {
-            $gradesgiven = $grades[$memberid];
+            foreach ($grades as $graderid => $gradesgiven) {
+                if (!isset($gradesgiven[$memberid])) {
+                    $totalscores[$graderid] = [];
+                    continue;
+                }
+
+                $sum = array_reduce($gradesgiven[$memberid], function($carry, $item) {
+                    $carry += $item;
+                    return $carry;
+                });
+
+                $totalscores[$graderid][$memberid] = $sum;
+            }
+        }
+
+        // Calculate the factional scores, and record whether scores were submitted.
+        foreach ($memberids as $memberid) {
+            $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);
 
             $fracscores[$memberid] = array_reduce(array_keys($gradesgiven), function($carry, $peerid) use ($total, $gradesgiven) {
@@ -140,29 +151,32 @@ class webpa_calculator {
         }, $webpascores);
 
         // Calculate penalties.
-        $noncompletionpenalties = array_reduce($memberids, function($carry, $memberid) use ($fracscores) {
+        $noncompletionpenalties = array_reduce($memberids, function($carry, $memberid) use ($fracscores, $noncompletionpenalty) {
             $ispenalised = empty($fracscores[$memberid]);
-            $carry[$memberid] = $ispenalised ? $this->noncompletionpenalty : 0;
+            $carry[$memberid] = $ispenalised ? $noncompletionpenalty : 0;
             return $carry;
         });
 
         // Calculate the grades again, but with weighting and penalties.
-        $grades = array_reduce($memberids, function($carry, $memberid) use ($webpascores, $noncompletionpenalties, $groupmark) {
-            $score = $webpascores[$memberid];
+        $grades = array_reduce(
+            $memberids,
+            function($carry, $memberid) use ($webpascores, $noncompletionpenalties, $groupmark, $paweighting) {
+                $score = $webpascores[$memberid];
 
-            $adjustedgroupmark = $groupmark * $this->paweighting;
-            $automaticgrade = $groupmark - $adjustedgroupmark;
-            $grade = max(0, min(100, $automaticgrade + ($score * $adjustedgroupmark)));
+                $adjustedgroupmark = $groupmark * $paweighting;
+                $automaticgrade = $groupmark - $adjustedgroupmark;
+                $grade = max(0, min(100, $automaticgrade + ($score * $adjustedgroupmark)));
 
-            $penaltyamount = $noncompletionpenalties[$memberid];
-            if ($penaltyamount > 0) {
-                $grade *= (1 - $penaltyamount);
-            }
+                $penaltyamount = $noncompletionpenalties[$memberid];
+                if ($penaltyamount > 0) {
+                    $grade *= (1 - $penaltyamount);
+                }
 
-            $carry[$memberid] = $grade;
-            return $carry;
-        }, []);
+                $carry[$memberid] = $grade;
+                return $carry;
+            },
+        []);
 
-        return new webpa_result($fracscores, $webpascores, $prelimgrades, $grades, $noncompletionpenalties);
+        return new \mod_peerwork\pa_result($fracscores, $webpascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
 }

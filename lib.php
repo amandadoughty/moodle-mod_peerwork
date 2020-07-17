@@ -82,6 +82,13 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
 
     peerwork_grade_item_update($peerwork);
 
+    // Now save the plugin data.
+    $calculatorplugins = load_plugins($peerwork, 'peerworkcalculator');
+
+    foreach ($calculatorplugins as $name => $plugin) {
+        update_plugin_instance($plugin, $peerwork);
+    }
+
     return $peerwork->id;
 }
 
@@ -104,6 +111,8 @@ function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mfo
 
     $prevlockediting = $DB->get_field('peerwork', 'lockediting', ['id' => $peerwork->instance], IGNORE_MISSING);
 
+    $prevcalculator = $DB->get_field('peerwork', 'calculator', ['id' => $peerwork->instance], IGNORE_MISSING);
+
     $peerwork->timemodified = time();
     $peerwork->id = $peerwork->instance;
     $return1 = $DB->update_record('peerwork', $peerwork);
@@ -121,7 +130,19 @@ function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mfo
         }
     }
 
+    // Update local grades across activity.
+    if ($prevcalculator != $peerwork->calculator) {
+        mod_peerwork_update_calculator($peerwork);
+    }
+
     peerwork_update_grades($peerwork);
+
+    // Now save the plugin data.
+    $calculatorplugins = load_plugins($peerwork, 'peerworkcalculator');
+
+    foreach ($calculatorplugins as $name => $plugin) {
+        update_plugin_instance($plugin, $peerwork);
+    }
 
     return $return1 && $return2;
 }

@@ -47,6 +47,12 @@ class mod_peerwork_mod_form extends moodleform_mod {
         global $CFG, $DB, $COURSE;
 
         $mform = $this->_form;
+        $peerwork = null;
+
+        if ($this->current && $this->current->id) {
+            $peerwork = $DB->get_record('peerwork', ['id' => $this->current->id], '*', MUST_EXIST);
+        }
+
         $this->pac = new mod_peerwork_criteria($this->current->id);
         $steps = range(0, 100, 1);
         $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
@@ -102,6 +108,8 @@ class mod_peerwork_mod_form extends moodleform_mod {
         if ($hassubmissions) {
             $mform->freeze('selfgrading');
         }
+
+        add_all_plugin_settings($mform, $peerwork);
 
         $mform->addElement('select', 'paweighting', get_string('paweighting', 'peerwork'), $zerotohundredpcopts);
         $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
@@ -286,15 +294,17 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
     public function definition_after_data() {
         global $CFG, $COURSE;
+
         $mform =& $this->_form;
         $hassubmissions = $this->has_submissions();
         $criteria = $this->pac->get_criteria();
         $i = 0;
+        $calculators = core_component::get_plugin_list('peerworkcalculator');
+        $gradesreleased = $this->is_grades_released();
 
         if ($hassubmissions) {
             for ($i; $i < count($criteria); $i++) {
                 // Cannot currently freeze editor elements MDL-29421.
-
                 $elname = 'critscale[' . $i . ']';
 
                 if ($mform->elementExists($elname)) {
@@ -306,6 +316,26 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
             if ($mform->elementExists($elname)) {
                 $mform->freeze($elname); // Prevent adding more criteria.
+            }
+        }
+
+        foreach ($calculators as $name => $path) {
+            $calculatorclass = '\peerworkcalculator_' . $name . '\calculator';
+
+            if (!$calculatorclass::usespaweighting()) {
+                if ($mform->elementExists('calculator')) {
+                    $mform->hideIf('paweighting', 'calculator', 'eq', $name);
+                }
+            }
+        }
+
+        // Remove elements the grades have not been released.
+        if (!$gradesreleased) {
+            if ($mform->elementExists('gradesexistmsg')) {
+                $mform->removeElement('gradesexistmsg');
+            }
+            if ($mform->elementExists('recalculategrades')) {
+                $mform->removeElement('recalculategrades');
             }
         }
 
@@ -375,6 +405,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
     }
 
     /**
+<<<<<<< HEAD
      * Check if the activity has submissions.
      *
      * @return bool $hassubmissions

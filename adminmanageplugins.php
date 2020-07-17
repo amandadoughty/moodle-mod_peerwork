@@ -1,5 +1,5 @@
 <?php
-// This file is part of a 3rd party created plugin for Moodle - http://moodle.org/.
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,17 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * Allows the admin to manage peerworkment plugins
  *
  * @package    mod_peerwork
- * @copyright  2013 LEARNING TECHNOLOGY SERVICES
+ * @copyright 2020 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot.'/mod/peerwork/adminlib.php');
 
-$plugin->version   = 2020061800;
-$plugin->requires  = 2018120300;      // Moodle 3.6.0.
-$plugin->component = 'mod_peerwork';
-$plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '2.0.0';
+$subtype = required_param('subtype', PARAM_PLUGIN);
+$action = optional_param('action', null, PARAM_PLUGIN);
+$plugin = optional_param('plugin', null, PARAM_PLUGIN);
+
+if (!empty($plugin)) {
+    require_sesskey();
+}
+
+// Create the class for this controller.
+$pluginmanager = new peerwork_plugin_manager($subtype);
+
+$PAGE->set_context(context_system::instance());
+
+// Execute the controller.
+$pluginmanager->execute($action, $plugin);

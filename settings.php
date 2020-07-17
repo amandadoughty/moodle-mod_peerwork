@@ -24,6 +24,24 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once($CFG->dirroot . '/mod/peerwork/adminlib.php');
+
+$ADMIN->add(
+    'modsettings',
+    new admin_category(
+        'modpeerworkfolder',
+        new lang_string('pluginname', 'mod_peerwork'),
+        $module->is_enabled() === false
+    )
+);
+
+$settings = new admin_settingpage(
+    $section,
+    get_string('settings', 'mod_assign'),
+    'moodle/site:config',
+    $module->is_enabled() === false
+);
+
 if ($ADMIN->fulltree) {
 
     $steps = range(0, 100, 1);
@@ -91,6 +109,25 @@ if ($ADMIN->fulltree) {
         get_string('paweighting_help', 'mod_peerwork'),
         50,
         $zerotohundredpcopts
+    ));
+
+    $calculators = core_component::get_plugin_list('peerworkcalculator');
+    $calcoptions = [];
+
+    foreach ($calculators as $name => $path) {
+        $visible = !get_config('peerworkcalculator_' . $name, 'disabled');
+
+        if ($visible) {
+            $calcoptions[$name] = $name;
+        }
+    }
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/calculator',
+        get_string('calculator', 'mod_peerwork'),
+        get_string('calculator_help', 'mod_peerwork'),
+        0,
+        $calcoptions
     ));
 
     $settings->add(new admin_setting_configselect(
@@ -216,4 +253,17 @@ if ($ADMIN->fulltree) {
         0,
         $scales
     ));
+}
+
+$ADMIN->add('modpeerworkfolder', $settings);
+// Tell core we already added the settings structure.
+$settings = null;
+
+$ADMIN->add('modpeerworkfolder', new admin_category('peerworkcalculatorplugins',
+    new lang_string('calculatorplugins', 'peerwork'), !$module->is_enabled()));
+$ADMIN->add('peerworkcalculatorplugins', new peerwork_admin_page_manage_peerwork_plugins('peerworkcalculator'));
+
+foreach (core_plugin_manager::instance()->get_plugins_of_type('peerworkcalculator') as $plugin) {
+    /** @var \mod_peerwork\plugininfo\peerworkcalculator $plugin */
+    $plugin->load_settings($ADMIN, 'modpeerworkfolder', $hassiteconfig);
 }

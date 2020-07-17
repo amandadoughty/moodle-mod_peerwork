@@ -283,5 +283,86 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020051300, 'peerwork');
     }
 
+    if ($oldversion < 2020052500) {
+        // Define field calculator to be added to peerwork.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('calculator', XMLDB_TYPE_CHAR, 255, null, XMLDB_NOTNULL, null, 'webpa', 'lockediting');
+
+        // Conditionally launch add field calculator.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define new peerwork_plugin_config table.
+        $table = new xmldb_table('peerwork_plugin_config');
+        $table->add_field(
+            'id',
+            XMLDB_TYPE_INTEGER,
+            10, null,
+            XMLDB_NOTNULL,
+            XMLDB_SEQUENCE,
+            null
+        );
+        $table->add_field(
+            'peerwork',
+            XMLDB_TYPE_INTEGER,
+            10,
+            null,
+            XMLDB_NOTNULL,
+            null,
+            null
+        );
+        $table->add_field(
+            'plugin',
+            XMLDB_TYPE_CHAR,
+            28,
+            null,
+            XMLDB_NOTNULL,
+            null,
+            null
+        );
+        $table->add_field(
+            'subtype',
+            XMLDB_TYPE_CHAR,
+            28,
+            null,
+            XMLDB_NOTNULL,
+            null,
+            null
+        );
+        $table->add_field(
+            'name',
+            XMLDB_TYPE_CHAR,
+            28,
+            null,
+            XMLDB_NOTNULL,
+            null,
+            null
+        );
+        $table->add_field(
+            'value',
+            XMLDB_TYPE_TEXT,
+            null,
+            null,
+            XMLDB_NOTNULL,
+            null,
+            null
+        );
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('peerwork', XMLDB_KEY_FOREIGN, ['peerwork'], 'peerwork', ['id']);
+        $table->add_index('plugin', XMLDB_INDEX_NOTUNIQUE, ['plugin']);
+        $table->add_index('subtype', XMLDB_INDEX_NOTUNIQUE, ['subtype']);
+        $table->add_index('name', XMLDB_INDEX_NOTUNIQUE, ['name']);
+
+        // Conditionally launch create table for peerwork_plugin_config.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020052500, 'peerwork');
+    }
+
     return true;
 }

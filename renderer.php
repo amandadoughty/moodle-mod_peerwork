@@ -42,6 +42,8 @@ class mod_peerwork_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_peerwork_summary(peerwork_summary $summary) {
+        global $COURSE;
+
         $group = $summary->group;
         $data = $summary->data;
         $membersgradeable = $summary->membersgradeable;
@@ -139,7 +141,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('peergrades', 'mod_peerwork'));
 
-            $scales = grade_scale::fetch_all_global();
+            $scales = (array)grade_scale::fetch_all_global() + (array)grade_scale::fetch_all_local($COURSE->id);;
             $isanon = $peerwork->peergradesvisibility != MOD_PEERWORK_PEER_GRADES_VISIBLE_USER;
             $displaytotals = !empty($peerwork->displaypeergradestotals);
             $members = (array) (object) $membersgradeable;

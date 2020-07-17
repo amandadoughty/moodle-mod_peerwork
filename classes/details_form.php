@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 
 /**
  * Creates UI elements for the tutor to enter an overall grade to a submission.
@@ -119,8 +120,17 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('text', 'grade', get_string('groupgradeoutof100', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
         $mform->setType('grade', PARAM_RAW);    // We do not use PARAM_INT to capture an empty field.
 
-        $mform->addElement('text', 'paweighting', get_string('paweighting', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
-        $mform->setType('paweighting', PARAM_INT);
+        $calculator = $peerwork->calculator;
+        $calculatorclass = calculator_class($calculator);
+        $usespaweighting = $calculatorclass::usespaweighting();
+
+        if ($usespaweighting) {
+            $mform->addElement('text', 'paweighting', get_string('paweighting', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
+            $mform->setType('paweighting', PARAM_INT);
+        } else {
+            $mform->addElement('hidden', 'paweighting');
+            $mform->setType('paweighting', PARAM_INT);
+        }
 
         foreach ($members as $member) {
             $mform->addElement('hidden', 'grade_' . $member->id, '');

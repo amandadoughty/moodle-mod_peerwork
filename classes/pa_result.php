@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * WebPA result.
+ * PA result.
  *
  * @package    mod_peerwork
  * @copyright  2019 Coventry University
@@ -26,19 +26,19 @@ namespace mod_peerwork;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * WebPA result.
+ * PA result.
  *
  * @package    mod_peerwork
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class webpa_result {
+class pa_result {
 
-    /** @var array The fracitonal scores. */
-    protected $fracscores;
-    /** @var array The WebPA scores. */
-    protected $webpascores;
+    /** @var array The reduced scores. */
+    protected $redscores;
+    /** @var array The PA scores. */
+    protected $pascores;
     /** @var array The preliminary grades. */
     protected $prelimgrades;
     /** @var array The final grades. */
@@ -50,30 +50,30 @@ class webpa_result {
      * Constructor.
      *
      * All parameters are indexed by member ID.
-     * The fractional scores contains an array indexed by peer IDs.
+     * The reduced scores contains an array indexed by peer IDs.
      *
-     * @param array $fracscores The fractional scores.
-     * @param array $webpascores The WebPA scores.
+     * @param array $redscores The reduced scores.
+     * @param array $pascores The PA scores.
      * @param array $prelimgrades The preliminary grades.
      * @param array $grades The final grades.
      * @param array $noncomplpenalties The non-completion penalties.
      */
-    public function __construct($fracscores, $webpascores, $prelimgrades, $grades, $noncomplpenalties) {
-        $this->fracscores = $fracscores;
-        $this->webpascores = $webpascores;
+    public function __construct($redscores, $pascores, $prelimgrades, $grades, $noncomplpenalties) {
+        $this->redscores = $redscores;
+        $this->pascores = $pascores;
         $this->prelimgrades = $prelimgrades;
         $this->grades = $grades;
         $this->noncomplpenalties = $noncomplpenalties;
     }
 
     /**
-     * Get fractional scores given by this member.
+     * Get reduced scores given by this member.
      *
      * @param int|string $memberid The member ID.
      * @return array Indexed by member ID.
      */
-    public function get_fractional_scores($memberid) {
-        return $this->fracscores[$memberid];
+    public function get_reduced_scores($memberid) {
+        return $this->redscores[$memberid];
     }
 
     /**
@@ -101,7 +101,7 @@ class webpa_result {
      * @return int|string[] The member IDs.
      */
     public function get_member_ids() {
-        return array_values($this->fracscores);
+        return array_values($this->redscores);
     }
 
     /**
@@ -127,22 +127,22 @@ class webpa_result {
     }
 
     /**
-     * Get the WebPA score.
+     * Get the PA score.
      *
      * @param int|string $memberid The member ID.
      * @return float The score.
      */
     public function get_score($memberid) {
-        return $this->webpascores[$memberid];
+        return $this->pascores[$memberid];
     }
 
     /**
-     * Get the WebPA scores.
+     * Get the PA scores.
      *
      * @return float[] The scores.
      */
     public function get_scores() {
-        return $this->webpascores;
+        return $this->pascores;
     }
 
     /**
@@ -152,6 +152,6 @@ class webpa_result {
      * @return bool Whether the user has submitted marks.
      */
     public function has_submitted($memberid) {
-        return !empty($this->fracscores[$memberid]);
+        return !empty($this->redscores[$memberid]);
     }
 }

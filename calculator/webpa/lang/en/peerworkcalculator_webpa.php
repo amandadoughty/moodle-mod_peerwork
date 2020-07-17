@@ -1,5 +1,5 @@
 <?php
-// This file is part of a 3rd party created plugin for Moodle - http://moodle.org/.
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,17 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * Lang strings.
  *
- * @package    mod_peerwork
- * @copyright  2013 LEARNING TECHNOLOGY SERVICES
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_peerwork
+ * @copyright 2020 Amanda Doughty
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2020061800;
-$plugin->requires  = 2018120300;      // Moodle 3.6.0.
-$plugin->component = 'mod_peerwork';
-$plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '2.0.0';
+$string['pluginname'] = 'WebPA calculator';
+$string['privacy:metadata'] = 'The webPA calculator does not store data.';
+$string['webpa'] = 'Web PA';
