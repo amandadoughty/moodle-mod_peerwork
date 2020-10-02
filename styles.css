@@ -24,6 +24,11 @@
 #mod-peerwork-summary-table .submitted-past-due-date {
     color: red;
 }
+#mod-peerwork-summary-table.crit td {
+    vertical-align: top;
+    padding-top: 5px;
+    line-height: 1.5rem;
+}
 
 #mod-peerwork-grader-table .grading-summary-totals td:first-child {
     font-weight: bold;
@@ -49,6 +54,7 @@
     overflow-x: auto;
     padding-bottom: 1em;
 }
+
 .mod_peerwork_criteriaheader {
     font-size: large;
     border-top: 1px solid #efefef;
@@ -72,19 +78,23 @@
 .mod_peerwork_ratings {
     display: flex;
 }
+
+.mod_peerwork_ratings {
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
 .mod_peerwork_peer {
     margin: 1em 0;
     position: relative;
+    align-items: flex-end;
 }
-.mod_peerwork_peername {
-    width: 200px;
-    max-width: 200px;
-    min-width: 200px;
-}
+
 .mod_peerwork_scaleheaders {
     font-weight: bold;
-    margin-left: 200px;
     align-items: flex-end;
+}
+.mod_peerwork_scaleheaders > div {
+    display: none;
 }
 .mod_peerwork_rating,
 .mod_peerwork_scaleheaders > div {
@@ -95,11 +105,40 @@
     margin: 0;
     padding: 0 1em;
 }
+
 .mod_peerwork_rating input {
     margin: 0;
 }
 
-@media(max-width: 786px) {
+.mod_peerwork_justif {
+    flex: 1 0 100px;
+}
+.mod_peerwork_justif .form-group {
+    margin-bottom: 0;
+}
+
+/* overriding pesky bootstrap classes on form element */
+.mod_peerwork_justif .col-md-3 {
+    flex: 0 0 0;
+}
+
+.mod_peerwork_justif .col-md-9 {
+    max-width: 100%;
+    flex: 0 0 100%;
+}
+
+#id_justificationshdr .caption {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 42px;
+    text-align: left;
+    caption-side: top;
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+    color: #868e96;
+}
+
+@media(max-width: 768px) {
     .mod_peerwork_peername {
         max-width: none;
         min-width: auto;
@@ -113,5 +152,17 @@
     }
     .mod_peerwork_scaleheaders {
         margin-left: 0;
+    }
+}
+
+@media(min-width: 768px) {
+    .mod_peerwork_rating label > span {
+        display: none;
+    }
+    .mod_peerwork_justif .col-md-3 {
+        display: none;
+    }
+    .mod_peerwork_scaleheaders > div {
+        display: inline-block;
     }
 }

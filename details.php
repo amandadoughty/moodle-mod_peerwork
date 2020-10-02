@@ -94,13 +94,17 @@ $data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', '
 $grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
 $pac = new mod_peerwork_criteria( $peerwork->id );
 $data['peergradesawarded'] = '';
-foreach ($pac->get_criteria() as $criteria) {
+// Is there per criteria justification enabled?
+$justenabled = $peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED;
+$justcrit = $peerwork->justificationtype == MOD_PEERWORK_JUSTIFICATION_CRITERIA;
+$justenabledcrit = $justenabled && $justcrit;
 
+foreach ($pac->get_criteria() as $criteria) {
     $critid = $criteria->id;
+    $extraclasses = $justenabledcrit ? 'crit' : '';
 
     $t = new html_table();
-    $t->attributes['class'] = 'userenrolment';
-    $t->id = 'mod-peerwork-summary-table';
+    $t->attributes['class'] = "peerwork $extraclasses";
     $t->head[] = '';
     $t->caption = $criteria->description;
 
@@ -130,7 +134,22 @@ foreach ($pac->get_criteria() as $criteria) {
                     || !isset($grades->grades[$critid][$member->id][$peer->id])) {
                 $row->cells[] = '-';
             } else {
-                $row->cells[] = $grades->grades[$critid][$member->id][$peer->id];
+                $feedbacktext = '';
+
+                if (
+                    $justenabledcrit &&
+                    isset($justifications[$member->id]) &&
+                    isset($justifications[$member->id][$critid]) &&
+                    isset($justifications[$member->id][$critid][$peer->id])
+                ) {
+                    $feedbacktext = print_collapsible_region(
+                        $justifications[$member->id][$critid][$peer->id]->justification,
+                        'peerwork-feedback',
+                        'peerwork-feedback-' . $member->id . '-' . $critid . '-' . $peer->id,
+                        shorten_text($justifications[$member->id][$critid][$peer->id]->justification, 20), '', true, true);
+                }
+
+                $row->cells[] = $grades->grades[$critid][$member->id][$peer->id] . $feedbacktext;
             }
         }
         $t->data[] = $row;
@@ -140,7 +159,7 @@ foreach ($pac->get_criteria() as $criteria) {
 
 // If assignment has been graded then pass the required data to create a table showing calculated grades.
 if (peerwork_was_submission_graded_from_status($status)) {
-    $result = peerwork_get_webpa_result($peerwork, $group);
+    $result = peerwork_get_pa_result($peerwork, $group);
     $localgrades = peerwork_get_local_grades($peerwork->id, $submission->id);
 
     $data['finalgrades'] = [];

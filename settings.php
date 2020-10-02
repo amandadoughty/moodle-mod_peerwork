@@ -24,6 +24,24 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once($CFG->dirroot . '/mod/peerwork/adminlib.php');
+
+$ADMIN->add(
+    'modsettings',
+    new admin_category(
+        'modpeerworkfolder',
+        new lang_string('pluginname', 'mod_peerwork'),
+        $module->is_enabled() === false
+    )
+);
+
+$settings = new admin_settingpage(
+    $section,
+    get_string('settings', 'mod_assign'),
+    'moodle/site:config',
+    $module->is_enabled() === false
+);
+
 if ($ADMIN->fulltree) {
 
     $steps = range(0, 100, 1);
@@ -32,10 +50,18 @@ if ($ADMIN->fulltree) {
     }, $steps));
 
     $settings->add(new admin_setting_configselect(
+        'peerwork/numcrit',
+        get_string('numcrit', 'mod_peerwork'),
+        get_string('numcrit_help', 'mod_peerwork'),
+        3,
+        [1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5]
+    ));
+
+    $settings->add(new admin_setting_configselect(
         'peerwork/addmorecriteriastep',
         get_string('addmorecriteriastep', 'mod_peerwork'),
         get_string('addmorecriteriastep_help', 'mod_peerwork'),
-        3,
+        1,
         array_combine(range(1, 9), range(1, 9))
     ));
 
@@ -60,12 +86,14 @@ if ($ADMIN->fulltree) {
         [0 => 0, 1, 2, 3, 4, 5]
     ));
 
+    $scales = get_scales_menu();
+
     $settings->add(new admin_setting_configselect(
         'peerwork/critscale',
         get_string('critscale', 'mod_peerwork'),
         get_string('critscale_help', 'mod_peerwork'),
         null,
-        get_scales_menu()
+        $scales
     ));
 
     $settings->add(new admin_setting_configcheckbox(
@@ -83,6 +111,25 @@ if ($ADMIN->fulltree) {
         $zerotohundredpcopts
     ));
 
+    $calculators = core_component::get_plugin_list('peerworkcalculator');
+    $calcoptions = [];
+
+    foreach ($calculators as $name => $path) {
+        $visible = !get_config('peerworkcalculator_' . $name, 'disabled');
+
+        if ($visible) {
+            $calcoptions[$name] = $name;
+        }
+    }
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/calculator',
+        get_string('calculator', 'mod_peerwork'),
+        get_string('calculator_help', 'mod_peerwork'),
+        0,
+        $calcoptions
+    ));
+
     $settings->add(new admin_setting_configselect(
         'peerwork/noncompletionpenalty',
         get_string('noncompletionpenalty', 'mod_peerwork'),
@@ -98,6 +145,19 @@ if ($ADMIN->fulltree) {
         false
     ));
 
+    $setting = new admin_setting_configselect(
+        'peerwork/justificationtype',
+        get_string('justificationtype', 'mod_peerwork'),
+        get_string('justificationtype_help', 'mod_peerwork'),
+        0,
+        [
+            0 => get_string('justificationtype0', 'mod_peerwork'),
+            1 => get_string('justificationtype1', 'mod_peerwork')
+        ]
+    );
+    $setting->set_locked_flag_options(admin_setting_flag::ENABLED, false);
+    $settings->add($setting);
+
     $settings->add(new admin_setting_configtext(
         'peerwork/justificationmaxlength',
         get_string('justificationmaxlength', 'mod_peerwork'),
@@ -106,4 +166,104 @@ if ($ADMIN->fulltree) {
         PARAM_INT
     ));
 
+    $settings->add(new admin_setting_heading(
+        'peerwork/defaultcritshdr',
+        get_string('defaultcrit', 'mod_peerwork'),
+        get_string('defaultcrit_desc', 'mod_peerwork')
+    ));
+
+    $scales = [0 => ''] + $scales;
+
+    $settings->add(new admin_setting_confightmleditor(
+        'peerwork/defaultcrit0',
+        get_string('defaultcrit0', 'mod_peerwork'),
+        get_string('defaultcrit0_help', 'mod_peerwork'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/defaultscale0',
+        get_string('defaultscale0', 'mod_peerwork'),
+        get_string('defaultscale0_help', 'mod_peerwork'),
+        0,
+        $scales
+    ));
+
+    $settings->add(new admin_setting_confightmleditor(
+        'peerwork/defaultcrit1',
+        get_string('defaultcrit1', 'mod_peerwork'),
+        get_string('defaultcrit1_help', 'mod_peerwork'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/defaultscale1',
+        get_string('defaultscale1', 'mod_peerwork'),
+        get_string('defaultscale1_help', 'mod_peerwork'),
+        0,
+        $scales
+    ));
+
+    $settings->add(new admin_setting_confightmleditor(
+        'peerwork/defaultcrit2',
+        get_string('defaultcrit2', 'mod_peerwork'),
+        get_string('defaultcrit2_help', 'mod_peerwork'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/defaultscale2',
+        get_string('defaultscale2', 'mod_peerwork'),
+        get_string('defaultscale2_help', 'mod_peerwork'),
+        0,
+        $scales
+    ));
+
+    $settings->add(new admin_setting_confightmleditor(
+        'peerwork/defaultcrit3',
+        get_string('defaultcrit3', 'mod_peerwork'),
+        get_string('defaultcrit3_help', 'mod_peerwork'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/defaultscale3',
+        get_string('defaultscale3', 'mod_peerwork'),
+        get_string('defaultscale3_help', 'mod_peerwork'),
+        0,
+        $scales
+    ));
+
+    $settings->add(new admin_setting_confightmleditor(
+        'peerwork/defaultcrit4',
+        get_string('defaultcrit4', 'mod_peerwork'),
+        get_string('defaultcrit4_help', 'mod_peerwork'),
+        '',
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/defaultscale4',
+        get_string('defaultscale4', 'mod_peerwork'),
+        get_string('defaultscale4_help', 'mod_peerwork'),
+        0,
+        $scales
+    ));
+}
+
+$ADMIN->add('modpeerworkfolder', $settings);
+// Tell core we already added the settings structure.
+$settings = null;
+
+$ADMIN->add('modpeerworkfolder', new admin_category('peerworkcalculatorplugins',
+    new lang_string('calculatorplugins', 'peerwork'), !$module->is_enabled()));
+$ADMIN->add('peerworkcalculatorplugins', new peerwork_admin_page_manage_peerwork_plugins('peerworkcalculator'));
+
+foreach (core_plugin_manager::instance()->get_plugins_of_type('peerworkcalculator') as $plugin) {
+    /** @var \mod_peerwork\plugininfo\peerworkcalculator $plugin */
+    $plugin->load_settings($ADMIN, 'modpeerworkfolder', $hassiteconfig);
 }

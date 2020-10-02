@@ -42,6 +42,9 @@ define('MOD_PEERWORK_JUSTIFICATION_HIDDEN', 1);         // Justification hidden 
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON', 2);   // Justification visible to all but anonymously.
 define('MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER', 3);   // Justification visible to all with identity visible.
 
+define('MOD_PEERWORK_JUSTIFICATION_SUMMARY', 0);       // Single justification for grades.
+define('MOD_PEERWORK_JUSTIFICATION_CRITERIA', 1);      // Justification for each criteria.
+
 define('MOD_PEERWORK_PEER_GRADES_HIDDEN', 0);           // Peer grades hidden to students.
 define('MOD_PEERWORK_PEER_GRADES_VISIBLE_ANON', 2);     // Peer grades visible to all but anonymously.
 define('MOD_PEERWORK_PEER_GRADES_VISIBLE_USER', 3);     // Peer grades visible to all with identity visible.
@@ -198,6 +201,37 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
 }
 
 /**
+ * Determine if there are any submissions.
+ *
+ * @param course_module $cm
+ * @return bool
+ */
+function peerwork_has_submissions($cm) {
+    global $DB;
+
+    $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
+    $hassubmissions = $DB->record_exists('peerwork_submission', ['peerworkid' => $peerwork->id]);
+
+    return $hassubmissions;
+}
+
+/**
+ * Determine if there are any submissions with grades released.
+ *
+ * @param course_module $cm
+ * @return bool
+ */
+function peerwork_has_released_grades($cm) {
+    global $DB;
+
+    $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
+    $sql = 'peerworkid = :peerworkid AND timegraded > 0 AND released > 0';
+    $gradesreleased = $DB->record_exists_select('peerwork_submission', $sql, ['peerworkid' => $peerwork->id]);
+
+    return $gradesreleased;
+}
+
+/**
  * Get the justifications.
  *
  * @param int $peerworkid The peerwork ID.
@@ -209,9 +243,9 @@ function peerwork_get_justifications($peerworkid, $groupid) {
     $justifications = $DB->get_records('peerwork_justification', ['peerworkid' => $peerworkid, 'groupid' => $groupid]);
     return array_reduce($justifications, function($carry, $row) {
         if (!isset($carry[$row->gradedby])) {
-            $carry[$row->gradedby] = [];
+            $carry[$row->gradedby][$row->criteriaid] = [];
         }
-        $carry[$row->gradedby][$row->gradefor] = $row;
+        $carry[$row->gradedby][$row->criteriaid][$row->gradefor] = $row;
         return $carry;
     }, []);
 }
@@ -232,7 +266,7 @@ function peerwork_get_justifications_received($peerworkid, $groupid, $userid) {
         'gradefor' => $userid
     ]);
     return array_reduce($justifications, function($carry, $row) {
-        $carry[$row->gradedby] = $row;
+        $carry[$row->criteriaid][$row->gradedby] = $row;
         return $carry;
     }, []);
 }
@@ -403,17 +437,21 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     global $DB;
 
     $return = new stdClass();
+    $calculator = calculator_instance($peerwork);
 
     $peers = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id, 'groupid' => $group->id));
-    $grades = array();
-    $feedback = array();
+    $grades = [];
+    $feedback = [];
 
     foreach ($peers as $peer) {
         $grades[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->grade;
         $feedback[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->feedback;
     }
 
-    // Anthing not proceessed about gets a default string.
+    // Translate the scales to grades.
+    $grades = $calculator->translate_scales_to_scores($grades);
+
+    // Anything not proceessed about gets a default string.
     if ($full) {
         foreach (array_keys($grades) as $critid) {
             foreach ($membersgradeable as $member1) {
@@ -461,26 +499,26 @@ function peerwork_get_number_peers_graded($peerworkid, $groupid, $userid = null)
 }
 
 /**
- * Calculate and return the WebPA result, but cached for the request.
+ * Calculate and return the PA result, but cached for the request.
  *
  * @param object $peerwork The module instance.
  * @param object $group The group.
  * @param object $submission The submission, to prevent a double fetch.
- * @return mod_peerwork\webpa_result|null Null when the submission was not found or graded.
+ * @return mod_peerwork\pa_result|null Null when the submission was not found or graded.
  */
-function peerwork_get_cached_webpa_result($peerwork, $group, $submission = null) {
-    return peerwork_get_webpa_result($peerwork, $group, $submission);
+function peerwork_get_cached_pa_result($peerwork, $group, $submission = null) {
+    return peerwork_get_pa_result($peerwork, $group, $submission);
 }
 
 /**
- * Calculate and return the WebPA result.
+ * Calculate and return the PA result.
  *
  * @param object $peerwork The module instance.
  * @param object $group The group.
  * @param object $submission The submission, to prevent a double fetch.
- * @return mod_peerwork\webpa_result|null Null when the submission was not found or graded.
+ * @return mod_peerwork\pa_result|null Null when the submission was not found or graded.
  */
-function peerwork_get_webpa_result($peerwork, $group, $submission = null) {
+function peerwork_get_pa_result($peerwork, $group, $submission = null) {
     global $DB;
 
     if (!$submission) {
@@ -502,19 +540,21 @@ function peerwork_get_webpa_result($peerwork, $group, $submission = null) {
 
     $marks = [];
     $members = groups_get_members($group->id);
+
     foreach ($members as $member) {
-        $awarded = peerwork_grade_by_user($peerwork, $member, $members);
+        $awarded = peerwork_grades_by_user($peerwork, $member, $members);
         $marks[$member->id] = array_filter($awarded->grade, function($grade) {
-            return is_numeric($grade);
+            return is_array($grade);
         });
     }
 
-    $calculator = new \mod_peerwork\webpa_calculator($paweighting, $noncompletionpenalty);
-    return $calculator->calculate($marks, $groupmark);
+    $calculator = calculator_instance($peerwork);
+
+    return $calculator->calculate($marks, $groupmark, $noncompletionpenalty, $paweighting);
 }
 
 /**
- * Create HTML links to files that have been submitted to the assignment.
+ * Create HTML links to files that have been submitted to the peerworkment.
  *
  * @param context $context The context.
  * @param object $group The group.
@@ -587,6 +627,31 @@ function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
             $data->feedback[$member->id] = '-';
         }
     }
+    return $data;
+}
+
+/**
+ * All the grades awarded by the $user to other members of the group.
+ *
+ * @param object $peerwork The instance.
+ * @param object $user The user.
+ * @param object[] $membersgradeable The user's peers.
+ */
+function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
+    global $DB;
+
+    $data = new stdClass();
+    $data->grade = [];
+    $data->feedback = [];
+
+    $mygrades = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id,
+        'gradedby' => $user->id), '', 'id,criteriaid,gradefor,grade');
+
+    foreach ($mygrades as $grade) {
+        $peerid = $grade->gradefor;
+        $data->grade[$peerid][] = $grade->grade;
+    }
+
     return $data;
 }
 
@@ -697,7 +762,7 @@ function peerwork_get_local_grades($peerworkid, $submissionid) {
 function peerwork_update_local_grades($peerwork, $group, $submission, $userids, $revisedgrades = null) {
     global $DB;
 
-    $result = peerwork_get_webpa_result($peerwork, $group, $submission);
+    $result = peerwork_get_pa_result($peerwork, $group, $submission);
     $existingrecords = peerwork_get_local_grades($peerwork->id, $submission->id);
 
     foreach ($userids as $userid) {
@@ -716,7 +781,6 @@ function peerwork_update_local_grades($peerwork, $group, $submission, $userids, 
         if ($revisedgrades !== null) {
             $record->revisedgrade = $revisedgrades[$userid] ?? null;
         }
-
         if (!empty($record->id)) {
             $DB->update_record('peerwork_grades', $record);
         } else {
@@ -823,6 +887,8 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     }
 
     // Save the justification.
+    $justificationtype = $peerwork->justificationtype;
+
     if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
         foreach ($membersgradeable as $member) {
 
@@ -835,17 +901,41 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
                 'peerworkid' => $peerwork->id,
                 'groupid' => $group->id,
                 'gradefor' => $member->id,
-                'gradedby' => $USER->id
+                'gradedby' => $USER->id,
+                'criteriaid' => 0
             ];
-            $record = $DB->get_record('peerwork_justification', $params);
-            if (!$record) {
-                $record = (object) $params;
-            }
-            $record->justification = trim(isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '');
-            if (!empty($record->id)) {
-                $DB->update_record('peerwork_justification', $record);
-            } else {
-                $DB->insert_record('peerwork_justification', $record);
+            if ($justificationtype == MOD_PEERWORK_JUSTIFICATION_SUMMARY) {
+                $record = $DB->get_record('peerwork_justification', $params);
+
+                if (!$record) {
+                    $record = (object) $params;
+                }
+
+                $record->justification = trim(isset($data->justifications[$member->id]) ? $data->justifications[$member->id] : '');
+
+                if (!empty($record->id)) {
+                    $DB->update_record('peerwork_justification', $record);
+                } else {
+                    $DB->insert_record('peerwork_justification', $record);
+                }
+            } else if ($justificationtype == MOD_PEERWORK_JUSTIFICATION_CRITERIA) {
+                foreach ($criteria as $id => $criterion) {
+                    $params['criteriaid'] = $criterion->id;
+                    $record = $DB->get_record('peerwork_justification', $params);
+
+                    if (!$record) {
+                        $record = (object) $params;
+                    }
+
+                    $text = isset($data->{'justification_' . $id}[$member->id]) ? $data->{'justification_' . $id}[$member->id] : '';
+                    $record->justification = trim($text);
+
+                    if (!empty($record->id)) {
+                        $DB->update_record('peerwork_justification', $record);
+                    } else {
+                        $DB->insert_record('peerwork_justification', $record);
+                    }
+                }
             }
         }
     }
@@ -1195,4 +1285,225 @@ function mod_peerwork_get_locked_peers($peerwork, $gradedby) {
         'peerworkid' => $peerwork->id,
         'gradedby' => $gradedby
     ]);
+}
+
+/**
+ * Update local grades across the entire activity.
+ *
+ * @param object $peerwork The peerwork instance.
+ * @return void
+ */
+function mod_peerwork_update_calculator($peerwork) {
+    global $DB;
+
+    $submissions = $DB->get_records('peerwork_submission', ['peerworkid' => $peerwork->id]);
+
+    if ($submissions) {
+        foreach ($submissions as $submission) {
+            if ($submission->timegraded) {
+                $groupid = $submission->groupid;
+                $group = $DB->get_record('groups', ['id' => $groupid], '*', MUST_EXIST);
+                $members = groups_get_members($groupid);
+                peerwork_update_local_grades($peerwork, $group, $submission, array_keys($members));
+            }
+        }
+    }
+}
+
+/*
+ * Returns calculator class name
+ *
+ * @return string
+ */
+function calculator_class($calculator) {
+    global $CFG;
+
+    $classname = '\\peerworkcalculator_' . $calculator . '\calculator';
+
+    if (!class_exists($classname)) {
+        debugging($classname . ' does not exist');
+
+        // Get the default.
+        $defaultcalculator = get_config('peerwork', 'calculator');
+        $classname = '\\peerworkcalculator_' . $defaultcalculator . '\calculator';
+
+        // Fall back to base.
+        if (!class_exists($classname)) {
+            return '\\mod_peerwork\peerworkcalculator_plugin';
+        }
+    }
+
+    if (!in_array('mod_peerwork\peerworkcalculator_plugin', class_parents($classname))) {
+        throw new coding_exception($classname . ' does not extend peerwork_calculator_plugin class');
+    }
+
+    return $classname;
+}
+
+/**
+ * Returns instance of calculator class
+ *
+ * @return stdclass Instance of a calculator
+ */
+function calculator_instance($peerwork) {
+    global $CFG;
+
+    $calculator = $peerwork->calculator;
+    $classname = calculator_class($calculator);
+    $calculatorinstance = new $classname($peerwork, $calculator);
+
+    return $calculatorinstance;
+}
+
+/**
+ * Load the plugins.
+ *
+ * @param string $subtype - calculator
+ * @return array - The sorted list of plugins
+ */
+function load_plugins($peerwork, $subtype) {
+    global $CFG;
+    $result = [];
+    $sortedresult = [];
+    $names = core_component::get_plugin_list($subtype);
+
+    foreach ($names as $name => $path) {
+        $shortsubtype = substr($subtype, strlen('peerwork'));
+        $pluginclass = 'peerwork' . $shortsubtype . '_' . $name . '\\' . $shortsubtype;
+
+        if (!class_exists($pluginclass)) {
+            throw new coding_exception($pluginclass . ' does not exist');
+        } else {
+            $plugin = new $pluginclass($peerwork, $name);
+            $idx = $plugin->get_sort_order();
+
+            while (array_key_exists($idx, $result)) {
+                $idx += 1;
+            }
+
+            $result[$idx][$name] = $plugin;
+        }
+    }
+
+    ksort($result);
+
+    foreach ($result as $plugins) {
+        $sortedresult = $sortedresult + $plugins;
+    }
+
+    return $sortedresult;
+}
+
+/**
+ * Add one plugins settings to edit plugin form.
+ *
+ * @param peerwork_plugin $plugin The plugin to add the settings from
+ * @param MoodleQuickForm $mform The form to add the configuration settings to.
+ *                               This form is modified directly (not returned).
+ * @param array $pluginsenabled A list of form elements to be added to a select.
+ *                              The new element is added to this array by this function.
+ * @return void
+ */
+function add_plugin_settings($plugin, MoodleQuickForm $mform, & $pluginsenabled) {
+    global $CFG;
+
+    if ($plugin->is_visible() && $plugin->is_configurable()) {
+        $name = $plugin->get_name();
+        $value = $plugin->get_subtype();
+        $pluginsenabled[$name] = $value;
+    }
+}
+
+/**
+ * Add settings to edit plugin form.
+ *
+ * @param MoodleQuickForm $mform The form to add the configuration settings to.
+ * This form is modified directly (not returned).
+ * @return void
+ */
+function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
+    $mform->addElement('header', 'calculatortypes', get_string('calculatortypes', 'peerwork'));
+    $calculatorplugins = load_plugins($peerwork, 'peerworkcalculator');
+    $calculatorpluginsenabled = [];
+
+    foreach ($calculatorplugins as $name => $plugin) {
+        $calculatorpluginnames[$name] = $plugin->get_name();
+        add_plugin_settings($plugin, $mform, $calculatorpluginsenabled);
+    }
+
+    if (count($calculatorpluginsenabled) > 1) {
+        $gradesexistmsg = get_string('gradesexistmsg', 'peerwork');
+        $gradesexisthtml = '<div class=\'alert alert-warning\'>' . $gradesexistmsg . '</div>';
+        $mform->addElement('static', 'gradesexistmsg', '', $gradesexisthtml);
+        $mform->addElement('selectyesno',
+            'recalculategrades',
+            get_string('recalculategrades', 'peerwork')
+        );
+        $mform->setType('recalculategrades', PARAM_BOOL);
+        $mform->addHelpButton('recalculategrades', 'recalculategrades', 'peerwork');
+
+        $mform->addElement(
+            'select',
+            'calculator',
+            get_string('calculator', 'peerwork'),
+            $calculatorpluginnames
+        );
+        $mform->setType('calculator', PARAM_TEXT);
+
+        $mform->disabledIf('calculator', 'recalculategrades', 'eq', 0);
+    } else if (count($calculatorpluginsenabled) == 1) {
+        $value = array_pop($calculatorpluginsenabled);
+        $mform->addElement('hidden', 'calculator');
+        $mform->setType('calculator', PARAM_TEXT);
+        $mform->setDefault('calculator', $value);
+    } else {
+        $mform->addElement(
+            'static',
+            'nocalculator',
+            get_string('calculator', 'peerwork'),
+            get_string('nocalculator', 'peerwork')
+        );
+    }
+
+    foreach ($calculatorplugins as $name => $plugin) {
+        $plugin->get_settings($mform);
+    }
+}
+
+/**
+ * Allow each plugin an opportunity to update the defaultvalues
+ * passed in to the settings form (needed to set up draft areas for
+ * editor and filemanager elements)
+ *
+ * @param array $defaultvalues
+ */
+function plugin_data_preprocessing(&$defaultvalues) {
+    $calculatorplugins = core_component::get_plugin_list('peerworkcalculator');
+
+    foreach ($calculatorplugins as $name => $filepath) {
+        $pluginclass = 'peerworkcalculator_' . $name . '\\calculator';
+        $plugin = new $pluginclass(null, $name);
+
+        if ($plugin->is_visible()) {
+            $plugin->data_preprocessing($defaultvalues);
+        }
+    }
+}
+
+/**
+ * Update the settings for a single plugin.
+ *
+ * @param peerwork_plugin $plugin The plugin to update
+ * @param stdClass $formdata The form data
+ * @return bool false if an error occurs
+ */
+function update_plugin_instance(\mod_peerwork\peerwork_plugin $plugin, stdClass $formdata) {
+    if ($plugin->is_visible()) {
+        if (!$plugin->save_settings($formdata)) {
+            print_error($plugin->get_error());
+            return false;
+        }
+    }
+
+    return true;
 }

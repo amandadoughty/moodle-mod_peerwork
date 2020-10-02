@@ -42,6 +42,8 @@ class mod_peerwork_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_peerwork_summary(peerwork_summary $summary) {
+        global $COURSE;
+
         $group = $summary->group;
         $data = $summary->data;
         $membersgradeable = $summary->membersgradeable;
@@ -139,7 +141,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('peergrades', 'mod_peerwork'));
 
-            $scales = grade_scale::fetch_all_global();
+            $scales = (array)grade_scale::fetch_all_global() + (array)grade_scale::fetch_all_local($COURSE->id);;
             $isanon = $peerwork->peergradesvisibility != MOD_PEERWORK_PEER_GRADES_VISIBLE_USER;
             $displaytotals = !empty($peerwork->displaypeergradestotals);
             $members = (array) (object) $membersgradeable;
@@ -169,9 +171,11 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                 $ratings = [];
                 $totalscore = 0;
                 $totalmax = 0;
+
                 foreach ($members as $member) {
                     $grade = $gradeinfo[$member->id] ?? null;
                     $scalevalue = '-';
+                    $content = '';
 
                     if (!$grade && $isanon) {
                         continue;
@@ -197,7 +201,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                     } else {
                         $ratings[] = get_string('peerratedyou', 'mod_peerwork', [
                             'name' => fullname($member),
-                            'grade' => $scalevalue
+                            'grade' => $scalevalue,
                         ]);
                     }
                 }
@@ -237,21 +241,52 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             }
 
             $html = '';
-            foreach ($members as $member) {
-                $justification = $data['justifications'][$member->id] ?? null;
-                if ($isanon) {
-                    if (empty($justification)) {
-                        continue;
-                    }
-                    $html .= html_writer::tag('blockquote', s($justification->justification));
-                } else {
-                    $content = '';
-                    if (empty($justification)) {
-                        $content = html_writer::tag('p', html_writer::tag('em', get_string('nonegiven', 'mod_peerwork')));
+
+            if ($data['justificationtype'] == MOD_PEERWORK_JUSTIFICATION_SUMMARY) {
+                foreach ($members as $member) {
+                    $justification = $data['justifications'][0][$member->id] ?? null;
+                    if ($isanon) {
+                        if (empty($justification)) {
+                            continue;
+                        }
+                        $html .= html_writer::tag('blockquote', s($justification->justification));
                     } else {
-                        $content = html_writer::tag('blockquote', s($justification->justification));
+                        $content = '';
+                        if (empty($justification)) {
+                            $content = html_writer::tag('p', html_writer::tag('em', get_string('nonegiven', 'mod_peerwork')));
+                        } else {
+                            $content = html_writer::tag('blockquote', s($justification->justification));
+                        }
+                        $html .= html_writer::tag('div', get_string('peersaid', 'mod_peerwork', fullname($member)) . $content);
                     }
-                    $html .= html_writer::tag('div', get_string('peersaid', 'mod_peerwork', fullname($member)) . $content);
+                }
+            } else if ($data['justificationtype'] == MOD_PEERWORK_JUSTIFICATION_CRITERIA) {
+                foreach ($data['criteria'] as $id => $criterion) {
+                    $html .= html_writer::tag('p', ($criterion->description));
+
+                    foreach ($members as $member) {
+                        $justification = $data['justifications'][$id][$member->id] ?? null;
+
+                        if ($isanon) {
+                            if (empty($justification)) {
+                                continue;
+                            }
+
+                            $html .= html_writer::tag('blockquote', s($justification->justification));
+                        } else {
+                            $content = '';
+
+                            if (empty($justification)) {
+                                $content = html_writer::tag('p', html_writer::tag('em', get_string('nonegiven', 'mod_peerwork')));
+                            } else {
+                                $content = html_writer::tag('blockquote', s($justification->justification));
+                            }
+
+                            $html .= html_writer::tag('div', get_string('peersaid', 'mod_peerwork', fullname($member)) . $content);
+                        }
+                    }
+
+                    $html .= html_writer::tag('hr', '');
                 }
             }
 

@@ -19,7 +19,7 @@ Teachers grade the group assignment.
 The activity then calculates the grade each individual student receives.
 The final individual grade is based on the teacher grade, peer ratings and weighting. 
 
-Teachers can adjust weightings on a per group basis and override any individual grades they need to.
+If PA weighting is included in the selected calculator, then teachers can adjust weightings on a per group basis. Teachers can also override any individual grades they need to.
 Teachers then release grades ensuring all students recieve their grades at the same time.
 Teachers can export grades for an individual group or the entire cohort as a csv file.
 
@@ -27,11 +27,11 @@ Authors
 =======
 
 2013
- - This module was built to a specification from City University London 
+ - This module was built to a specification from City, University of London 
  - by Learning Technology Services Ltd, Ireland.
 
 2017
- - This module was revised by Naomi Wilce, City University London
+ - This module was revised by Naomi Wilce, City, University of London
  
 2018
  - Work by Kevin Moore, Coventry University to add grading criteria
@@ -39,10 +39,14 @@ Authors
 2019
  - Extended and improved by https://branchup.tech/ with funding from Coventry University
 
+ 2020
+ - Extended and improved by Amanda Doughty, City, University of London
+
 Supported Versions
 ==================
 
- - The module has been tested with Moodle versions 2.4, 2.5, 2.6, 3.2, 3.4 
+ - The module has been tested with Moodle versions 2.4, 2.5, 2.6, 3.2, 3.4,
+   3.6, 3.8
 
 
 Installation instructions

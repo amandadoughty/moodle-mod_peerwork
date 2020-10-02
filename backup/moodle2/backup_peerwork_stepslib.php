@@ -48,9 +48,9 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'name', 'intro', 'introformat', 'timecreated',
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'allowlatesubmissions', 'peergradesvisibility',
-            'justification', 'justificationmaxlength',
+            'justification', 'justificationtype', 'justificationmaxlength',
             'paweighting', 'noncompletionpenalty', 'completiongradedpeers', 'displaypeergradestotals',
-            'lockediting'));
+            'lockediting', 'calculator'));
 
         $criteria = new backup_nested_element('criteria');
         $criterion = new backup_nested_element('criterion', ['id'], [
@@ -63,7 +63,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         $justifications = new backup_nested_element('justifications');
         $justification = new backup_nested_element('justification', ['id'], [
-            'groupid', 'gradedby', 'gradefor', 'justification']);
+            'groupid', 'gradedby', 'gradefor', 'criteriaid', 'justification']);
 
         $submissions = new backup_nested_element('submissions');
         $submission = new backup_nested_element('submission', array('id'), array(
@@ -75,6 +75,14 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $grade = new backup_nested_element('grade', ['id'], [
             'submissionid', 'userid', 'score', 'prelimgrade', 'grade', 'revisedgrade'
         ]);
+
+        $pluginconfigs = new backup_nested_element('plugin_configs');
+
+        $pluginconfig = new backup_nested_element('plugin_config', array('id'),
+                                                   array('plugin',
+                                                         'subtype',
+                                                         'name',
+                                                         'value'));
 
         // Build the tree.
         $peerwork->add_child($criteria);
@@ -92,9 +100,14 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $peerwork->add_child($grades);
         $grades->add_child($grade);
 
+        $peerwork->add_child($pluginconfigs);
+        $pluginconfigs->add_child($pluginconfig);
+
         // Define sources.
         $peerwork->set_source_table('peerwork', array('id' => backup::VAR_ACTIVITYID));
         $criterion->set_source_table('peerwork_criteria', ['peerworkid' => backup::VAR_PARENTID]);
+        $pluginconfig->set_source_table('peerwork_plugin_config',
+                                        array('peerwork' => backup::VAR_PARENTID));
 
         // All the rest of elements only happen if we are including user info.
         if ($includeuserinfo) {
@@ -115,6 +128,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $justification->annotate_ids('user', 'gradedby');
         $justification->annotate_ids('user', 'gradefor');
         $justification->annotate_ids('group', 'groupid');
+        $justification->annotate_ids('criteria', 'criteriaid');
 
         $submission->annotate_ids('user', 'userid');
         $submission->annotate_ids('user', 'gradedby');

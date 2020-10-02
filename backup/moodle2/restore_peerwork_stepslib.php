@@ -43,6 +43,9 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
         $paths[] = new restore_path_element('peerwork', '/activity/peerwork');
         $paths[] = new restore_path_element('peerwork_criterion', '/activity/peerwork/criteria/criterion');
+        $paths[] = new restore_path_element('peerwork_plugin_config',
+                                            '/activity/peerwork/plugin_configs/plugin_config');
+
         if ($userinfo) {
             $paths[] = new restore_path_element('peerwork_peer', '/activity/peerwork/peers/peer');
             $paths[] = new restore_path_element('peerwork_justification', '/activity/peerwork/justifications/justification');
@@ -92,6 +95,22 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
     }
 
     /**
+     * Process a plugin-config restore
+     * @param object $data The data in object form
+     * @return void
+     */
+    protected function process_peerwork_plugin_config($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->peerwork = $this->get_new_parentid('peerwork');
+
+        $newitemid = $DB->insert_record('peerwork_plugin_config', $data);
+    }
+
+    /**
      * Process restoring element.
      *
      * @param stdClass $data The backup data.
@@ -120,6 +139,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
         $data->peerworkid = $this->get_new_parentid('peerwork');
         $data->groupid = $this->get_mappingid('group', $data->groupid);
+        $data->criteriaid = $this->get_mappingid('peerwork_criteria', $data->criteriaid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
         $data->gradefor = $this->get_mappingid('user', $data->gradefor);
 

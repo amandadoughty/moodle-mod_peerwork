@@ -32,17 +32,19 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_peerwork_webpa_testcase extends basic_testcase {
+class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
 
     /**
      * Test the WebPA result with no weighting or penalties.
      */
     public function test_webpa_result_basic() {
+        $peerwork = new \stdClass();
+        $peerwork->id = 1;
         $grades = $this->get_sample();
-        $calculator = new mod_peerwork\webpa_calculator();
+        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80);
 
-        $fracs = $result->get_fractional_scores('alice');
+        $fracs = $result->get_reduced_scores('alice');
         $this->assertEquals(1, array_sum($fracs));
         $this->assertEquals([
             'alice' => 0.29,
@@ -54,13 +56,13 @@ class mod_peerwork_webpa_testcase extends basic_testcase {
             return round($a, 2);  // We must round because the data we were given is rounded.
         }, $fracs));
 
-        $fracs = $result->get_fractional_scores('bob');
+        $fracs = $result->get_reduced_scores('bob');
         $this->assertEquals(0.23, round($fracs['alice'], 2));
 
-        $fracs = $result->get_fractional_scores('claire');
+        $fracs = $result->get_reduced_scores('claire');
         $this->assertEquals(0.20, round($fracs['alice'], 2));
 
-        $fracs = $result->get_fractional_scores('david');
+        $fracs = $result->get_reduced_scores('david');
         $this->assertEquals(0.19, round($fracs['alice'], 2));
 
         $this->assertTrue($result->has_submitted('alice'));
@@ -88,9 +90,11 @@ class mod_peerwork_webpa_testcase extends basic_testcase {
      * Test the WebPA result with weighting.
      */
     public function test_webpa_result_with_weighting() {
+        $peerwork = new \stdClass();
+        $peerwork->id = 1;
         $grades = $this->get_sample();
-        $calculator = new mod_peerwork\webpa_calculator(.5);
-        $result = $calculator->calculate($grades, 80);
+        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $result = $calculator->calculate($grades, 80, 0, .5);
 
         // This does not affect the scores.
         $this->assertEquals(5, array_sum($result->get_scores()));
@@ -111,10 +115,12 @@ class mod_peerwork_webpa_testcase extends basic_testcase {
     /**
      * Test the WebPA result with weighting and penalty.
      */
-    public function test_webpa_result_with_weithing_and_penalty() {
+    public function test_webpa_result_with_weighting_and_penalty() {
+        $peerwork = new \stdClass();
+        $peerwork->id = 1;
         $grades = $this->get_sample();
-        $calculator = new mod_peerwork\webpa_calculator(.5, .1);
-        $result = $calculator->calculate($grades, 80);
+        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $result = $calculator->calculate($grades, 80, .1, .5);
 
         // This does not affect the scores.
         $this->assertEquals(5, array_sum($result->get_scores()));
@@ -136,39 +142,39 @@ class mod_peerwork_webpa_testcase extends basic_testcase {
     /**
      * Data sample.
      *
-     * From https://webpaproject.lboro.ac.uk/academic-guidance/a-worked-example-of-the-scoring-algorithm
+     * Adapted from https://webpaproject.lboro.ac.uk/academic-guidance/a-worked-example-of-the-scoring-algorithm
      *
      * @return array
      */
     protected function get_sample() {
         return [
             'alice' => [
-                'alice' => 4,
-                'bob' => 4,
-                'claire' => 3,
-                'david' => 2,
-                'elaine' => 1
+                'alice' => [2, 2],
+                'bob' => [1, 3],
+                'claire' => [3, 0],
+                'david' => [1, 1],
+                'elaine' => [1, 0]
             ],
             'bob' => [
-                'alice' => 3,
-                'bob' => 5,
-                'claire' => 3,
-                'david' => 2,
-                'elaine' => 0
+                'alice' => [2, 1],
+                'bob' => [2, 3],
+                'claire' => [2, 1],
+                'david' => [1, 1],
+                'elaine' => [0, 0]
             ],
             'claire' => [
-                'alice' => 4,
-                'bob' => 4,
-                'claire' => 4,
-                'david' => 4,
-                'elaine' => 4
+                'alice' => [2, 2],
+                'bob' => [2, 2],
+                'claire' => [2, 2],
+                'david' => [2, 2],
+                'elaine' => [2, 2]
             ],
             'david' => [
-                'alice' => 3,
-                'bob' => 5,
-                'claire' => 4,
-                'david' => 3,
-                'elaine' => 1
+                'alice' => [2, 1],
+                'bob' => [3, 2],
+                'claire' => [2, 2],
+                'david' => [1, 2],
+                'elaine' => [1, 0]
             ],
             'elaine' => []
         ];

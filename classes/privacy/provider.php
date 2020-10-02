@@ -283,7 +283,7 @@ class provider implements
         };
 
         // Fetch the records for peer grading stuff.
-        $sql = "SELECT p.id, p.peerwork AS peerworkid, p.grade, p.gradedby, p.gradefor, p.feedback, p.timecreated, p.timemodified
+        $sql = "SELECT p.id, p.peerwork AS peerworkid, p.grade, p.gradedby, p.gradefor, p.feedback, p.timecreated, p.timemodified,
                        c.description AS c_desc, c.descriptionformat AS c_descformat, c.grade AS c_grade,
                        j.justification, pw.justification AS pw_justification
                   FROM {peerwork_peers} p
