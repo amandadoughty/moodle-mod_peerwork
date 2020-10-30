@@ -177,7 +177,11 @@ function xmldb_peerwork_upgrade($oldversion) {
         $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timecreated');
 
         // Conditionally launch add field timemodified.
-                // Peerwork savepoint reached.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
         upgrade_mod_savepoint(true, 2020030900, 'peerwork');
     }
 
