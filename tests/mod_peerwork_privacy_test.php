@@ -43,7 +43,7 @@ use mod_peerwork\privacy\provider;
  */
 class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
 
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest(true);
     }
 
