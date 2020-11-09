@@ -138,6 +138,25 @@
     color: #868e96;
 }
 
+#memberdropdown {
+    display: inline-block;
+}
+
+#mod_peerwork_peergrades {
+    width: 100%;
+}
+
+#mod_peerwork_peergrades th {
+    padding: 10px 20px;
+    text-align: left;
+}
+
+#mod_peerwork_peergrades td {
+    padding: 0px 20px;
+    vertical-align: middle;
+    height: 41px;
+}
+
 @media(max-width: 768px) {
     .mod_peerwork_peername {
         max-width: none;

@@ -84,6 +84,10 @@ class provider implements
             'feedback' => 'privacy:metadata:peers:feedback',
             'timecreated' => 'privacy:metadata:peers:timecreated',
             'timemodified' => 'privacy:metadata:peers:timemodified',
+            'peergrade' => 'privacy:metadata:peers:peergrade',
+            'overriddenby' => 'privacy:metadata:peers:overriddenby',
+            'comments' => 'privacy:metadata:peers:comments',
+            'timeoverridden' => 'privacy:metadata:peers:timeoverridden',
         ], 'privacy:metadata:peers');
 
         $collection->add_database_table('peerwork_justification', [
@@ -135,8 +139,9 @@ class provider implements
             "JOIN {peerwork_peers} pp
                ON pp.peerwork = p.id
             WHERE pp.gradedby = :userid1
-               OR pp.gradefor = :userid2";
-        $params = $defaultparams + ['userid1' => $userid, 'userid2' => $userid];
+               OR pp.gradefor = :userid2
+               OR pp.overriddenby = :userid3";
+        $params = $defaultparams + ['userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid];
         $contextlist->add_from_sql($sql, $params);
 
         $sql = $defaultsql .
@@ -179,6 +184,7 @@ class provider implements
         $userlist->add_from_sql('releasedby', 'SELECT releasedby FROM {peerwork_submission} WHERE peerworkid = ?', [$id]);
         $userlist->add_from_sql('gradedby', 'SELECT gradedby FROM {peerwork_peers} WHERE peerwork = ?', [$id]);
         $userlist->add_from_sql('gradefor', 'SELECT gradefor FROM {peerwork_peers} WHERE peerwork = ?', [$id]);
+        $userlist->add_from_sql('overriddenby', 'SELECT overriddenby FROM {peerwork_peers} WHERE peerwork = ?', [$id]);
         $userlist->add_from_sql('gradedby', 'SELECT gradedby FROM {peerwork_justification} WHERE peerworkid = ?', [$id]);
         $userlist->add_from_sql('gradefor', 'SELECT gradefor FROM {peerwork_justification} WHERE peerworkid = ?', [$id]);
         $userlist->add_from_sql('userid', 'SELECT userid FROM {peerwork_grades} WHERE peerworkid = ?', [$id]);
@@ -283,9 +289,24 @@ class provider implements
         };
 
         // Fetch the records for peer grading stuff.
-        $sql = "SELECT p.id, p.peerwork AS peerworkid, p.grade, p.gradedby, p.gradefor, p.feedback, p.timecreated, p.timemodified,
-                       c.description AS c_desc, c.descriptionformat AS c_descformat, c.grade AS c_grade,
-                       j.justification, pw.justification AS pw_justification
+        $sql = "SELECT
+                    p.id,
+                    p.peerwork AS peerworkid,
+                    p.grade,
+                    p.gradedby,
+                    p.gradefor,
+                    p.peergrade,
+                    p.overriddenby,
+                    p.feedback,
+                    p.timecreated,
+                    p.timemodified,
+                    p.comments,
+                    p.timeoverridden,
+                    c.description AS c_desc,
+                    c.descriptionformat AS c_descformat,
+                    c.grade AS c_grade,
+                    j.justification,
+                    pw.justification AS pw_justification
                   FROM {peerwork_peers} p
                   JOIN {peerwork} pw
                     ON pw.id = p.peerwork
@@ -296,9 +317,9 @@ class provider implements
                    AND j.gradefor = p.gradefor
                    AND j.peerworkid = p.peerwork
                  WHERE pw.id $insql
-                   AND (p.gradedby = :userid1 OR p.gradefor = :userid2)
+                   AND (p.gradedby = :userid1 OR p.gradefor = :userid2 OR p.overriddenby = :userid3)
               ORDER BY p.peerwork, p.id";
-        $params = ['userid1' => $userid, 'userid2' => $userid] + $inparams;
+        $params = ['userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid] + $inparams;
         $recordset = $DB->get_recordset_sql($sql, $params);
 
         static::recordset_loop_and_export($recordset, 'peerworkid', [],
@@ -306,6 +327,7 @@ class provider implements
                 $context = context_module::instance($peerworkidstocmids[$record->peerworkid]);
                 $scale = $record->c_grade < 0 ? $scalegetter(abs($record->c_grade)) : null;
                 $grade = $scale ? static::transform_scale_grade($scale, $record->grade) : $record->grade;
+                $peergrade = $scale ? static::transform_scale_grade($scale, $record->peergrade) : $record->peergrade;
 
                 // We do not reveal the justification when it was specifically hidden because peers
                 // would have been told that the justification would not be given, and revealing it
@@ -315,11 +337,15 @@ class provider implements
                 $carry[] = (object) [
                     'peer_graded_is_you' => transform::yesno($record->gradefor == $userid),
                     'peer_grading_is_you' => transform::yesno($record->gradedby == $userid),
+                    'peer_override_is_you' => transform::yesno($record->overriddenby == $userid),
                     'grade_given' => $grade,
+                    'peergrade_given' => $peergrade,
                     'feedback_given' => $record->feedback,
                     'justification_given' => $showjustification ? $record->justification : '',
+                    'comments_given' => $record->comments,
                     'time_graded' => transform::datetime($record->timecreated),
                     'time_grade_updated' => transform::datetime($record->timemodified),
+                    'time_grade_overridden' => transform::datetime($record->timeoverridden),
                     'criterion' => format_text($record->c_desc, $record->c_descformat, ['context' => $context])
                 ];
                 return $carry;

@@ -128,6 +128,7 @@ class mod_peerwork_submissions_form extends moodleform {
      */
     public function definition_after_data() {
         global $PAGE, $USER;
+
         $mform = $this->_form;
         $peerworkid = $this->_customdata['peerworkid'];
         $peerwork = $this->_customdata['peerwork'];
@@ -159,7 +160,7 @@ class mod_peerwork_submissions_form extends moodleform {
 
         $peers = $this->_customdata['peers'];
         $criteria = $this->get_criteria();
-        $scales = $this->get_scales();
+        $scales = $this->get_scales($peerwork->course);
 
         if ($peerwork->justificationmaxlength) {
             $PAGE->requires->js_call_amd('mod_peerwork/justification-character-limit', 'init',
@@ -249,6 +250,10 @@ class mod_peerwork_submissions_form extends moodleform {
                         $textareaattrs
                     );
                     $textarea->setHiddenLabel(true);
+
+                    if ($this->is_peer_locked($peer['data-peerid'])) {
+                        $mform->hardFreeze('justification_' . $criterion['criterion']['id'] . '[' . $peer['data-peerid'] . ']');
+                    }
                 }
 
                 $html = $renderer->render_from_template('mod_peerwork/peergrades_end', []);
@@ -463,7 +468,7 @@ class mod_peerwork_submissions_form extends moodleform {
 
         $foundgradererror = false;
         $criteria = $this->get_criteria();
-        $scales = $this->get_scales();
+        $scales = $this->get_scales($peerwork->course);
 
         foreach ($data as $key => $value) {
             $matches = [];
@@ -512,13 +517,9 @@ class mod_peerwork_submissions_form extends moodleform {
      *
      * @return void
      */
-    public function get_scales() {
-        global $COURSE;
-
+    public function get_scales($courseid = SITEID) {
         if (!$this->scales) {
-            $globalscales = (array)grade_scale::fetch_all_global();
-            $localscales = (array)grade_scale::fetch_all_local($COURSE->id);
-            $this->scales = $globalscales + $localscales;
+            $this->scales = (array)grade_scale::fetch_all_global() + (array)grade_scale::fetch_all_local($courseid);
         }
         return $this->scales;
     }
@@ -531,6 +532,7 @@ class mod_peerwork_submissions_form extends moodleform {
      */
     public function is_peer_locked($peerid) {
         global $USER;
+
         if (!isset($this->lockedpeers)) {
             $this->lockedpeers = mod_peerwork_get_locked_peers($this->_customdata['peerwork'], $USER->id);
         }

@@ -184,9 +184,9 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     echo $OUTPUT->box_end();
 
-
+    // Student view.
 } else {
-    // Student output displays summary of submissions amde so far and provides a button to start editing.
+    // Student output displays summary of submissions made so far and provides a button to start editing.
     $mygroup = peerwork_get_mygroup($course->id, $USER->id, $groupingid);
     $membersgradeable = peerwork_get_peers($course->id, $peerwork, $groupingid, $mygroup);
     $groupmode = groups_get_activity_groupmode($cm);
@@ -210,11 +210,25 @@ if (has_capability('mod/peerwork:grade', $context)) {
     $data['files']       = peerwork_submission_files($context, $group);
     $data['outstanding'] = peerwork_outstanding($peerwork, $group);
 
+    // Get the grade info from the gradebook.
+    $gradinginfo = grade_get_grades(
+        $course->id,
+        'mod',
+        'peerwork',
+        $peerwork->id,
+        [$USER->id]
+    );
+
     if (!$isopen->code || !$edit) {
 
         // If graded and grade not hidden in gradebook.
-        if (peerwork_can_student_view_grade_and_feedback_from_status($status)) {
-            $data['mygrade'] = peerwork_get_user_local_grade($peerwork->id, $submission->id, $USER->id);
+        if (peerwork_can_student_view_grade_and_feedback_from_status($status, $gradinginfo)) {
+            // Get the grade from the gradebook.
+            if (isset($gradinginfo->items[0]->grades[$USER->id])) {
+                $grade = $gradinginfo->items[0]->grades[$USER->id];
+                $data['mygrade'] = $grade->str_grade;
+            }
+
             $data['feedback'] = $submission->feedbacktext;
             $data['feedback_files'] = peerwork_feedback_files($context, $group);
             $pac = new mod_peerwork_criteria($peerwork->id);

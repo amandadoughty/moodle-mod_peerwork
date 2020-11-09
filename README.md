@@ -8,7 +8,7 @@ This plugin addresses the issue of all students recieving the same grade for gro
 
 Using this module:
 
-Tutors create an activity defining peer grading criteria and weightings.
+Tutors create an activity defining peer grading criteria, calculation method and weightings.
 Tutors define number of files to be submitted allowing "0" for an offline activity.
 Tutors control visibility / privacy for students in terms of peer scores, comments.
 Students submit work (optional).
@@ -17,11 +17,12 @@ Students can leave feedback comments (optional).
 Teachers grade the group assignment.
 
 The activity then calculates the grade each individual student receives.
-The final individual grade is based on the teacher grade, peer ratings and weighting. 
+The final individual grade is based on the teacher grade, peer ratings and weighting. The calculator is a subplugin of the peer work activity.
 
-If PA weighting is included in the selected calculator, then teachers can adjust weightings on a per group basis. Teachers can also override any individual grades they need to.
+If PA weighting is included in the selected calculator, then teachers can adjust weightings on a per group basis. Teachers can also override any individual grades/peer grades they need to.
 Teachers then release grades ensuring all students recieve their grades at the same time.
 Teachers can export grades for an individual group or the entire cohort as a csv file.
+Teachers can lock the activity, giving students only one attempt to submit. They can also unlock a group submission or an individual student.
 
 Authors
 =======
@@ -46,7 +47,7 @@ Supported Versions
 ==================
 
  - The module has been tested with Moodle versions 2.4, 2.5, 2.6, 3.2, 3.4,
-   3.6, 3.8
+   3.6, 3.8, 3.9
 
 
 Installation instructions

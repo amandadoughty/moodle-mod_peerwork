@@ -222,6 +222,11 @@ function xmldb_peerwork_upgrade($oldversion) {
         $field = new xmldb_field('locked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'feedback');
 
         // Conditionally launch add field locked.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
         upgrade_mod_savepoint(true, 2020030903, 'peerwork');
     }
 
@@ -366,6 +371,57 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Peerwork savepoint reached.
         upgrade_mod_savepoint(true, 2020052500, 'peerwork');
+    }
+
+    if ($oldversion < 2020090701) {
+
+        // Define field peergrade to be added to peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $field = new xmldb_field('peergrade', XMLDB_TYPE_INTEGER, '5', null, null, null, '0', 'timemodified');
+
+        // Conditionally launch add field peergrade.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Copy existing 'grade' to 'peergrade'.
+        $peerworkpeers = $DB->get_records('peerwork_peers');
+        $newfield = 'peergrade';
+
+        foreach ($peerworkpeers as $id => $peerworkpeer) {
+            $newvalue = $peerworkpeer->grade;
+            $DB->set_field('peerwork_peers', $newfield, $newvalue, ['id' => $id]);
+        }
+
+        // Define field overriddenby to be added to peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $field = new xmldb_field('overriddenby', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'peergrade');
+
+        // Conditionally launch add field overriddenby.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field comments to be added to peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $field = new xmldb_field('comments', XMLDB_TYPE_TEXT, null, null, null, null, null, 'overriddenby');
+
+        // Conditionally launch add field comments.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timeoverridden to be added to peerwork_peers.
+        $table = new xmldb_table('peerwork_peers');
+        $field = new xmldb_field('timeoverridden', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'comments');
+
+        // Conditionally launch add field timeoverridden.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Peerwork savepoint reached.
+        upgrade_mod_savepoint(true, 2020090701, 'peerwork');
     }
 
     return true;

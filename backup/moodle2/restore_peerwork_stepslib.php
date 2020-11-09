@@ -157,11 +157,21 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $data = (object)$data;
         $oldid = $data->id;
 
+        /*
+        If restoring an activity created prior to version 2020090701
+        we need to copy the grade to peergrade. This is because we
+        need to detect when a grade  has been overriddden.
+        */
+        if (!property_exists($data, 'peergrade')) {
+            $data->peergrade = $data->grade;
+        }
+
         $data->peerwork = $this->get_new_parentid('peerwork');
         $data->groupid = $this->get_mappingid('group', $data->groupid);
         $data->criteriaid = $this->get_mappingid('peerwork_criteria', $data->criteriaid);
         $data->gradedby = $this->get_mappingid('user', $data->gradedby);
         $data->gradefor = $this->get_mappingid('user', $data->gradefor);
+        $data->overriddenby = $this->get_mappingid('user', $data->overriddenby);
 
         $newitemid = $DB->insert_record('peerwork_peers', $data);
     }
