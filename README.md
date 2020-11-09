@@ -46,8 +46,7 @@ Authors
 Supported Versions
 ==================
 
- - The module has been tested with Moodle versions 2.4, 2.5, 2.6, 3.2, 3.4,
-   3.6, 3.8, 3.9
+ - The module has been tested with Moodle versions 3.6, 3.8, 3.9, 3.10
 
 
 Installation instructions
