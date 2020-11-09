@@ -1,7 +1,16 @@
+v2.1.0
+------
+
+- Added individual peer grade override
+- Added site setting:
+	Justification - disabled, hidden, visible anonymous, visible with usernames
+- Added suite of Behat tests
+
 v2.0.0
 ------
 
 - Refactored the calculator as a subplugin
+- Added course scales to selection
 
 v1.1.0
 ------
@@ -22,7 +31,6 @@ v1.1.0
 	Criteria
 	Criteria scale
 	Add criteria
-- Added course scales to selection
 - Style changes to improve responsiveness
 
 v1.0.0

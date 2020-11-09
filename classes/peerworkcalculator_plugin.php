@@ -160,6 +160,15 @@ class peerworkcalculator_plugin extends peerwork_plugin {
     }
 
     /**
+     * Function to return the scales that can be used.
+     *
+     * @return array/bool false if no resriction on scales.
+     */
+    public static function get_scales_menu($courseid = 0) {
+        return false;
+    }
+
+    /**
      * Function to translate scale into score.
      *
      * @param array $grades The list of marks given.

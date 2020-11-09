@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/mod/peerwork/adminlib.php');
+require_once( __DIR__ . '/locallib.php');
 
 $ADMIN->add(
     'modsettings',
@@ -143,6 +144,26 @@ if ($ADMIN->fulltree) {
         get_string('displaypeergradestotals', 'mod_peerwork'),
         get_string('displaypeergradestotals_help', 'mod_peerwork'),
         false
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'peerwork/overridepeergrades',
+        get_string('overridepeergrades', 'mod_peerwork'),
+        get_string('overridepeergrades_help', 'mod_peerwork'),
+        false
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'peerwork/justification',
+        get_string('justification', 'mod_peerwork'),
+        get_string('justification_help', 'mod_peerwork'),
+        0,
+        [
+            MOD_PEERWORK_JUSTIFICATION_DISABLED => get_string('justificationdisabled', 'mod_peerwork'),
+            MOD_PEERWORK_JUSTIFICATION_HIDDEN => get_string('justificationhiddenfromstudents', 'mod_peerwork'),
+            MOD_PEERWORK_JUSTIFICATION_VISIBLE_ANON => get_string('justificationvisibleanon', 'mod_peerwork'),
+            MOD_PEERWORK_JUSTIFICATION_VISIBLE_USER => get_string('justificationvisibleuser', 'mod_peerwork'),
+        ]
     ));
 
     $setting = new admin_setting_configselect(

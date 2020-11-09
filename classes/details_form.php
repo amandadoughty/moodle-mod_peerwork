@@ -219,8 +219,15 @@ class mod_peerwork_details_form extends moodleform {
                 $row->cells[] = format_float($member['calcgrade'], 2);
                 $row->cells[] = format_float($member['penalty'] * 100, 0) . '%';
                 $row->cells[] = format_float($member['finalweightedgrade'], 2);
-                $row->cells[] = $this->_form->createElement('text', 'grade_' . $member['memberid'], '',
-                    ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)])->toHtml();
+
+                $revisedgradeel = $this->_form->createElement('text', 'grade_' . $member['memberid'], '',
+                    ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)]);
+
+                if ($member['overridden'] || $member['locked']) {
+                    $revisedgradeel->freeze();
+                }
+
+                $row->cells[] = $revisedgradeel->toHtml();
 
                 $totalcalculated += $member['calcgrade'];
                 $totalfinalweighted += $member['finalweightedgrade'];

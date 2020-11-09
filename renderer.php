@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 use mod_peerwork\output\peerwork_summary;
+use mod_peerwork\output\peerwork_detail_summary;
 
 /**
  * Renderer class.
@@ -36,7 +37,7 @@ use mod_peerwork\output\peerwork_summary;
 class mod_peerwork_renderer extends plugin_renderer_base {
 
     /**
-     * Render summary.
+     * Render summary for student.
      *
      * @param peerwork_summary $summary The summary.
      * @return string
@@ -141,7 +142,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('peergrades', 'mod_peerwork'));
 
-            $scales = (array)grade_scale::fetch_all_global() + (array)grade_scale::fetch_all_local($COURSE->id);;
+            $scales = (array)grade_scale::fetch_all_global() + (array)grade_scale::fetch_all_local($COURSE->id);
             $isanon = $peerwork->peergradesvisibility != MOD_PEERWORK_PEER_GRADES_VISIBLE_USER;
             $displaytotals = !empty($peerwork->displaypeergradestotals);
             $members = (array) (object) $membersgradeable;
@@ -298,3 +299,4 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         return html_writer::table($t);
     }
 }
+

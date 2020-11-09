@@ -617,8 +617,19 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $crit1 = $pg->create_criterion(['peerworkid' => $p1->id, 'scale' => $scale1, 'description' => 'X?']);
         $crit2 = $pg->create_criterion(['peerworkid' => $p1->id, 'scale' => $scale2, 'description' => 'Y?']);
 
-        $g1 = $pg->create_peer_grade(['peerworkid' => $p1->id, 'criteriaid' => $crit1->id, 'groupid' => $g1->id,
-            'gradefor' => $u1->id, 'gradedby' => $u2->id, 'grade' => 1, 'timecreated' => 1234986]);
+        $g1 = $pg->create_peer_grade([
+                'peerworkid' => $p1->id,
+                'criteriaid' => $crit1->id,
+                'groupid' => $g1->id,
+                'gradefor' => $u1->id,
+                'gradedby' => $u2->id,
+                'grade' => 1,
+                'timecreated' => 1234986,
+                'peergrade' => 2,
+                'overriddenby' => $u9->id,
+                'comments' => 'some words',
+                'timeoverridden' => 1234986
+        ]);
         $g2 = $pg->create_peer_grade(['peerworkid' => $p1->id, 'criteriaid' => $crit1->id, 'groupid' => $g1->id,
             'gradefor' => $u2->id, 'gradedby' => $u1->id, 'grade' => 4, 'timecreated' => 2234986]);
         $g3 = $pg->create_peer_grade(['peerworkid' => $p1->id, 'criteriaid' => $crit2->id, 'groupid' => $g1->id,
@@ -675,16 +686,22 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $peergrade = array_shift($peergrades->grades);
         $this->assertEquals(transform::yesno(true), $peergrade->peer_graded_is_you);
         $this->assertEquals(transform::yesno(false), $peergrade->peer_grading_is_you);
+        $this->assertEquals(transform::yesno(false), $peergrade->peer_override_is_you);
         $this->assertEquals($sc1->scale_items[1], $peergrade->grade_given);
         $this->assertEquals('B', $peergrade->grade_given);
         $this->assertEquals(null, $peergrade->feedback_given);
         $this->assertEquals('Abc', $peergrade->justification_given);
         $this->assertEquals(transform::datetime($g1->timecreated), $peergrade->time_graded);
         $this->assertEquals('X?', strip_tags($peergrade->criterion));
+        $this->assertEquals($sc1->scale_items[2], $peergrade->peergrade_given);
+        $this->assertEquals('C', $peergrade->peergrade_given);
+        $this->assertEquals('some words', $peergrade->comments_given);
+        $this->assertEquals(transform::datetime($g1->timeoverridden), $peergrade->time_grade_overridden);
 
         $peergrade = array_shift($peergrades->grades);
         $this->assertEquals(transform::yesno(false), $peergrade->peer_graded_is_you);
         $this->assertEquals(transform::yesno(true), $peergrade->peer_grading_is_you);
+        $this->assertEquals(transform::yesno(false), $peergrade->peer_override_is_you);
         $this->assertEquals($sc1->scale_items[4], $peergrade->grade_given);
         $this->assertEquals('F', $peergrade->grade_given);
         $this->assertEquals(null, $peergrade->feedback_given);
@@ -695,6 +712,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $peergrade = array_shift($peergrades->grades);
         $this->assertEquals(transform::yesno(true), $peergrade->peer_graded_is_you);
         $this->assertEquals(transform::yesno(false), $peergrade->peer_grading_is_you);
+        $this->assertEquals(transform::yesno(false), $peergrade->peer_override_is_you);
         $this->assertEquals($sc2->scale_items[1], $peergrade->grade_given);
         $this->assertEquals('Good', $peergrade->grade_given);
         $this->assertEquals(null, $peergrade->feedback_given);
@@ -705,6 +723,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $peergrade = array_shift($peergrades->grades);
         $this->assertEquals(transform::yesno(false), $peergrade->peer_graded_is_you);
         $this->assertEquals(transform::yesno(true), $peergrade->peer_grading_is_you);
+        $this->assertEquals(transform::yesno(false), $peergrade->peer_override_is_you);
         $this->assertEquals($sc2->scale_items[0], $peergrade->grade_given);
         $this->assertEquals('Bad', $peergrade->grade_given);
         $this->assertEquals(null, $peergrade->feedback_given);
@@ -763,6 +782,14 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $this->assertEquals(transform::datetime($sub2->timemodified), $submission->updated_on);
         $this->assertEquals(transform::datetime($sub2->timegraded), $submission->graded_on);
         $this->assertEquals('-', $submission->released_on);
-    }
 
+        $peergrade = array_shift($peergrades->grades);
+        $this->assertEquals(transform::yesno(false), $peergrade->peer_graded_is_you);
+        $this->assertEquals(transform::yesno(false), $peergrade->peer_grading_is_you);
+        $this->assertEquals(transform::yesno(true), $peergrade->peer_override_is_you);
+        $this->assertEquals($sc1->scale_items[2], $peergrade->peergrade_given);
+        $this->assertEquals('C', $peergrade->peergrade_given);
+        $this->assertEquals('some words', $peergrade->comments_given);
+        $this->assertEquals(transform::datetime($g1->timeoverridden), $peergrade->time_grade_overridden);
+    }
 }
