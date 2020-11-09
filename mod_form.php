@@ -294,6 +294,10 @@ class mod_peerwork_mod_form extends moodleform_mod {
         }
     }
 
+    /**
+     * This method is called after definition(), data submission and set_data().
+     * All form setup that is dependent on form values should go in here.
+     */
     public function definition_after_data() {
         global $CFG, $COURSE;
 

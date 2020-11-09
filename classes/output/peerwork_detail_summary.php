@@ -66,14 +66,16 @@ class peerwork_detail_summary implements templatable, renderable {
     /**
      * Constructor.
      *
-     * @param object[] $criterion The criterion.
-     * @param object $grades The grades.
+     * @param stdClass[] $criterion The criterion.
+     * @param stdClass $grades The grades.
      * @param array $justifications The justifications.
-     * @param object[] $members The members.
+     * @param stdClass[] $members The members.
      * @param array $lockedgraders The locked graders.
-     * @param object $peerwork The peerwork.
+     * @param stdClass $peerwork The peerwork.
      * @param bool $canunlock Whether the peer grades can be unlocked.
      * @param bool $justenabledcrit Whether justification is enabled.
+     * @param int $cmid The course module id.
+     * @param int $groupid The group id.
      */
     public function __construct(
         $criterion,

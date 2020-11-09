@@ -18,8 +18,8 @@
  * Calculator base class.
  *
  * @package    mod_peerwork
- * @copyright  2020 Amanda Doughty
- * @author     Frédéric Massart <fred@branchup.tech>
+ * @copyright  2019 Coventry University
+ * @author     2020 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,8 +31,8 @@ defined('MOODLE_INTERNAL') || die();
  * Calculator.
  *
  * @package    mod_peerwork
- * @copyright  2020 Amanda Doughty
- * @author     Frédéric Massart <fred@branchup.tech>
+ * @copyright  2019 Coventry University
+ * @author     2020 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class peerworkcalculator_plugin extends peerwork_plugin {
@@ -161,6 +161,8 @@ class peerworkcalculator_plugin extends peerwork_plugin {
 
     /**
      * Function to return the scales that can be used.
+     *
+     * @param int $courseid The course id or 0 for just sitewide scales.
      *
      * @return array/bool false if no resriction on scales.
      */

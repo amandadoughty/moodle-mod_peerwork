@@ -157,7 +157,7 @@ class notify_students extends \core\task\scheduled_task {
     /**
      * Set language from user.
      *
-     * @param object $user A user.
+     * @param stdClass $user A user.
      */
     protected function set_language_from_user($user) {
         global $CFG;

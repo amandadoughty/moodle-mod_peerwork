@@ -42,20 +42,40 @@ defined('MOODLE_INTERNAL') || die();
  */
 class grades_released extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'peerwork_submission';
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventgradesreleased', 'mod_peerwork');
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         return "The user with id '$this->userid' released the grades of " .
             "peerwork with course module id '$this->contextinstanceid' " .

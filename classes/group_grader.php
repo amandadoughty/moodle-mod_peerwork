@@ -51,7 +51,7 @@ class group_grader {
     /**
      * Constructor.
      *
-     * @param object $peerwork The instance.
+     * @param stdClass $peerwork The instance.
      * @param int $groupid The group ID.
      * @param null|false|object $submission The existing submission record, if known. False means non-existant.
      */

@@ -42,20 +42,40 @@ defined('MOODLE_INTERNAL') || die();
  */
 class submission_files_deleted extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'peerwork_submission';
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventsubmission_files_deleted', 'mod_peerwork');
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         $list = $this->other['deletedlist'];
         $count = count($list);

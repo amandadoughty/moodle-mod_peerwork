@@ -177,8 +177,8 @@ function peerwork_delete_instance($id) {
 /**
  * Obtains the completion state.
  *
- * @param object $course The course.
- * @param object $cm The course module.
+ * @param stdClass $course The course.
+ * @param stdClass $cm The course module.
  * @param int $userid The user ID.
  * @param bool $type The type of comparison (COMPLETION_AND or _OR), or the default return value.
  */
@@ -242,7 +242,7 @@ function peerwork_user_complete($course, $user, $mod, $peerwork) {
  * that has occurred in peerwork activities and print it out.
  * Return true if there was output, or false is there was none.
  *
- * @param object $course The course.
+ * @param stdClass $course The course.
  * @param bool $viewfullnames Whether to view full names.
  * @param int $timestart Time start.
  * @return boolean
@@ -257,7 +257,6 @@ function peerwork_print_recent_activity($course, $viewfullnames, $timestart) {
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link peerwork_print_recent_mod_activity()}.
  *
  * @param array $activities sequentially indexed array of objects with the 'cmid' property
  * @param int $index the index in the $activities to use for the next record
@@ -273,11 +272,11 @@ function peerwork_get_recent_mod_activity(&$activities, &$index, $timestart, $co
 }
 
 /**
- * Prints single activity item prepared by {@link peerwork_get_recent_mod_activity()}.
+ * Prints single activity item.
  *
- * @param object $activity The activity.
+ * @param stdClass $activity The activity.
  * @param int $courseid The course ID.
- * @param object $detail The detail.
+ * @param stdClass $detail The detail.
  * @param array $modnames The module names.
  * @param bool $viewfullnames Whether to view full names.
  * @return void
@@ -392,9 +391,6 @@ function peerwork_update_grades(stdClass $peerwork, $userid = 0, $nullifnone = t
 /**
  * Returns the lists of all browsable file areas within the given module context
  *
- * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
- *
  * @param stdClass $course
  * @param stdClass $cm
  * @param stdClass $context
@@ -491,7 +487,7 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
 /**
  * Reset user data.
  *
- * @param object $data the data submitted from the reset course.
+ * @param stdClass $data the data submitted from the reset course.
  * @return array Status array.
  */
 function peerwork_reset_userdata($data) {

@@ -38,7 +38,7 @@ class mod_peerwork_generator extends testing_module_generator {
     /**
      * Create instance.
      *
-     * @param object $record The raw record.
+     * @param stdClass $record The raw record.
      * @param array|null $options Some options.
      * @return object The instance.
      */
@@ -50,7 +50,7 @@ class mod_peerwork_generator extends testing_module_generator {
     /**
      * Create a criteria.
      *
-     * @param object|array $record The record.
+     * @param stdClass|array $record The record.
      * @return object
      */
     public function create_criterion($record) {
@@ -85,7 +85,7 @@ class mod_peerwork_generator extends testing_module_generator {
     /**
      * Create a submission.
      *
-     * @param object|array $record The record.
+     * @param stdClass|array $record The record.
      * @return object
      */
     public function create_submission($record) {
@@ -105,7 +105,7 @@ class mod_peerwork_generator extends testing_module_generator {
     /**
      * Create a grade.
      *
-     * @param object|array $record The record.
+     * @param stdClass|array $record The record.
      * @return object
      */
     public function create_grade($record) {
@@ -131,7 +131,7 @@ class mod_peerwork_generator extends testing_module_generator {
     /**
      * Create a peer grade.
      *
-     * @param object|array $record The record.
+     * @param stdClass|array $record The record.
      * @return object
      */
     public function create_peer_grade($record) {
@@ -172,7 +172,7 @@ class mod_peerwork_generator extends testing_module_generator {
     /**
      * Create a peer justification.
      *
-     * @param object|array $record The record.
+     * @param stdClass|array $record The record.
      * @return object
      */
     public function create_justification($record) {

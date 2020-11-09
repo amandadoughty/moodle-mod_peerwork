@@ -104,10 +104,9 @@ class behat_mod_peerwork extends behat_base {
      * @When /^I override "(?P<peer_string>[^"]*)" grade for criteria "(?P<criteria_string>[^"]*)" with "(?P<grade_string>[^"]*)" "(?P<comment_string>[^"]*)"$/
      *
      * @param string $peer
-     * @param string $grade
      * @param string $criteria
-     * @param string $comment
-     * @return array
+     * @param string $grade
+     * @param string $comments
      */
     public function i_override_grade_for_criteria_with($peer, $criteria, $grade, $comments) {
         $criterionid = $this->get_criteria_id($criteria);

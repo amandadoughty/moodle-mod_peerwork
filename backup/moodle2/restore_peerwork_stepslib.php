@@ -96,7 +96,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
     /**
      * Process a plugin-config restore
-     * @param object $data The data in object form
+     * @param stdClass $data The data in object form
      * @return void
      */
     protected function process_peerwork_plugin_config($data) {
