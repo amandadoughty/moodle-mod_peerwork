@@ -284,8 +284,7 @@ $string['duedate_help'] = 'This is when the peer assessment is due. Submissions 
 <strong>Note:</strong> All student file submissions and peer grading will become uneditable to the students after grading.';
 
 $string['setup.maxfiles'] = 'Maximum number of uploaded files';
-$string['setup.maxfiles_help'] = 'The maximum number of files the group will be able to upload for their submission.<br/>' .
-'Setting to zero will remove the file upload ability completely.';
+$string['setup.maxfiles_help'] = 'The maximum number of files the group will be able to upload for their submission.<br/> Setting to zero will remove the file upload ability completely.';
 
 $string['contibutionscore'] = "Contribution";
 $string['contibutionscore_help'] = "This is the webPA score which is the relative contribution made by group members";
