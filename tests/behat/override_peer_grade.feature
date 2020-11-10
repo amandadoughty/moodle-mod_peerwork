@@ -32,13 +32,13 @@ Feature: Overide the grades given by a peer
         | student2 | G1 |
         | student3 | G1 |
     And the following config values are set as admin:
+        | calculator | webpa | peerwork |
         | overridepeergrades | 1 | peerwork |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Peer Assessment" to section "1" and I fill the form with:
         | Peer assessment | Test peerwork name |
         | Description | Test peerwork description |
-        | Calculator | Web PA |
         | Peer grades visibility | Visible with usernames |
         | Require justification | Disabled |
         | Criteria 1 description | Criteria 1 |

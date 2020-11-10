@@ -31,6 +31,8 @@ Feature: Prevent som changes after a submission has been made
         | student1 | G1 |
         | student2 | G1 |
         | student3 | G1 |
+    And the following config values are set as admin:
+        | calculator | webpa | peerwork |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Peer Assessment" to section "1" and I fill the form with:

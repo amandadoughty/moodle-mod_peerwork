@@ -31,6 +31,8 @@ Feature: Edit the grade of a submission
         | student1 | G1 |
         | student2 | G1 |
         | student3 | G1 |
+    And the following config values are set as admin:
+        | calculator | webpa | peerwork |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Peer Assessment" to section "1" and I fill the form with:
@@ -40,7 +42,6 @@ Feature: Edit the grade of a submission
         | Require justification | Disabled |
         | Criteria 1 description | Criteria 1 |
         | Criteria 1 scoring type | Default competence scale |
-        | Calculator | Web PA |
         | Peer assessment weighting | 0 |
     And I log out
     And I log in as "student1"

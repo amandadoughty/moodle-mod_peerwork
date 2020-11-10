@@ -295,7 +295,6 @@ class peerwork_detail_summary implements templatable, renderable {
 
             $data['criteria'][] = $table;
         }
-
         // If overriding peer grades is enabled, render a dropdown menu.
         $data['overridepeergrades'] = get_config('peerwork', 'overridepeergrades');
         $data['memberdropdown'] = array_values($memberdropdown);

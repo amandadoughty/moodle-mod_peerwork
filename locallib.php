@@ -1583,8 +1583,8 @@ function add_plugin_settings($plugin, MoodleQuickForm $mform, & $pluginsenabled)
     global $CFG;
 
     if ($plugin->is_visible() && $plugin->is_configurable()) {
-        $name = $plugin->get_name();
-        $value = $plugin->get_subtype();
+        $name = $plugin->get_type();
+        $value = $plugin->get_name();
         $pluginsenabled[$name] = $value;
     }
 }
@@ -1623,7 +1623,7 @@ function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
             'select',
             'calculator',
             get_string('calculator', 'peerwork'),
-            $calculatorpluginnames
+            $calculatorpluginsenabled
         );
         $mform->setType('calculator', PARAM_TEXT);
         $mform->disabledIf('calculator', 'recalculategrades', 'eq', 0);
@@ -1632,7 +1632,7 @@ function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
         $mform->registerNoSubmitButton('updatecalculator');
         $mform->addElement('submit', 'updatecalculator', get_string('calculatorupdate', 'mod_peerwork'));
     } else if (count($calculatorpluginsenabled) == 1) {
-        $value = array_pop($calculatorpluginsenabled);
+        $value = key($calculatorpluginsenabled);
         $mform->addElement('hidden', 'calculator');
         $mform->setType('calculator', PARAM_TEXT);
         $mform->setDefault('calculator', $value);

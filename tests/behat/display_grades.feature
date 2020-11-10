@@ -31,6 +31,8 @@ Feature: View the peer grades and justification of a submission
         | student1 | G1 |
         | student2 | G1 |
         | student3 | G1 |
+    And the following config values are set as admin:
+        | calculator | webpa | peerwork |
 
   @javascript
   Scenario: Student views grades when grades are hidden and justification is disabled.
