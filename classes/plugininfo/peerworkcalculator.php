@@ -18,7 +18,8 @@
  * Subplugin info class.
  *
  * @package   mod_peerwork
- * @copyright 2020 Amanda Doughty
+ * @copyright  2019 Coventry University
+ * @author 2020 Amanda Doughty
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_peerwork\plugininfo;
@@ -27,16 +28,28 @@ use core\plugininfo\base;
 
 defined('MOODLE_INTERNAL') || die();
 
-
+/**
+ * Base Calculator.
+ *
+ * @package    mod_peerwork
+ * @copyright  2019 Coventry University
+ * @author     2020 Amanda Doughty
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class peerworkcalculator extends base {
 
+    /**
+     * Should there be a way to uninstall the plugin via the administration UI.
+     *
+     * @return bool
+     */
     public function is_uninstall_allowed() {
         return true;
     }
 
     /**
      * Pre-uninstall hook.
-     * @private
+     *
      */
     public function uninstall_cleanup() {
         global $DB;
@@ -52,6 +65,11 @@ class peerworkcalculator extends base {
         parent::uninstall_cleanup();
     }
 
+    /**
+     * Returns the node name used in admin settings menu for this plugin settings.
+     *
+     * @return string node name.
+     */
     public function get_settings_section_name() {
         return $this->type . '_' . $this->name;
     }

@@ -38,6 +38,11 @@ defined('MOODLE_INTERNAL') || die();
  **/
 class submission_grade_form_viewed extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'r';
@@ -45,16 +50,31 @@ class submission_grade_form_viewed extends \core\event\base {
         $this->data['objecttable'] = 'peerwork_submission';
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventsubmission_grade_form_viewed', 'mod_peerwork');
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         return "The user with id '{$this->userid}' viewed the grade form for the group with id '{$this->other['groupid']}' " .
             "in the 'peerwork' submission with " .
             "id '{$this->objectid}'.";
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url(
             '/mod/peerwork/details.php',

@@ -44,20 +44,40 @@ defined('MOODLE_INTERNAL') || die();
  */
 class peer_grade_overridden extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'peerwork_peers';
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventpeer_grade_overridden', 'mod_peerwork');
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url('/mod/peerwork/overridegrades.php', ['id' => $this->contextinstanceid]);
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         return "User with id '{$this->userid}' changed the grade given by the user with id '{$this->relateduserid}' " .
             "to the user with id '{$this->other['gradefor']}'" .
