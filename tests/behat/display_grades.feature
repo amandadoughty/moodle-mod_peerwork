@@ -162,7 +162,7 @@ Feature: View the peer grades and justification of a submission
         | Peer grades visibility | Hidden from students |
         | Require justification | Visible with usernames |
         | Criteria 1 description | Criteria 1 |
-        | Criteria 1 scoring type | Default competence scale |        
+        | Criteria 1 scoring type | Default competence scale |
     And I log out
     And I log in as "student1"
     And I am on "Course 1" course homepage
@@ -518,4 +518,3 @@ Feature: View the peer grades and justification of a submission
     And I follow "Test peerwork name"
     Then I should see "Student 1: Competent" in the "Peer grades" "table_row"
     And I should see "Student 1:Did well" in the "Justifications" "table_row"
-    

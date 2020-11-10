@@ -345,7 +345,11 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
             // Behat tests fail without this if.
             if ($selected) {
-                $name = array_pop($selected);
+                if (is_array($selected)) {
+                    $name = array_pop($selected);
+                } else {
+                    $name = $selected;
+                }
 
                 $calculatorclass = '\peerworkcalculator_' . $name . '\calculator';
                 $count = $mform->getElementValue('assessmentcriteria_count');

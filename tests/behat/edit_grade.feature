@@ -108,4 +108,3 @@ Feature: Edit the grade of a submission
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
     Then "My final grade" "table_row" should not exist
-    

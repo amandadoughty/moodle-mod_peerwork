@@ -5,7 +5,7 @@ Feature: Prevent som changes after a submission has been made
     The visibility of grades and justification should not change after I have relied them in my submission
 
   Background:
-	Given the following "courses" exist:
+    Given the following "courses" exist:
         | fullname | shortname | category | groupmode |
         | Course 1 | C1 | 0 | 1 |
     And the following "users" exist:
@@ -64,4 +64,3 @@ Feature: Prevent som changes after a submission has been made
     And the "Justification character limit" "field" should be disabled
     And "Criteria 1 scoring type" "field" should not be visible
     And "Allow students to self-grade along with peers" "field" should not be visible
-    

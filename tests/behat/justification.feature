@@ -195,4 +195,3 @@ Feature: Peerwork justification
     And I follow "Test peerwork name"
     And I follow "Group 1"
     Then "Justifications" "link" should exist
-    

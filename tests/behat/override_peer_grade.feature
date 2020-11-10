@@ -5,7 +5,7 @@ Feature: Overide the grades given by a peer
     The I should be able to edit the peer grade
 
   Background:
-	Given the following "courses" exist:
+    Given the following "courses" exist:
         | fullname | shortname | category | groupmode |
         | Course 1 | C1 | 0 | 1 |
     And the following "users" exist:
@@ -105,4 +105,3 @@ Feature: Overide the grades given by a peer
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
     Then I should see "Student 3: Not yet competent" in the "Peer grades" "table_row"
-    

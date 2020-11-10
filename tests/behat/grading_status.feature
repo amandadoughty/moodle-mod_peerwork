@@ -153,4 +153,3 @@ Feature: View the grading status of a submission
     Then I should see "Grades released by Teacher 1" in the "Submission status" "table_row"
     And I should see "Not editable because: Assessment already graded." in the "Submission status" "table_row"
     And I should see "80" in the "My final grade" "table_row"
-    
