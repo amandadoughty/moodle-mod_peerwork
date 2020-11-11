@@ -36,22 +36,42 @@ defined('MOODLE_INTERNAL') || die();
  */
 class assessable_submitted extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventassessable_submitted', 'mod_peerwork');
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url(
             '/mod/peerwork/view.php',
             array('id' => $this->contextinstanceid));
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         $descriptionstring = "Submission status: Submitted for grading.";
 

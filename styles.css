@@ -12,7 +12,7 @@
     max-width: 100px;
 }
 #mod-peerwork-summary-table .inplace-grading input {
-  max-width: 100%;
+    max-width: 100%;
 }
 #mod-peerwork-summary-table .inplace-grading .inplaceeditable.inplaceeditingon {
     display: block;
@@ -40,7 +40,7 @@
 
 #mod-peerwork-grader-table td,
 #mod-peerwork-summary-table td {
-    padding: 0px 20px;
+    padding: 0 20px;
     vertical-align: middle;
 }
 
@@ -152,12 +152,12 @@
 }
 
 #mod_peerwork_peergrades td {
-    padding: 0px 20px;
+    padding: 0 20px;
     vertical-align: middle;
     height: 41px;
 }
 
-@media(max-width: 768px) {
+@media (max-width: 768px) {
     .mod_peerwork_peername {
         max-width: none;
         min-width: auto;
@@ -174,7 +174,7 @@
     }
 }
 
-@media(min-width: 768px) {
+@media (min-width: 768px) {
     .mod_peerwork_rating label > span {
         display: none;
     }

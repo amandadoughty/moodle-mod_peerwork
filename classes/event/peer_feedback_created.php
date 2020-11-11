@@ -43,6 +43,11 @@ defined('MOODLE_INTERNAL') || die();
  */
 class peer_feedback_created extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
         // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'c';
@@ -50,10 +55,20 @@ class peer_feedback_created extends \core\event\base {
         $this->data['objecttable'] = 'peerwork_peers';
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventpeer_feedback_created', 'mod_peerwork');
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url(
             '/mod/peerwork/view.php',
@@ -63,6 +78,11 @@ class peer_feedback_created extends \core\event\base {
             );
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         $descriptionstring = "Feedback student: (id={$this->relateduserid}, fullname={$this->other['fullname']}).";
 

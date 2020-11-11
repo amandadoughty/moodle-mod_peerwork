@@ -39,7 +39,9 @@ class mod_peerwork_details_form extends moodleform {
     public static $fileoptions = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1, 'maxfiles' => -1,
         'accepted_types' => '*', 'return_types' => null);
 
-    // Define the form.
+    /**
+     * Define this form - called from the parent constructor.
+     */
     protected function definition() {
         global $USER, $CFG, $COURSE, $OUTPUT, $PAGE;
 
@@ -269,6 +271,11 @@ class mod_peerwork_details_form extends moodleform {
         return parent::set_data($data);
     }
 
+    /**
+     * Perform minimal validation on the settings form
+     * @param array $data
+     * @param array $files
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $submission = $this->_customdata['submission'];

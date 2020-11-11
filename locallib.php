@@ -55,8 +55,8 @@ require_once($CFG->libdir . '/grouplib.php');
 /**
  * Get peers.
  *
- * @param object $course The course.
- * @param object $peerwork The instance.
+ * @param stdClass $course The course.
+ * @param stdClass $peerwork The instance.
  * @param int $groupingid The grouping ID.
  * @param int $group The group ID.
  * @param int $userid The ID of the user that is retrieving its peers.
@@ -298,7 +298,7 @@ function peerwork_get_peer_grades_received($peerworkid, $groupid, $userid) {
 /**
  * Was due date used and has it passed?
  *
- * @param object $peerwork The instance.
+ * @param stdClass $peerwork The instance.
  * @return int PEERWORK_DUEDATE_* constant.
  */
 function peerwork_due_date($peerwork) {
@@ -316,7 +316,7 @@ function peerwork_due_date($peerwork) {
 /**
  * Was from date used and is it after?
  *
- * @param object $peerwork The instance.
+ * @param stdClass $peerwork The instance.
  * @return int PEERWORK_FROMDATE_* constant.
  */
 function peerwork_from_date($peerwork) {
@@ -334,7 +334,9 @@ function peerwork_from_date($peerwork) {
 /**
  * Whether the student can view their grade and feedback.
  *
- * @param object $status The status.
+ * @param stdClass $status The status.
+ * @param array $gradinginfo Array of grade information objects.
+ *
  * @return bool
  */
 function peerwork_can_student_view_grade_and_feedback_from_status($status, $gradinginfo) {
@@ -355,7 +357,7 @@ function peerwork_can_student_view_grade_and_feedback_from_status($status, $grad
 /**
  * Return whether students can view their peer grades.
  *
- * @param object $peerwork The peerwork instance.
+ * @param stdClass $peerwork The peerwork instance.
  * @return bool
  */
 function peerwork_can_students_view_peer_grades($peerwork) {
@@ -368,7 +370,7 @@ function peerwork_can_students_view_peer_grades($peerwork) {
 /**
  * Return whether students can view their peer justifications.
  *
- * @param object $peerwork The peerwork instance.
+ * @param stdClass $peerwork The peerwork instance.
  * @return bool
  */
 function peerwork_can_students_view_peer_justification($peerwork) {
@@ -381,7 +383,7 @@ function peerwork_can_students_view_peer_justification($peerwork) {
 /**
  * Whether the submission was graded, from its status.
  *
- * @param object $status The status.
+ * @param stdClass $status The status.
  * @return bool
  */
 function peerwork_was_submission_graded_from_status($status) {
@@ -391,7 +393,7 @@ function peerwork_was_submission_graded_from_status($status) {
 /**
  * Can student $user submit/edit based on the current status?
  *
- * @param object $peerwork The instance.
+ * @param stdClass $peerwork The instance.
  * @param int $groupid The group ID.
  * @return object
  */
@@ -438,9 +440,9 @@ function peerwork_is_open($peerwork, $groupid = 0) {
 /**
  * Get grades for all peers in a group.
  *
- * @param object $peerwork The instance.
- * @param object $group The group.
- * @param object[] $membersgradeable The members that are gradeable.
+ * @param stdClass $peerwork The instance.
+ * @param stdClass $group The group.
+ * @param stdClass[] $membersgradeable The members that are gradeable.
  * @param bool $full Whether to return a full result.
  * @return object
  */
@@ -522,9 +524,9 @@ function peerwork_get_number_peers_graded($peerworkid, $groupid, $userid = null)
 /**
  * Calculate and return the PA result, but cached for the request.
  *
- * @param object $peerwork The module instance.
- * @param object $group The group.
- * @param object $submission The submission, to prevent a double fetch.
+ * @param stdClass $peerwork The module instance.
+ * @param stdClass $group The group.
+ * @param stdClass $submission The submission, to prevent a double fetch.
  * @return mod_peerwork\pa_result|null Null when the submission was not found or graded.
  */
 function peerwork_get_cached_pa_result($peerwork, $group, $submission = null) {
@@ -534,9 +536,9 @@ function peerwork_get_cached_pa_result($peerwork, $group, $submission = null) {
 /**
  * Calculate and return the PA result.
  *
- * @param object $peerwork The module instance.
- * @param object $group The group.
- * @param object $submission The submission, to prevent a double fetch.
+ * @param stdClass $peerwork The module instance.
+ * @param stdClass $group The group.
+ * @param stdClass $submission The submission, to prevent a double fetch.
  * @return mod_peerwork\pa_result|null Null when the submission was not found or graded.
  */
 function peerwork_get_pa_result($peerwork, $group, $submission = null) {
@@ -578,7 +580,7 @@ function peerwork_get_pa_result($peerwork, $group, $submission = null) {
  * Create HTML links to files that have been submitted to the peerworkment.
  *
  * @param context $context The context.
- * @param object $group The group.
+ * @param stdClass $group The group.
  * @return string[] Array of formatted HTML strings.
  */
 function peerwork_submission_files($context, $group) {
@@ -599,7 +601,7 @@ function peerwork_submission_files($context, $group) {
  * Get feedback files.
  *
  * @param context $context The context.
- * @param object $group The group.
+ * @param stdClass $group The group.
  * @return string[]
  */
 function peerwork_feedback_files($context, $group) {
@@ -619,9 +621,9 @@ function peerwork_feedback_files($context, $group) {
 /**
  * Total all the grades awarded by the $user to other members of the group.
  *
- * @param object $peerwork The instance.
- * @param object $user The user.
- * @param object[] $membersgradeable The user's peers.
+ * @param stdClass $peerwork The instance.
+ * @param stdClass $user The user.
+ * @param stdClass[] $membersgradeable The user's peers.
  */
 function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
     global $DB;
@@ -654,9 +656,9 @@ function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
 /**
  * All the grades awarded by the $user to other members of the group.
  *
- * @param object $peerwork The instance.
- * @param object $user The user.
- * @param object[] $membersgradeable The user's peers.
+ * @param stdClass $peerwork The instance.
+ * @param stdClass $user The user.
+ * @param stdClass[] $membersgradeable The user's peers.
  */
 function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
     global $DB;
@@ -680,9 +682,9 @@ function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
  * All the grades and the overrides awarded by the $user/teacher
  * to other members of the group.
  *
- * @param object $peerwork The instance.
- * @param object $user The user.
- * @param object[] $membersgradeable The user's peers.
+ * @param stdClass $peerwork The instance.
+ * @param stdClass $user The user.
+ * @param stdClass[] $membersgradeable The user's peers.
  */
 function peerwork_grades_overrides_by_user($peerwork, $user, $membersgradeable) {
     global $DB;
@@ -721,8 +723,8 @@ function peerwork_get_fileoptions($peerwork) {
 /**
  * Find members of the group that did not submit feedback and graded peers.
  *
- * @param object $peerwork The instance.
- * @param object $group The group.
+ * @param stdClass $peerwork The instance.
+ * @param stdClass $group The group.
  * @return object[] The outstanding members.
  */
 function peerwork_outstanding($peerwork, $group) {
@@ -804,9 +806,9 @@ function peerwork_get_local_grades($peerworkid, $submissionid) {
 /**
  * Update local grades.
  *
- * @param object $peerwork The instance.
- * @param object $group The group.
- * @param object $submission The submission.
+ * @param stdClass $peerwork The instance.
+ * @param stdClass $group The group.
+ * @param stdClass $submission The submission.
  * @param array $userids The list of user IDs.
  * @param array|null $revisedgrades The full list of revised grades indexed by member id. A missing key means not revised.
  *                                  If null, we assume that none should be changed.
@@ -854,7 +856,7 @@ function peerwork_update_local_grades($peerwork, $group, $submission, $userids, 
  * @param unknown $course
  * @param unknown $cm
  * @param unknown $context
- * @param object $data Must include all non-locked data from the submissions form.
+ * @param stdClass $data Must include all non-locked data from the submissions form.
  * @param unknown $draftitemid
  * @param unknown $membersgradeable
  * @throws Exception
@@ -1015,6 +1017,7 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
  * @param int $peerworkid
  * @param int $gradedby
  * @param int $groupid
+ * @param array $overridden
  * @param array $grades
  * @param array $comments
  */
@@ -1123,13 +1126,11 @@ function peerwork_peer_override($peerworkid, $gradedby, $groupid, $overridden, $
 /**
  * Save the submission.
  *
- * Do not call directly, this is handled through {@link peerwork_save}.
- *
- * @param object $peerwork The module.
- * @param object $submission The submission.
- * @param object $group The group.
+ * @param stdClass $peerwork The module.
+ * @param stdClass $submission The submission.
+ * @param stdClass $group The group.
  * @param context $context The context.
- * @param object $data The form data.
+ * @param stdClass $data The form data.
  * @param int $draftitemid The draft item ID.
  * @return array First value is the submission, second is the array of draft files.
  */
@@ -1252,11 +1253,11 @@ function mod_peerwork_save_submission($peerwork, $submission, $group, $context, 
 /**
  * Mail confirmation.
  *
- * @param object $course The course.
- * @param object $submission The submission.
+ * @param stdClass $course The course.
+ * @param stdClass $submission The submission.
  * @param array $draftfiles The files.
  * @param array $membersgradeable The members.
- * @param object $data The data.
+ * @param stdClass $data The data.
  * @return bool
  */
 function mod_peerwork_mail_confirmation_submission($course, $submission, $draftfiles, $membersgradeable, $data) {
@@ -1290,7 +1291,7 @@ function mod_peerwork_mail_confirmation_submission($course, $submission, $draftf
 /**
  * Clear the submissions.
  *
- * @param object $peerwork The peerwork.
+ * @param stdClass $peerwork The peerwork.
  * @param context $context The context.
  * @param int $groupid The group ID, or 0 for all groups.
  * @return void
@@ -1340,8 +1341,8 @@ function mod_peerwork_clear_submissions($peerwork, $context, $groupid = 0) {
 /**
  * Get the peers that submitted late.
  *
- * @param object $peerwork Peerwork record.
- * @param object $submission Submission record.
+ * @param stdClass $peerwork Peerwork record.
+ * @param stdClass $submission Submission record.
  * @return array Where keys are user IDs, and values are user_picture::fields() and timegraded.
  */
 function mod_peerwork_get_late_peers($peerwork, $submission) {
@@ -1377,7 +1378,7 @@ function mod_peerwork_get_late_peers($peerwork, $submission) {
 /**
  * Lock editing across the entire activity.
  *
- * @param object $peerwork The peerwork instance.
+ * @param stdClass $peerwork The peerwork instance.
  * @return void
  */
 function mod_peerwork_lock_editing($peerwork) {
@@ -1389,7 +1390,7 @@ function mod_peerwork_lock_editing($peerwork) {
 /**
  * Unlock editing across the entire activity.
  *
- * @param object $peerwork The peerwork instance.
+ * @param stdClass $peerwork The peerwork instance.
  * @return void
  */
 function mod_peerwork_unlock_editing($peerwork) {
@@ -1442,7 +1443,7 @@ function mod_peerwork_get_locked_graders($peerworkid) {
  * for a specific user. If any criterion is locked, then justifications and peer grades are
  * locked for the student being graded.
  *
- * @param object $peerwork The module.
+ * @param stdClass $peerwork The module.
  * @param int $gradedby The grading user.
  * @return array
  */
@@ -1458,7 +1459,7 @@ function mod_peerwork_get_locked_peers($peerwork, $gradedby) {
 /**
  * Update local grades across the entire activity.
  *
- * @param object $peerwork The peerwork instance.
+ * @param stdClass $peerwork The peerwork instance.
  * @return void
  */
 function mod_peerwork_update_calculator($peerwork) {
@@ -1478,8 +1479,10 @@ function mod_peerwork_update_calculator($peerwork) {
     }
 }
 
-/*
- * Returns calculator class name
+/**
+ * Returns calculator class name.
+ *
+ * @param string $calculator calculator name.
  *
  * @return string
  */
@@ -1511,7 +1514,9 @@ function calculator_class($calculator) {
 /**
  * Returns instance of calculator class
  *
- * @return stdclass Instance of a calculator
+ * @param stdClass $peerwork
+ *
+ * @return object Instance of a calculator
  */
 function calculator_instance($peerwork) {
     global $CFG;
@@ -1526,7 +1531,9 @@ function calculator_instance($peerwork) {
 /**
  * Load the plugins.
  *
+ * @param stdClass $peerwork
  * @param string $subtype - calculator
+ *
  * @return array - The sorted list of plugins
  */
 function load_plugins($peerwork, $subtype) {
@@ -1576,8 +1583,8 @@ function add_plugin_settings($plugin, MoodleQuickForm $mform, & $pluginsenabled)
     global $CFG;
 
     if ($plugin->is_visible() && $plugin->is_configurable()) {
-        $name = $plugin->get_name();
-        $value = $plugin->get_subtype();
+        $name = $plugin->get_type();
+        $value = $plugin->get_name();
         $pluginsenabled[$name] = $value;
     }
 }
@@ -1587,6 +1594,8 @@ function add_plugin_settings($plugin, MoodleQuickForm $mform, & $pluginsenabled)
  *
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  * This form is modified directly (not returned).
+ * @param peerwork_plugin $peerwork
+ *
  * @return void
  */
 function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
@@ -1614,7 +1623,7 @@ function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
             'select',
             'calculator',
             get_string('calculator', 'peerwork'),
-            $calculatorpluginnames
+            $calculatorpluginsenabled
         );
         $mform->setType('calculator', PARAM_TEXT);
         $mform->disabledIf('calculator', 'recalculategrades', 'eq', 0);
@@ -1623,7 +1632,7 @@ function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
         $mform->registerNoSubmitButton('updatecalculator');
         $mform->addElement('submit', 'updatecalculator', get_string('calculatorupdate', 'mod_peerwork'));
     } else if (count($calculatorpluginsenabled) == 1) {
-        $value = array_pop($calculatorpluginsenabled);
+        $value = key($calculatorpluginsenabled);
         $mform->addElement('hidden', 'calculator');
         $mform->setType('calculator', PARAM_TEXT);
         $mform->setDefault('calculator', $value);

@@ -87,6 +87,8 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
      *
      * @param array $grades The list of marks given.
      * @param int $groupmark The mark given to the group.
+     * @param int $noncompletionpenalty The penalty to be applied.
+     * @param int $paweighting The weighting to be applied.
      */
     public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1) {
         $memberids = array_keys($grades);

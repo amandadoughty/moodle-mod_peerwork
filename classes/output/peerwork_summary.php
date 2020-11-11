@@ -50,11 +50,11 @@ class peerwork_summary implements \renderable {
     /**
      * Constructor.
      *
-     * @param object $group The group.
-     * @param object $data The data.
-     * @param object[] $membersgradeable The members gradeable.
-     * @param object $peerwork The peerwork.
-     * @param object|null $status The status.
+     * @param stdClass $group The group.
+     * @param stdClass $data The data.
+     * @param stdClass[] $membersgradeable The members gradeable.
+     * @param stdClass $peerwork The peerwork.
+     * @param stdClass|null $status The status.
      */
     public function __construct($group, $data, $membersgradeable, $peerwork, $status = null) {
         $this->group = $group;

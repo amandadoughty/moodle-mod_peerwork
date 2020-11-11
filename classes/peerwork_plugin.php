@@ -51,7 +51,7 @@ abstract class peerwork_plugin {
      * Constructor for the abstract plugin type class
      *
      * @param stdClass|null $peerwork
-     * @param string $type378
+     * @param string $type
      *
      */
     public final function __construct($peerwork, $type) {

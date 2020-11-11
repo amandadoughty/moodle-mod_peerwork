@@ -515,6 +515,8 @@ class mod_peerwork_submissions_form extends moodleform {
     /**
      * Get the scales.
      *
+     * @param int $courseid course id if course scales required.
+     *
      * @return void
      */
     public function get_scales($courseid = SITEID) {

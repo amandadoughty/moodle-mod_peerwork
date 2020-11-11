@@ -17,7 +17,7 @@
 /**
  * Lang strings.
  *
- * @package   mod_peerwork
+ * @package   peerworkcalculator_webpa
  * @copyright 2020 Amanda Doughty
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

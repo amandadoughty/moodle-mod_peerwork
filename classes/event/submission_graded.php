@@ -40,6 +40,11 @@ defined('MOODLE_INTERNAL') || die();
  **/
 class submission_graded extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
 
         // This is c(reate), r(ead), u(pdate), d(elete).
@@ -48,10 +53,20 @@ class submission_graded extends \core\event\base {
         $this->data['objecttable'] = 'peerwork_submission';
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventsubmission_graded', 'mod_peerwork');
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         return "Grade group: (id={$this->other['groupid']}, groupname={$this->other['groupname']}).
         Grade: {$this->other['grade']} / 100 " .
@@ -59,6 +74,11 @@ class submission_graded extends \core\event\base {
             "id '{$this->objectid}'.";
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url(
             '/mod/peerwork/details.php',
