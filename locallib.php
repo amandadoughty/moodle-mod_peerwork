@@ -456,11 +456,13 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     $grades = [];
     $overrides = [];
     $feedback = [];
+    $comments = [];
 
     foreach ($peers as $peer) {
         $grades[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->grade;
         $overrides[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->peergrade;
         $feedback[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->feedback;
+        $comments[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->comments;
     }
 
     // Translate the scales to grades.
@@ -487,6 +489,9 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
                     if (!isset($feedback[$critid][$member1->id][$member2->id])) {
                         $feedback[$critid][$member1->id][$member2->id] = '-';
                     }
+                    if (!isset($comments[$critid][$member1->id][$member2->id])) {
+                        $comments[$critid][$member1->id][$member2->id] = '-';
+                    }
                 }
             }
         }
@@ -495,6 +500,7 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     $return->grades = $grades;
     $return->overrides = $overrides;
     $return->feedback = $feedback;
+    $return->comments = $comments;
 
     return $return;
 }
@@ -1078,7 +1084,8 @@ function peerwork_peer_override($peerworkid, $gradedby, $groupid, $overridden, $
                         'other' => array(
                             'gradefor' => $peerworkpeer->gradefor,
                             'grade' => $peerworkpeer->grade,
-                            'peergrade' => $peerworkpeer->peergrade
+                            'peergrade' => $peerworkpeer->peergrade,
+                            'comments' => $peerworkpeer->comments
                         )
                     );
 
@@ -1112,7 +1119,8 @@ function peerwork_peer_override($peerworkid, $gradedby, $groupid, $overridden, $
                     'other' => array(
                         'gradefor' => $peerworkpeer->gradefor,
                         'grade' => $peerworkpeer->grade,
-                        'peergrade' => '-'
+                        'peergrade' => '-',
+                        'comments' => $peerworkpeer->comments
                     )
                 );
 

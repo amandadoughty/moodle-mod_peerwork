@@ -186,9 +186,19 @@ class peerwork_detail_summary implements templatable, renderable {
                         ) {
                             $peergrade = $grades->overrides[$critid][$member->id][$peer->id];
 
+                            if (
+                                array_key_exists($critid, $grades->overrides) &&
+                                array_key_exists($member->id, $grades->overrides[$critid]) &&
+                                array_key_exists($peer->id, $grades->overrides[$critid][$member->id])
+                            ) {
+                                $comments = $grades->comments[$critid][$member->id][$peer->id];
+                            }
+
                             if ($peergrade != $grade) {
                                 $peergrade = $peergrade == null ? '-' : $peergrade;
+                                $comments = $comments == null ? get_string('none') : $comments;
                                 $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
+                                $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
                                 $pixicon = new \pix_icon('help', '', 'moodle', ['title' => $title]);
                                 $override = $output->render($pixicon);
                             }

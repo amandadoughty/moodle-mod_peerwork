@@ -68,7 +68,7 @@ Feature: Overide the grades given by a peer
     And I press "Save changes"
     And I expand all fieldsets
     Then "Student 1" row "Student 2" column of "Criteria 1" table should contain "0"
-    And "Overridden peer grade: 1" "icon" should exist in the "Criteria 1" "table"
+    And "Overridden peer grade: 1 Comment: Very poor" "icon" should exist in the "Criteria 1" "table"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
@@ -94,7 +94,7 @@ Feature: Overide the grades given by a peer
     And I press "Save changes"
     And I expand all fieldsets
     Then "Student 3" row "Student 2" column of "Criteria 1" table should contain "0"
-    And "Overridden peer grade: -" "icon" should exist in the "Criteria 1" "table"
+    And "Overridden peer grade: - Comment: Very poor" "icon" should exist in the "Criteria 1" "table"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"

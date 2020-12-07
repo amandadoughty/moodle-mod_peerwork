@@ -155,10 +155,11 @@ class mod_peerwork_override_form extends moodleform {
                 $mform->addElement(
                     'textarea',
                     'comments_' . $uniqueid,
-                    get_string('comments', 'moodle'),
+                    get_string('comments', 'mod_peerwork'),
                     'wrap="virtual" rows="1" cols="50"'
                 );
                 $mform->setDefault('comments_' . $uniqueid, $comments);
+                $mform->addHelpButton('comments_' . $uniqueid, 'comments', 'peerwork');
 
                 $mform->disabledIf('gradeoverride_' . $uniqueid, 'overridden_' . $uniqueid);
                 $mform->disabledIf('comments_' . $uniqueid, 'overridden_' . $uniqueid);

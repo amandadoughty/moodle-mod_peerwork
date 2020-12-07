@@ -35,6 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  *      - int gradefor: Peer who's grade has ben overridden.
  *      - int peergrade: Original grade given.
  *      - int grade: Overridden grade.
+ *      - string comments: Reason for the override.
  * }
  *
  * @package    mod_peerwork
@@ -81,7 +82,7 @@ class peer_grade_overridden extends \core\event\base {
     public function get_description() {
         return "User with id '{$this->userid}' changed the grade given by the user with id '{$this->relateduserid}' " .
             "to the user with id '{$this->other['gradefor']}'" .
-            " from '{$this->other['peergrade']}' to  '{$this->other['grade']}'.";
+            " from '{$this->other['peergrade']}' to  '{$this->other['grade']}'. Comments: {$this->other['comments']}'";
     }
 
     /**
@@ -103,6 +104,9 @@ class peer_grade_overridden extends \core\event\base {
         }
         if (!isset($this->other['grade'])) {
             throw new \coding_exception('The \'grade\' value must be set in other.');
+        }
+        if (!isset($this->other['comments'])) {
+            throw new \coding_exception('The \'comments\' value must be set in other.');
         }
     }
 }
