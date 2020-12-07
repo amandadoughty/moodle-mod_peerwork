@@ -249,4 +249,59 @@ class behat_mod_peerwork extends behat_base {
             throw new Exception(sprintf("There is no criteria in the database with the description '%s'", $name));
         }
     }
+
+    /**
+     * Remove the specified user from the group.
+     * You should be in the groups page when running this step.
+     * The user should be specified like "Firstname Lastname (user@example.com)".
+     *
+     * @Given /^I remove "(?P<user_fullname_string>(?:[^"]|\\")*)" user from "(?P<group_name_string>(?:[^"]|\\")*)" group members$/
+     * @throws ElementNotFoundException Thrown by behat_base::find
+     * @param string $username
+     * @param string $groupname
+     */
+    public function i_remove_user_from_group_members($userfullname, $groupname) {
+
+        $userfullname = behat_context_helper::escape($userfullname);
+
+        // Using a xpath liternal to avoid problems with quotes and double quotes.
+        $groupname = behat_context_helper::escape($groupname);
+
+        // We don't know the option text as it contains the number of users in the group.
+        $select = $this->find_field('groups');
+        $xpath = "//select[@id='groups']/descendant::option[contains(., $groupname)]";
+        $groupoption = $this->find('xpath', $xpath);
+        $fulloption = $groupoption->getText();
+        $select->selectOption($fulloption);
+
+        // This is needed by some drivers to ensure relevant event is triggred and button is enabled.
+        $driver = $this->getSession()->getDriver();
+        if ($driver instanceof \Moodle\BehatExtension\Driver\MoodleSelenium2Driver) {
+            $script = "Syn.trigger('change', {}, {{ELEMENT}})";
+            $driver->triggerSynScript($select->getXpath(), $script);
+        }
+        $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
+
+        // Here we don't need to wait for the AJAX response.
+        $this->find_button(get_string('adduserstogroup', 'group'))->click();
+
+        // Wait for add/remove members page to be loaded.
+        $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
+
+        // Getting the option and selecting it.
+        $select = $this->find_field('removeselect');
+        $xpath = "//select[@id='removeselect']/descendant::option[contains(., $userfullname)]";
+        $memberoption = $this->find('xpath', $xpath);
+        $fulloption = $memberoption->getText();
+        $select->selectOption($fulloption);
+
+        // Click add button.
+        $this->find_button(get_string('remove'))->click();
+
+        // Wait for the page to load.
+        $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
+
+        // Returning to the main groups page.
+        $this->find_button(get_string('backtogroups', 'group'))->click();
+    }
 }

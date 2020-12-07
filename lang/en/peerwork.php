@@ -91,6 +91,7 @@ $string['duedatepassedago'] = 'Due date has passed {$a} ago.';
 $string['editablebecause'] = 'Editable because: {$a}';
 $string['editinglocked'] = 'Editing is locked';
 $string['editsubmission'] = 'Edit submission';
+$string['eventgradebookupdate_failed'] = 'peerwork gradebook update';
 $string['eventgradesreleased'] = 'Grades released';
 $string['eventsubmissioncleared'] = 'Submission cleared';
 $string['export'] = 'Export';
