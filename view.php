@@ -57,6 +57,11 @@ if ($id) {
 $groupingid = $cm->groupingid;
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
+$modinfo = get_fast_modinfo($course);
+$cminfo = $modinfo->get_cm($cm->id);
+$info = new \core_availability\info_module($cminfo);
+
+require_capability('mod/peerwork:view', $context);
 
 $params = array(
     'objectid' => $cm->instance,
@@ -107,8 +112,16 @@ if (has_capability('mod/peerwork:grade', $context)) {
         get_string('grade', 'mod_peerwork'),
         ''
     ];
+
     foreach ($allgroups as $group) {
         $members = groups_get_members($group->id);
+        // Filter groups based on any restrictions.
+        $newmembers = $info->filter_user_list($members);
+
+        if ($members && !$newmembers) {
+            continue;
+        }
+
         $submission = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $group->id));
         $status = peerwork_get_status($peerwork, $group, $submission);
         $grader = new mod_peerwork\group_grader($peerwork, $group->id, $submission);
