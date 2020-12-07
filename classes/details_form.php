@@ -102,11 +102,14 @@ class mod_peerwork_details_form extends moodleform {
                     }
 
                     $t = new html_table();
+                    $label = get_string('justificationbyfor', 'mod_peerwork', fullname($gradedby));
+                    $t->attributes['aria-label'] = $label;
+                    $t->id = 'justificationbyfor' . $gradedby->username;
                     $t->data = $rows;
                     $mform->addElement(
                         'static',
                         "justif_{$gradedby->id}",
-                        get_string('justificationbyfor', 'mod_peerwork', fullname($gradedby)),
+                        $label,
                         html_writer::table($t)
                     );
                 }
@@ -215,12 +218,24 @@ class mod_peerwork_details_form extends moodleform {
 
                 $default = $member['calcgrade'];
                 $revisedgrade = $member['revisedgrade'];
+                $finalweightedgrade = $member['finalweightedgrade'];
+                $overriddenweightedgrade = $member['overriddenweightedgrade'];
+
+                if ($overriddenweightedgrade && ($overriddenweightedgrade != $finalweightedgrade)) {
+                    $title = get_string('gradebefore', 'mod_peerwork', $overriddenweightedgrade);
+                    $pixicon = new \pix_icon('docs', '', 'moodle', ['title' => $title]);
+                    $finalweightedgrade = format_float($finalweightedgrade, 2);
+                    $finalweightedgrade .= $OUTPUT->render($pixicon);
+                    $finalweightedgrade .= \html_writer::tag('span', $title, ['class' => 'sr-only']);
+                } else {
+                    $finalweightedgrade = format_float($finalweightedgrade, 2);
+                }
 
                 $row->cells[] = $member['fullname'];
                 $row->cells[] = format_float($member['contribution'], 4);
                 $row->cells[] = format_float($member['calcgrade'], 2);
                 $row->cells[] = format_float($member['penalty'] * 100, 0) . '%';
-                $row->cells[] = format_float($member['finalweightedgrade'], 2);
+                $row->cells[] = $finalweightedgrade;
 
                 $revisedgradeel = $this->_form->createElement('text', 'grade_' . $member['memberid'], '',
                     ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)]);

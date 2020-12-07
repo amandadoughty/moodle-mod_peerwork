@@ -72,6 +72,8 @@ Feature: Overide the grades given by a peer
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
+    And I expand all fieldsets
+    And "Grade before overrides: " "icon" should exist in the "mod-peerwork-grader-table" "table"
     And I follow "Test peerwork name"
     And I press "Release all grades for all groups"
     And I log out

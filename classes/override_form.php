@@ -61,16 +61,13 @@ class mod_peerwork_override_form extends moodleform {
         $criteria = $this->get_criteria();
         $gradedby = fullname($peers[$this->_customdata['gradedby']->id]);
         $grades = $this->_customdata['grades']->grade;
-
-        // Create a section with all the criteria.
-        $mform->addElement('static', 'gradesgivenby', get_string('gradesgivenby', 'peerwork', $gradedby));
-
         $scales = get_scales_menu($COURSE->id);
 
         foreach ($criteria as $criterion) {
             // Get the scale.
             $scaleid = abs($criterion->grade);
             $scale = isset($scales[$scaleid]) ? $scales[$scaleid] : null;
+            $i = 1;
 
             if (!$scale) {
                 throw new moodle_exception('Unknown scale ' . $scaleid);
@@ -80,7 +77,9 @@ class mod_peerwork_override_form extends moodleform {
             $scaleitems = $scale->load_items();
 
             // Add crit description.
-            $mform->addElement('header', 'criterion', $criterion->description);
+            $mform->addElement('header', 'criterionnum', get_string('criterianum', 'mod_peerwork', $i));
+            $mform->addElement('html', $criterion->description);
+            $i++;
 
             foreach ($peers as $peer) {
                 if (!$this->_customdata['selfgrading']) {

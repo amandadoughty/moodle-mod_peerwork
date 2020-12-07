@@ -545,9 +545,10 @@ function peerwork_get_cached_pa_result($peerwork, $group, $submission = null) {
  * @param stdClass $peerwork The module instance.
  * @param stdClass $group The group.
  * @param stdClass $submission The submission, to prevent a double fetch.
+ * @param bool $beforeoverride Whether to fetch the results before any teacher override.
  * @return mod_peerwork\pa_result|null Null when the submission was not found or graded.
  */
-function peerwork_get_pa_result($peerwork, $group, $submission = null) {
+function peerwork_get_pa_result($peerwork, $group, $submission = null, $beforeoverride = false) {
     global $DB;
 
     if (!$submission) {
@@ -571,7 +572,7 @@ function peerwork_get_pa_result($peerwork, $group, $submission = null) {
     $members = groups_get_members($group->id);
 
     foreach ($members as $member) {
-        $awarded = peerwork_grades_by_user($peerwork, $member, $members);
+        $awarded = peerwork_grades_by_user($peerwork, $member, $members, $beforeoverride);
         $marks[$member->id] = array_filter($awarded->grade, function($grade) {
             return is_array($grade);
         });
@@ -665,8 +666,10 @@ function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
  * @param stdClass $peerwork The instance.
  * @param stdClass $user The user.
  * @param stdClass[] $membersgradeable The user's peers.
+ * @param bool $beforeoverride Whether to fetch the results before any teacher override.
+ * @return array $data
  */
-function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
+function peerwork_grades_by_user($peerwork, $user, $membersgradeable, $beforeoverride) {
     global $DB;
 
     $data = new stdClass();
@@ -674,11 +677,16 @@ function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
     $data->feedback = [];
 
     $mygrades = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id,
-        'gradedby' => $user->id), '', 'id,criteriaid,gradefor,grade');
+        'gradedby' => $user->id), '', 'id,criteriaid,gradefor,grade,peergrade');
 
     foreach ($mygrades as $grade) {
         $peerid = $grade->gradefor;
-        $data->grade[$peerid][] = $grade->grade;
+
+        if ($beforeoverride) {
+            $data->grade[$peerid][] = $grade->peergrade;
+        } else {
+            $data->grade[$peerid][] = $grade->grade;
+        }
     }
 
     return $data;
@@ -691,6 +699,7 @@ function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
  * @param stdClass $peerwork The instance.
  * @param stdClass $user The user.
  * @param stdClass[] $membersgradeable The user's peers.
+ * @return array $data
  */
 function peerwork_grades_overrides_by_user($peerwork, $user, $membersgradeable) {
     global $DB;

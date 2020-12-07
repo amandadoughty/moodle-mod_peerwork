@@ -47,6 +47,7 @@ $string['charactersremaining'] = '{$a} character(s) remaining';
 $string['clearallsubmissionsforallgroups'] = 'Clear all submissions';
 $string['clearsubmission'] = 'Clear submission';
 $string['criteria'] = 'Criteria';
+$string['criterianum'] = 'Criteria {$a}';
 $string['critscale'] = 'Criteria scoring type';
 $string['critscale_help'] = 'The scale by which the criteria are to be graded.';
 $string['comment'] = 'Comment: ';
@@ -102,6 +103,7 @@ $string['eventsubmissionsdownloaded'] = 'Submissions downloaded';
 $string['export'] = 'Export';
 $string['finalweightedgrade'] = 'Final weighted grade';
 $string['firstsubmittedbyon'] = 'First submitted by {$a->name} on {$a->date}.';
+$string['gradebefore'] = 'Grade before overrides: {$a}';
 $string['gradecannotberemoved'] = 'The grade cannot be removed.';
 $string['gradedby'] = 'Graded by';
 $string['gradedbyon'] = 'Graded by {$a->name} on {$a->date}.';
@@ -137,6 +139,7 @@ $string['justificationtype0'] = 'Peer';
 $string['justificationtype1'] = 'Criteria';
 $string['justificationvisibleanon'] = 'Visible anonymous';
 $string['justificationvisibleuser'] = 'Visible with usernames';
+$string['lasteditedon'] = 'Last edited on {$a->date}.';
 $string['latesubmissionsallowedafterduedate'] = 'After due date but late submissions allowed.';
 $string['latesubmissionsnotallowedafterduedate'] = 'After due date and late submissions not allowed.';
 $string['lockediting'] = 'Lock editing';
@@ -294,7 +297,7 @@ $string['setup.maxfiles_help'] = 'The maximum number of files the group will be 
 'Setting to zero will remove the file upload ability completely.';
 
 $string['contibutionscore'] = "Contribution";
-$string['contibutionscore_help'] = "This is the webPA score which is the relative contribution made by group members";
+$string['contibutionscore_help'] = "This is the PA score which is the relative contribution made by group members";
 
 $string['fromdate'] = 'Allow submissions from';
 $string['fromdate_help'] = 'If enabled, students will not be able to submit before this date. If disabled, students will be able to start submitting right away.';
