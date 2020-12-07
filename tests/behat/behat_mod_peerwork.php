@@ -201,6 +201,44 @@ class behat_mod_peerwork extends behat_base {
     }
 
     /**
+     * Checks that the calculator can be changed before grades are released.
+     *
+     * @Then /^I can change the calculator before grades are released$/
+     *
+     */
+    public function i_can_change_the_calculator_before_grades_are_released() {
+        // Behat steps are only relevant when more than one calculator plugin is installed.
+        $calculators = core_component::get_plugin_list('peerworkcalculator');
+
+        if (count($calculators) > 1) {
+            $this->execute(
+                'behat_general::should_not_exist_in_the',
+                ['.alert-warning', 'css_element', 'Calculator settings', 'fieldset']
+            );
+            $this->execute('behat_general::should_not_exist', ['Recalculate grades', 'select']);
+            $this->execute('behat_general::the_element_should_be_enabled', ['Calculator', 'select']);
+        }
+    }
+
+    /**
+     * Checks that the calculator can be changed after grades are released.
+     *
+     * @Then /^I can change the calculator after grades are released$/
+     *
+     */
+    public function i_can_change_the_calculator_after_grades_are_released() {
+        // Behat steps are only relevant when more than one calculator plugin is installed.
+        $calculators = core_component::get_plugin_list('peerworkcalculator');
+
+        if (count($calculators) > 1) {
+            $this->execute('behat_general::the_element_should_be_enabled', ['Recalculate grades', 'select']);
+            $this->execute('behat_general::the_element_should_be_disabled', ['Calculator', 'select']);
+            $this->execute('behat_forms::i_set_the_field_to', ['Recalculate grades', 'Yes']);
+            $this->execute('behat_general::the_element_should_be_enabled', ['Calculator', 'select']);
+        }
+    }
+
+    /**
      * Returns the id of the student with the given username.
      *
      * Please note that this function requires the student to exist. If it does not exist an ExpectationException is thrown.
