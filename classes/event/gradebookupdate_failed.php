@@ -57,7 +57,7 @@ class gradebookupdate_failed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventgradebookupdate_failed', 'mod_peerwork');
+        return get_string('eventgradebookupdatefailed', 'mod_peerwork');
     }
 
     /**

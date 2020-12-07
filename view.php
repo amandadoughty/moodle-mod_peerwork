@@ -183,6 +183,14 @@ if (has_capability('mod/peerwork:grade', $context)) {
     echo $OUTPUT->single_button(new moodle_url('export.php', array('id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey())),
         get_string("exportxls", 'mod_peerwork'), 'get');
 
+
+    echo $OUTPUT->single_button(new moodle_url('downloadallsubmissions.php', array('id' => $cm->id)),
+        get_string("downloadallsubmissions", 'mod_peerwork'), 'post');
+
+
+
+
+
     echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id,  'groupid' => 0, 'sesskey' => sesskey()]),
         get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');
 

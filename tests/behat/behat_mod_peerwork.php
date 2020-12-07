@@ -48,7 +48,6 @@ class behat_mod_peerwork extends behat_base {
      * @param string $peer
      * @param string $grade
      * @param string $criteria
-     * @return array
      */
     public function i_give_grade_for_criteria($peer, $grade, $criteria) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -68,7 +67,6 @@ class behat_mod_peerwork extends behat_base {
      * @param string $peer
      * @param string $justification
      * @param string $criteria
-     * @return array
      */
     public function i_give_justification_for_criteria($peer, $justification, $criteria) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -87,7 +85,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $peer
      * @param string $criteria
-     * @return array
      */
     public function i_enable_overriden_grade_for_criteria($peer, $criteria) {
         $criterionid = $this->get_criteria_id($criteria);
@@ -129,7 +126,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $peer
      * @param string $grade
-     * @return array
      */
     public function i_give_revised_grade($peer, $grade) {
         $studentid = $this->get_student_id($peer);
@@ -146,7 +142,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $criteria
      * @param string $peer
-     * @return array
      */
     public function rating_should_be_disabled($criteria, $peer) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -164,7 +159,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $criteria
      * @param string $peer
-     * @return array
      */
     public function rating_should_be_enabled($criteria, $peer) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -182,7 +176,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $criteria
      * @param string $peer
-     * @return array
      */
     public function criteria_justification_should_be_disabled($criteria, $peer) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -199,7 +192,6 @@ class behat_mod_peerwork extends behat_base {
      * @When /^peer "(?P<peer_string>[^"]*)" justification should be disabled$/
      *
      * @param string $peer
-     * @return array
      */
     public function peer_justification_should_be_disabled($peer) {
         $studentid = $this->get_student_id($peer);
