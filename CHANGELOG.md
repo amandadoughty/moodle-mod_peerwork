@@ -1,3 +1,17 @@
+v2.3.0
+------
+
+- Added group restriction check #54
+- Added group update observer to amend grades when group membership changes #37
+- Made WebPA calculator a dependency
+- Added download all submissions 
+
+v2.2.0
+------
+
+- Fixed single calculator plugin error #55 #56
+- Added support for v3.10
+
 v2.1.0
 ------
 
