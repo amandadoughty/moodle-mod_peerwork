@@ -118,6 +118,7 @@ Feature: Assignment submissions
     And I give "student3" grade "1" for criteria "Criteria 1"
     And I press "Save changes"
     And I should see "First submitted by Student 1"
+    And I should see "Last edited on"
     And "empty.txt" "link" should not exist
     And "upload_users.csv" "link" should exist
     And I log out

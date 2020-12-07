@@ -167,15 +167,35 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
         return $status;
     }
 
+    $modified = '';
+
+    if ($submission->timecreated != $submission->timemodified) {
+        $modified = get_string(
+            'lasteditedon', 'mod_peerwork',
+            [
+                'date' => userdate($submission->timecreated)
+            ]
+        );
+    }
+
     if ($duedate == PEERWORK_DUEDATE_PASSED) {
         $user = $DB->get_record('user', array('id' => $submission->userid));
         $status->code = PEERWORK_STATUS_SUBMITTED;
-        $status->text = get_string('firstsubmittedbyon', 'mod_peerwork', [
-            'name' => fullname($user),
-            'date' => userdate($submission->timecreated)
-        ]) . ' ' . get_string('duedatepassedago', 'mod_peerwork', format_time(time() - $peerwork->duedate));
-
+        $status->text =
+            get_string(
+                'firstsubmittedbyon', 'mod_peerwork',
+                [
+                    'name' => fullname($user),
+                    'date' => userdate($submission->timecreated)
+                ]
+            ) . $modified .
+            ' ' .
+            get_string(
+                'duedatepassedago', 'mod_peerwork',
+                format_time(time() - $peerwork->duedate)
+            );
         $latepeers = mod_peerwork_get_late_peers($peerwork, $submission);
+
         if (!empty($latepeers)) {
             $status->text .= ' ' . html_writer::tag('span', get_string('thesestudentspastduedate', 'mod_peerwork', implode(', ',
                 array_map(function($peer) {
@@ -192,10 +212,14 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
     } else {
         $user = $DB->get_record('user', array('id' => $submission->userid));
         $status->code = PEERWORK_STATUS_SUBMITTED;
-        $status->text = get_string('firstsubmittedbyon', 'mod_peerwork', [
-            'name' => fullname($user),
-            'date' => userdate($submission->timecreated)
-        ]);
+        $status->text =
+            get_string(
+                'firstsubmittedbyon', 'mod_peerwork',
+                [
+                    'name' => fullname($user),
+                    'date' => userdate($submission->timecreated)
+                ]
+            ) . $modified;
         return $status;
     }
 }
