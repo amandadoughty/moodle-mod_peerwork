@@ -59,6 +59,8 @@ $headers = [
     get_string('group'),
     get_string('groupsubmittedon', 'mod_peerwork'),
     get_string('student', 'core_grades'),
+    get_string('firstname', 'core'),
+    get_string('lastname', 'core'),
     get_string('username', 'core'),
     get_string('email', 'core'),
     get_string('idnumber', 'core'),
@@ -118,7 +120,7 @@ $params = ['peerworkid' => $peerwork->id] + $ingroupparams;
 $recordset = $DB->get_recordset_sql($sql, $params);
 
 foreach ($recordset as $record) {
-    $student = user_picture::unalias($record, ['email', 'username', 'idnumber'], 'user_id', 'user_');
+    $student = user_picture::unalias($record, ['email', 'username', 'idnumber', 'firstname', 'lastname'], 'user_id', 'user_');
     $grader = user_picture::unalias($record, null, 'grader_id', 'grader_');
     $releaser = user_picture::unalias($record, null, 'reluser_id', 'reluser_');
 
@@ -126,6 +128,8 @@ foreach ($recordset as $record) {
         $record->groupname,
         !empty($record->timecreated) ? userdate($record->timecreated) : '',
         fullname($student),
+        $student->firstname,
+        $student->lastname,
         $student->username,
         $student->email,
         $student->idnumber,
