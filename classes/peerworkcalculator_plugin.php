@@ -95,13 +95,14 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      * ];
      *
      * @param array $grades The list of marks given.
+     * @param array $memberids All of the group member ids.
      * @param int $groupmark The mark given to the group.
-     * @param int $noncompletionpenalty The penalty applied for those failing to score peers.
-     * @param int $paweighting The weighting to use.
+     * @param int $noncompletionpenalty The penalty to be applied.
+     * @param int $paweighting The weighting to be applied.
+     * @param bool $selfgrade If self grading is enabled.
+     * @return mod_peerwork\pa_result.
      */
-    public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1) {
-        $memberids = array_keys($grades);
-
+    public function calculate($grades, $memberids, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
         // Calculate the reduced scores, and record whether scores were submitted.
         $sumscores = [];
 

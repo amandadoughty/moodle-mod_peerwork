@@ -195,8 +195,8 @@ class peerwork_detail_summary implements templatable, renderable {
                             }
 
                             if ($peergrade != $grade) {
-                                $peergrade = $peergrade == null ? '-' : $peergrade;
-                                $comments = $comments == null ? get_string('none') : $comments;
+                                $peergrade = $peergrade == null ? get_string('none', 'mod_peerwork') : $peergrade;
+                                $comments = $comments == null ? get_string('none', 'mod_peerwork') : $comments;
                                 $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
                                 $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
                                 $attributes = ['title' => $title, 'aria-hidden' => true];

@@ -142,10 +142,13 @@ class mod_peerwork_observer {
                     if ($gradegrade) {
                         $gradegrade->delete();
                     }
+
+                    /* We do not delete peerwork_peers records as the user may have been
+                    removed from the group in error and we do not want to lose their peer grades. */
                 }
 
                 try {
-                    mod_peerwork_update_calculator($peerwork);
+                    mod_peerwork_update_calculation($peerwork);
                 } catch (exception $e) {
                     $params = [
                         'context' => $context,

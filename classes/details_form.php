@@ -222,7 +222,7 @@ class mod_peerwork_details_form extends moodleform {
                 $overriddenweightedgrade = $member['overriddenweightedgrade'];
 
                 if ($overriddenweightedgrade && ($overriddenweightedgrade != $finalweightedgrade)) {
-                    $title = get_string('gradebefore', 'mod_peerwork', $overriddenweightedgrade);
+                    $title = get_string('gradebefore', 'mod_peerwork', format_float($overriddenweightedgrade, 2));
                     $pixicon = new \pix_icon('docs', '', 'moodle', ['title' => $title]);
                     $finalweightedgrade = format_float($finalweightedgrade, 2);
                     $finalweightedgrade .= $OUTPUT->render($pixicon);
