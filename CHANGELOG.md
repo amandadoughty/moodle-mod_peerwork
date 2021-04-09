@@ -4,7 +4,8 @@ v2.3.0
 - Added group restriction check #54
 - Added group update observer to amend grades when group membership changes #37
 - Made WebPA calculator a dependency
-- Added download all submissions 
+- Added download all submissions
+- Changed icon
 
 v2.2.0
 ------
