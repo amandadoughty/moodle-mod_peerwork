@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * WebPA testcase.
- *
+ * @group mod_peerwork
  * @package    peerworkcalculator_webpa
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
@@ -140,6 +140,113 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     }
 
     /**
+     * Test the rebasedpa result when one student did not get grades.
+     */
+    public function test_webpa_result_outlier_b() {
+        $peerwork = new \stdClass();
+        $peerwork->id = 1;
+        $grades = $this->get_sample_b();
+        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $result = $calculator->calculate($grades, 80);
+
+        $fracs = $result->get_reduced_scores('alice');
+        $this->assertEquals(1, array_sum($fracs));
+        $this->assertEquals([
+            'bob' => 0.40,
+            'claire' => 0.30,
+            'david' => 0.20,
+            'elaine' => 0.10
+        ], array_map(function($a) {
+            return round($a, 2);  // We must round because the data we were given is rounded.
+        }, $fracs));
+
+        $this->assertTrue($result->has_submitted('alice'));
+        $this->assertTrue($result->has_submitted('bob'));
+        $this->assertTrue($result->has_submitted('claire'));
+        $this->assertTrue($result->has_submitted('david'));
+        $this->assertFalse($result->has_submitted('elaine'));
+
+        // Values are stlightly different from the source because of rounding issues.
+        $this->assertEquals(5, array_sum($result->get_scores()));
+        $this->assertEquals(0.00, round($result->get_score('alice'), 2));
+        $this->assertEquals(1.92, round($result->get_score('bob'), 2));
+        $this->assertEquals(1.45, round($result->get_score('claire'), 2));
+        $this->assertEquals(1.10, round($result->get_score('david'), 2));
+        $this->assertEquals(0.53, round($result->get_score('elaine'), 2));
+    }
+
+    /**
+     * Test the rebasedpa result when only one student gave grades.
+     */
+    public function test_webpa_result_outlier_c() {
+        $peerwork = new \stdClass();
+        $peerwork->id = 1;
+        $grades = $this->get_sample_c();
+        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $result = $calculator->calculate($grades, 80);
+
+        $fracs = $result->get_reduced_scores('alice');
+        $this->assertEquals(1, array_sum($fracs));
+        $this->assertEquals([
+            'alice' => 0.29,
+            'bob' => 0.29,
+            'claire' => 0.21,
+            'david' => 0.14,
+            'elaine' => 0.07
+        ], array_map(function($a) {
+            return round($a, 2);  // We must round because the data we were given is rounded.
+        }, $fracs));
+
+        $this->assertTrue($result->has_submitted('alice'));
+        $this->assertFalse($result->has_submitted('bob'));
+        $this->assertFalse($result->has_submitted('claire'));
+        $this->assertFalse($result->has_submitted('david'));
+        $this->assertFalse($result->has_submitted('elaine'));
+
+        // Values are stlightly different from the source because of rounding issues.
+        $this->assertEquals(5, array_sum($result->get_scores()));
+        $this->assertEquals(1.43, round($result->get_score('alice'), 2));
+        $this->assertEquals(1.43, round($result->get_score('bob'), 2));
+        $this->assertEquals(1.07, round($result->get_score('claire'), 2));
+        $this->assertEquals(0.71, round($result->get_score('david'), 2));
+        $this->assertEquals(0.36, round($result->get_score('elaine'), 2));
+    }
+
+    /**
+     * Test the rebasedpa result when one student did not give or get grades.
+     */
+    public function test_webpa_result_outlier_d() {
+        $peerwork = new \stdClass();
+        $peerwork->id = 1;
+        $grades = $this->get_sample_d();
+        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $result = $calculator->calculate($grades, 80);
+
+        $fracs = $result->get_reduced_scores('alice');
+        $this->assertEquals(0, array_sum($fracs));
+        $this->assertEquals([
+        ], array_map(function($a) {
+            return round($a, 2);  // We must round because the data we were given is rounded.
+        }, $fracs));
+
+        // If student A  was not given scores by Student B then Student A
+        // is treated as not having given any scores.
+        $this->assertFalse($result->has_submitted('alice'));
+        $this->assertFalse($result->has_submitted('bob'));
+        $this->assertFalse($result->has_submitted('claire'));
+        $this->assertFalse($result->has_submitted('david'));
+        $this->assertFalse($result->has_submitted('elaine'));
+
+        // Values are stlightly different from the source because of rounding issues.
+        $this->assertEquals(0, array_sum($result->get_scores()));
+        $this->assertEquals(0, round($result->get_score('alice'), 2));
+        $this->assertEquals(0, round($result->get_score('bob'), 2));
+        $this->assertEquals(0, round($result->get_score('claire'), 2));
+        $this->assertEquals(0, round($result->get_score('david'), 2));
+        $this->assertEquals(0, round($result->get_score('elaine'), 2));
+    }
+
+    /**
      * Data sample.
      *
      * Adapted from https://webpaproject.lboro.ac.uk/academic-guidance/a-worked-example-of-the-scoring-algorithm
@@ -180,4 +287,97 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
         ];
     }
 
+    /**
+     * Data sample - one student did not get grades.
+     *
+     *
+     * @return array
+     */
+    protected function get_sample_b() {
+        return [
+            'alice' => [
+                'bob' => [1, 3],
+                'claire' => [3, 0],
+                'david' => [1, 1],
+                'elaine' => [1, 0]
+            ],
+            'bob' => [
+                'bob' => [2, 3],
+                'claire' => [2, 1],
+                'david' => [1, 1],
+                'elaine' => [0, 0]
+            ],
+            'claire' => [
+                'bob' => [2, 2],
+                'claire' => [2, 2],
+                'david' => [2, 2],
+                'elaine' => [2, 2]
+            ],
+            'david' => [
+                'bob' => [3, 2],
+                'claire' => [2, 2],
+                'david' => [1, 2],
+                'elaine' => [1, 0]
+            ],
+            'elaine' => []
+        ];
+    }
+
+    /**
+     * Data sample - one student gave grades.
+     *
+     *
+     * @return array
+     */
+    protected function get_sample_c() {
+        return [
+            'alice' => [
+                'alice' => [2, 2],
+                'bob' => [1, 3],
+                'claire' => [3, 0],
+                'david' => [1, 1],
+                'elaine' => [1, 0]
+            ],
+            'bob' => [],
+            'claire' => [],
+            'david' => [],
+            'elaine' => []
+        ];
+    }
+
+    /**
+     * Data sample - one student did not give or get grades.
+     *
+     *
+     * @return array
+     */
+    protected function get_sample_d() {
+        return [
+            'alice' => [
+                'alice' => [2, 2],
+                'bob' => [1, 3],
+                'claire' => [3, 0],
+                'david' => [1, 1]
+            ],
+            'bob' => [
+                'alice' => [2, 1],
+                'bob' => [2, 3],
+                'claire' => [2, 1],
+                'david' => [1, 1]
+            ],
+            'claire' => [
+                'alice' => [2, 2],
+                'bob' => [2, 2],
+                'claire' => [2, 2],
+                'david' => [2, 2]
+            ],
+            'david' => [
+                'alice' => [2, 1],
+                'bob' => [3, 2],
+                'claire' => [2, 2],
+                'david' => [1, 2]
+            ],
+            'elaine' => []
+        ];
+    }
 }
