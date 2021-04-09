@@ -86,14 +86,13 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
      * ];
      *
      * @param array $grades The list of marks given.
-     * @param array $memberids All of the group member ids.
      * @param int $groupmark The mark given to the group.
      * @param int $noncompletionpenalty The penalty to be applied.
      * @param int $paweighting The weighting to be applied.
      * @param bool $selfgrade If self grading is enabled.
      * @return mod_peerwork\pa_result.
      */
-    public function calculate($grades, $memberids, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
+    public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
         $memberids = array_keys($grades);
         $totalscores = [];
         $fracscores = [];
@@ -116,7 +115,7 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
             }
         }
 
-        // Calculate the factional scores, and record whether scores were submitted.
+        // Calculate the fractional scores, and record whether scores were submitted.
         foreach ($memberids as $memberid) {
             $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);

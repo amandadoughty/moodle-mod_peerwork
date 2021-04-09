@@ -591,6 +591,7 @@ function peerwork_get_pa_result($peerwork, $group, $submission = null, $beforeov
     $groupmark = $submission->grade;
     $paweighting = $submission->paweighting / 100;
     $noncompletionpenalty = $peerwork->noncompletionpenalty / 100;
+    $selfgrade = $peerwork->selfgrading;
 
     $marks = [];
     $members = groups_get_members($group->id);
@@ -603,9 +604,8 @@ function peerwork_get_pa_result($peerwork, $group, $submission = null, $beforeov
     }
 
     $calculator = calculator_instance($peerwork);
-    $memberids = array_keys($members);
 
-    return $calculator->calculate($marks, $memberids, $groupmark, $noncompletionpenalty, $paweighting);
+    return $calculator->calculate($marks, $groupmark, $noncompletionpenalty, $paweighting, $selfgrade);
 }
 
 /**
