@@ -95,15 +95,14 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      * ];
      *
      * @param array $grades The list of marks given.
-     * @param array $memberids All of the group member ids.
      * @param int $groupmark The mark given to the group.
      * @param int $noncompletionpenalty The penalty to be applied.
      * @param int $paweighting The weighting to be applied.
      * @param bool $selfgrade If self grading is enabled.
      * @return mod_peerwork\pa_result.
      */
-    public function calculate($grades, $memberids, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
-        // Calculate the reduced scores, and record whether scores were submitted.
+    public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
+        $memberids = array_keys($grades);
         $sumscores = [];
 
         foreach ($memberids as $memberid) {
@@ -123,23 +122,16 @@ class peerworkcalculator_plugin extends peerwork_plugin {
         }
 
         // Initialise everyone's score at 0.
-        $webpascores = array_reduce($memberids, function($carry, $memberid) {
+        $pascores = array_reduce($memberids, function($carry, $memberid) {
             $carry[$memberid] = 0;
             return $carry;
         }, []);
-
-        // Walk through the individual scores given, and sum them up.
-        foreach ($sumscores as $gradesgiven) {
-            foreach ($gradesgiven as $memberid => $score) {
-                $webpascores[$memberid] += $score;
-            }
-        }
 
         // Calculate the students' preliminary grade (excludes weighting and penalties).
         $prelimgrades = array_map(function($score) use ($groupmark) {
             // Give everyone the groupmark.
             return $groupmark;
-        }, $webpascores);
+        }, $pascores);
 
         // Calculate penalties.
         $noncompletionpenalties = array_reduce($memberids, function($carry, $memberid) use ($grades, $noncompletionpenalty) {
@@ -148,7 +140,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
             return $carry;
         });
 
-        return new \mod_peerwork\pa_result($sumscores, $webpascores, $prelimgrades, $prelimgrades, $noncompletionpenalties);
+        return new \mod_peerwork\pa_result($sumscores, $pascores, $prelimgrades, $prelimgrades, $noncompletionpenalties);
     }
 
     /**
