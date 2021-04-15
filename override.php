@@ -27,8 +27,6 @@ require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 
-
-
 $id = required_param('id', PARAM_INT);
 $peerworkid = required_param('pid', PARAM_INT);
 $groupid = required_param('gid', PARAM_INT);
@@ -51,6 +49,7 @@ $gradedby = new stdClass();
 $gradedby->id = $gradedbyid;
 $members = groups_get_members($groupid);
 $grades = peerwork_grades_overrides_by_user($peerwork, $gradedby, $members);
+$header = get_string('gradesgivenby', 'peerwork', fullname($members[$gradedby->id]));
 
 $customdata['peerworkid'] = $peerworkid;
 $customdata['gradedby'] = $gradedby;
@@ -78,6 +77,7 @@ if ($mform->is_cancelled()) {
     redirect($parenturl);
 } else {
     echo $OUTPUT->header();
+    echo "<h2>$header</h2>";
     $mform->display();
     echo $OUTPUT->footer();
 }

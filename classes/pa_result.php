@@ -73,7 +73,9 @@ class pa_result {
      * @return array Indexed by member ID.
      */
     public function get_reduced_scores($memberid) {
-        return $this->redscores[$memberid];
+        if (isset($this->redscores[$memberid])) {
+            return $this->redscores[$memberid];
+        }
     }
 
     /**
@@ -83,7 +85,9 @@ class pa_result {
      * @return float Between 0 and 100.
      */
     public function get_grade($memberid) {
-        return $this->grades[$memberid];
+        if (isset($this->grades[$memberid])) {
+            return $this->grades[$memberid];
+        }
     }
 
     /**

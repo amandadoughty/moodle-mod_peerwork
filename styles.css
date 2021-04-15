@@ -50,6 +50,14 @@
     text-align: left;
 }
 
+#id_mod_peerwork_peers table caption {
+    font-size: 1rem;
+    font-weight: inherit;
+    line-height: 1.5rem;
+    text-align: left;
+    caption-side: top;
+}
+
 .mod_peerwork_criteriarating {
     overflow-x: auto;
     padding-bottom: 1em;

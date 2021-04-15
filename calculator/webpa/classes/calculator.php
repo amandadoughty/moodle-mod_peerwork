@@ -89,8 +89,10 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
      * @param int $groupmark The mark given to the group.
      * @param int $noncompletionpenalty The penalty to be applied.
      * @param int $paweighting The weighting to be applied.
+     * @param bool $selfgrade If self grading is enabled.
+     * @return mod_peerwork\pa_result.
      */
-    public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1) {
+    public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
         $memberids = array_keys($grades);
         $totalscores = [];
         $fracscores = [];
@@ -99,21 +101,22 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
         // Calculate the total scores.
         foreach ($memberids as $memberid) {
             foreach ($grades as $graderid => $gradesgiven) {
-                if (!isset($gradesgiven[$memberid])) {
+                if (!isset($totalscores[$graderid])) {
                     $totalscores[$graderid] = [];
-                    continue;
                 }
 
-                $sum = array_reduce($gradesgiven[$memberid], function($carry, $item) {
-                    $carry += $item;
-                    return $carry;
-                });
+                if (isset($gradesgiven[$memberid])) {
+                    $sum = array_reduce($gradesgiven[$memberid], function($carry, $item) {
+                        $carry += $item;
+                        return $carry;
+                    });
 
-                $totalscores[$graderid][$memberid] = $sum;
+                    $totalscores[$graderid][$memberid] = $sum;
+                }
             }
         }
 
-        // Calculate the factional scores, and record whether scores were submitted.
+        // Calculate the fractional scores, and record whether scores were submitted.
         foreach ($memberids as $memberid) {
             $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);

@@ -61,11 +61,8 @@ class mod_peerwork_override_form extends moodleform {
         $criteria = $this->get_criteria();
         $gradedby = fullname($peers[$this->_customdata['gradedby']->id]);
         $grades = $this->_customdata['grades']->grade;
-
-        // Create a section with all the criteria.
-        $mform->addElement('static', 'gradesgivenby', get_string('gradesgivenby', 'peerwork', $gradedby));
-
         $scales = get_scales_menu($COURSE->id);
+        $i = 1;
 
         foreach ($criteria as $criterion) {
             // Get the scale.
@@ -80,7 +77,9 @@ class mod_peerwork_override_form extends moodleform {
             $scaleitems = $scale->load_items();
 
             // Add crit description.
-            $mform->addElement('header', 'criterion', $criterion->description);
+            $mform->addElement('header', 'criterionnum', get_string('criterianum', 'mod_peerwork', $i));
+            $mform->addElement('html', $criterion->description);
+            $i++;
 
             foreach ($peers as $peer) {
                 if (!$this->_customdata['selfgrading']) {
@@ -155,10 +154,11 @@ class mod_peerwork_override_form extends moodleform {
                 $mform->addElement(
                     'textarea',
                     'comments_' . $uniqueid,
-                    get_string('comments', 'moodle'),
+                    get_string('comments', 'mod_peerwork'),
                     'wrap="virtual" rows="1" cols="50"'
                 );
                 $mform->setDefault('comments_' . $uniqueid, $comments);
+                $mform->addHelpButton('comments_' . $uniqueid, 'comments', 'peerwork');
 
                 $mform->disabledIf('gradeoverride_' . $uniqueid, 'overridden_' . $uniqueid);
                 $mform->disabledIf('comments_' . $uniqueid, 'overridden_' . $uniqueid);
@@ -166,6 +166,35 @@ class mod_peerwork_override_form extends moodleform {
         }
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Perform validation on the override form.
+     *
+     * @param array $data array of ("fieldname"=>value) of submitted data
+     * @param array $files array of uploaded files "element_name"=>tmp_file_path
+     * @return array of "element_name"=>"error_description" if there are errors,
+     *         or an empty array if everything is OK (true allowed for backwards compatibility too).
+     */
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        $peers = $this->_customdata['peers'];
+        $criteria = $this->get_criteria();
+        $errortxt = get_string('pleaseexplainoverride', 'mod_peerwork');
+
+        foreach ($criteria as $criterion) {
+            foreach ($peers as $peer) {
+                $uniqueid = 'idx_' . $criterion->id;
+
+                if (isset($data['overridden_' . $uniqueid][$peer->id]) && $data['overridden_' . $uniqueid][$peer->id]) {
+                    if (!$data['comments_' . $uniqueid][$peer->id]) {
+                        $errors['comments_' . $uniqueid. '[' . $peer->id . ']'] = $errortxt;
+                    }
+                }
+            }
+        }
+
+        return $errors;
     }
 
     /**
@@ -182,6 +211,7 @@ class mod_peerwork_override_form extends moodleform {
 
         // Group the grades and data.
         $data = (array) $data;
+        $data['overridden'] = [];
 
         foreach ($data as $key => $value) {
             if (preg_match('/^overridden_idx_([0-9]+)$/', $key, $matches)) {

@@ -118,7 +118,12 @@ $data['peergradesawarded'] .= $renderer->render($summary);
 // If assignment has been graded then pass the required data to create a table showing calculated grades.
 if (peerwork_was_submission_graded_from_status($status)) {
     $result = peerwork_get_pa_result($peerwork, $group);
+    $canoverridepeergrades = get_config('peerwork', 'overridepeergrades');
     $localgrades = peerwork_get_local_grades($peerwork->id, $submission->id);
+
+    if ($canoverridepeergrades) {
+        $overiddenresult = peerwork_get_pa_result($peerwork, $group, null, true);
+    }
 
     $gradinginfo = grade_get_grades(
         $course->id,
@@ -129,7 +134,9 @@ if (peerwork_was_submission_graded_from_status($status)) {
     );
 
     $data['finalgrades'] = [];
+
     foreach ($members as $member) {
+        $overriddenweightedgrade = null;
         // Check if the grade has been overridden in the gradebook.
         $grade = $gradinginfo->items[0]->grades[$member->id];
 
@@ -141,6 +148,11 @@ if (peerwork_was_submission_graded_from_status($status)) {
             $localgrades[$member->id]->revisedgrade = $grade->str_grade;
         }
 
+        // Check if the grade has been adjusted due to peer grade overrides.
+        if ($canoverridepeergrades) {
+            $overriddenweightedgrade = $overiddenresult->get_grade($member->id);
+        }
+
         $data['finalgrades'][] = array(
             'memberid' => $member->id,
             'fullname' => fullname($member),
@@ -148,6 +160,7 @@ if (peerwork_was_submission_graded_from_status($status)) {
             'calcgrade' => $result->get_preliminary_grade($member->id),
             'penalty' => $result->get_non_completion_penalty($member->id),
             'finalweightedgrade' => $result->get_grade($member->id),
+            'overriddenweightedgrade' => $overriddenweightedgrade,
             'revisedgrade' => $localgrades[$member->id]->revisedgrade ?? null,
             'overridden' => $grade->overridden,
             'locked' => $grade->locked

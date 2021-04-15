@@ -132,7 +132,7 @@ function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mfo
 
     // Update local grades across activity.
     if ($prevcalculator != $peerwork->calculator) {
-        mod_peerwork_update_calculator($peerwork);
+        mod_peerwork_update_calculation($peerwork);
     }
 
     peerwork_update_grades($peerwork);
@@ -290,7 +290,6 @@ function peerwork_print_recent_mod_activity($activity, $courseid, $detail, $modn
  * as sending out mail, toggling flags etc ...
  *
  * @return boolean
- * @todo Finish documenting this function
  **/
 function peerwork_cron() {
     return true;
@@ -481,7 +480,7 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     }
 
     // Finally send the file.
-    send_stored_file($file, 0, 0, true, $options); // download MUST be forced - security!
+    send_stored_file($file, 0, 0, true, $options); // Download MUST be forced - security!
 }
 
 /**

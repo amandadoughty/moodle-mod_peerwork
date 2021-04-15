@@ -111,7 +111,10 @@ class mod_peerwork_mod_form extends moodleform_mod {
             $mform->freeze('selfgrading');
         }
 
-        add_all_plugin_settings($mform, $peerwork);
+        // Create the calculator field:
+        // Hidden field if only one enabled calculator plugin.
+        // Select field if more than one enabled calculator plugin.
+        add_all_calculator_plugins($mform, $peerwork);
 
         $mform->addElement('select', 'paweighting', get_string('paweighting', 'peerwork'), $zerotohundredpcopts);
         $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
@@ -299,7 +302,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
      * All form setup that is dependent on form values should go in here.
      */
     public function definition_after_data() {
-        global $CFG, $COURSE;
+        global $CFG, $COURSE, $DB;
 
         $mform =& $this->_form;
         $hassubmissions = $this->has_submissions();
@@ -307,6 +310,11 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $i = 0;
         $calculators = core_component::get_plugin_list('peerworkcalculator');
         $gradesreleased = $this->is_grades_released();
+        $peerwork = null;
+
+        if ($this->current && $this->current->id) {
+            $peerwork = $DB->get_record('peerwork', ['id' => $this->current->id], '*', MUST_EXIST);
+        }
 
         if ($hassubmissions) {
             for ($i; $i < count($criteria); $i++) {
@@ -366,10 +374,12 @@ class mod_peerwork_mod_form extends moodleform_mod {
                         }
                     }
                 }
+
+                add_plugin_settings($mform, $peerwork, $name);
             }
         }
 
-        // Remove elements the grades have not been released.
+        // Remove elements if the grades have not been released.
         if (!$gradesreleased) {
             if ($mform->elementExists('gradesexistmsg')) {
                 $mform->removeElement('gradesexistmsg');

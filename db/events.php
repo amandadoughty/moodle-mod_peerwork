@@ -1,5 +1,5 @@
 <?php
-// This file is part of a 3rd party created plugin for Moodle - http://moodle.org/.
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,21 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version.
+ * Peer work plugin event handler definition.
  *
  * @package    mod_peerwork
- * @copyright  2013 LEARNING TECHNOLOGY SERVICES
+ * @copyright  2020 Amanda Doughty <amanda.doughty.1@city.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020120100;
-$plugin->requires  = 2018120300;      // Moodle 3.6.0.
-$plugin->component = 'mod_peerwork';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.3.0';
-$plugin->dependencies = array(
-    'peerworkcalculator_webpa' => 2020052200,
-);
+$observers = [
+    /*
+     * Group member added.
+     */
+    [
+        'eventname' => '\core\event\group_member_added',
+        'callback'  => 'mod_peerwork_observer::group_member_added',
+    ],
 
+    /*
+     * Group member removed.
+     */
+    [
+        'eventname' => '\core\event\group_member_removed',
+        'callback'  => 'mod_peerwork_observer::group_member_removed',
+    ],
+
+];

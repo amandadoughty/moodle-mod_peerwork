@@ -37,8 +37,8 @@ require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->libdir . '/gradelib.php');
 
-$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$n = optional_param('n', 0, PARAM_INT); // peerwork instance ID - it should be named as the first character of the module.
+$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or ...
+$n = optional_param('n', 0, PARAM_INT); // ... peerwork instance ID - it should be named as the first character of the module.
 $edit = optional_param('edit', false, PARAM_BOOL);
 
 if ($id) {
@@ -57,6 +57,11 @@ if ($id) {
 $groupingid = $cm->groupingid;
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
+$modinfo = get_fast_modinfo($course);
+$cminfo = $modinfo->get_cm($cm->id);
+$info = new \core_availability\info_module($cminfo);
+
+require_capability('mod/peerwork:view', $context);
 
 $params = array(
     'objectid' => $cm->instance,
@@ -107,8 +112,16 @@ if (has_capability('mod/peerwork:grade', $context)) {
         get_string('grade', 'mod_peerwork'),
         ''
     ];
+
     foreach ($allgroups as $group) {
         $members = groups_get_members($group->id);
+        // Filter groups based on any restrictions.
+        $newmembers = $info->filter_user_list($members);
+
+        if ($members && !$newmembers) {
+            continue;
+        }
+
         $submission = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $group->id));
         $status = peerwork_get_status($peerwork, $group, $submission);
         $grader = new mod_peerwork\group_grader($peerwork, $group->id, $submission);
@@ -169,6 +182,14 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     echo $OUTPUT->single_button(new moodle_url('export.php', array('id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey())),
         get_string("exportxls", 'mod_peerwork'), 'get');
+
+
+    echo $OUTPUT->single_button(new moodle_url('downloadallsubmissions.php', array('id' => $cm->id)),
+        get_string("downloadallsubmissions", 'mod_peerwork'), 'post');
+
+
+
+
 
     echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id,  'groupid' => 0, 'sesskey' => sesskey()]),
         get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');

@@ -68,10 +68,12 @@ Feature: Overide the grades given by a peer
     And I press "Save changes"
     And I expand all fieldsets
     Then "Student 1" row "Student 2" column of "Criteria 1" table should contain "0"
-    And "Overridden peer grade: 1" "icon" should exist in the "Criteria 1" "table"
+    And "Overridden peer grade: 1 Comment: Very poor" "icon" should exist in the "Criteria 1" "table"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
+    And I expand all fieldsets
+    And "Grade before overrides: " "icon" should exist in the "mod-peerwork-grader-table" "table"
     And I follow "Test peerwork name"
     And I press "Release all grades for all groups"
     And I log out
@@ -94,7 +96,7 @@ Feature: Overide the grades given by a peer
     And I press "Save changes"
     And I expand all fieldsets
     Then "Student 3" row "Student 2" column of "Criteria 1" table should contain "0"
-    And "Overridden peer grade: -" "icon" should exist in the "Criteria 1" "table"
+    And "Overridden peer grade: None. Comment: Very poor" "icon" should exist in the "Criteria 1" "table"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
@@ -105,3 +107,60 @@ Feature: Overide the grades given by a peer
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
     Then I should see "Student 3: Not yet competent" in the "Peer grades" "table_row"
+
+  @javascript
+  Scenario: Override the grades without providing a comment
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    And I follow "Group 1"
+    And I expand all fieldsets
+    And I click on "Select" "link" in the "#memberdropdown" "css_element"
+    And I click on "Student 3" "link" in the "#memberdropdown" "css_element"
+    And I enable overriden "student2" grade for criteria "Criteria 1"
+    And I override "student2" grade for criteria "Criteria 1" with "0" ""
+    And I press "Save changes"
+    Then I should see "Please give your reason for overriding this peer grade."
+
+  @javascript
+  Scenario: Override the grades after they have released
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    And I follow "Group 1"
+    And I expand all fieldsets
+    And I set the following fields to these values:
+        | Group grade out of 100 | 80 |
+    And I press "Save changes"
+    And I follow "Test peerwork name"
+    And I press "Release all grades for all groups"
+    And I log out
+    And I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    Then I should see "93.33" in the "My final grade" "table_row"
+    And I navigate to "User report" in the course gradebook
+    Then the following should exist in the "user-grade" table:
+        | Grade item | Grade |
+        | Test peerwork name | 93.33 |
+    And I log out
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    And I follow "Group 1"
+    And I expand all fieldsets
+    And I click on "Select" "link" in the "#memberdropdown" "css_element"
+    And I click on "Student 1" "link" in the "#memberdropdown" "css_element"
+    And I enable overriden "student2" grade for criteria "Criteria 1"
+    And I override "student2" grade for criteria "Criteria 1" with "0" "Very poor"
+    And I press "Save changes"
+    And I log out
+    And I log in as "student2"
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    Then I should see "40.00" in the "My final grade" "table_row"
+    And I navigate to "User report" in the course gradebook
+    Then the following should exist in the "user-grade" table:
+        | Grade item | Grade |
+        | Test peerwork name | 40.00 |
+    And I log out

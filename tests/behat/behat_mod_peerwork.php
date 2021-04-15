@@ -48,7 +48,6 @@ class behat_mod_peerwork extends behat_base {
      * @param string $peer
      * @param string $grade
      * @param string $criteria
-     * @return array
      */
     public function i_give_grade_for_criteria($peer, $grade, $criteria) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -68,7 +67,6 @@ class behat_mod_peerwork extends behat_base {
      * @param string $peer
      * @param string $justification
      * @param string $criteria
-     * @return array
      */
     public function i_give_justification_for_criteria($peer, $justification, $criteria) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -87,7 +85,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $peer
      * @param string $criteria
-     * @return array
      */
     public function i_enable_overriden_grade_for_criteria($peer, $criteria) {
         $criterionid = $this->get_criteria_id($criteria);
@@ -129,7 +126,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $peer
      * @param string $grade
-     * @return array
      */
     public function i_give_revised_grade($peer, $grade) {
         $studentid = $this->get_student_id($peer);
@@ -146,7 +142,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $criteria
      * @param string $peer
-     * @return array
      */
     public function rating_should_be_disabled($criteria, $peer) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -164,7 +159,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $criteria
      * @param string $peer
-     * @return array
      */
     public function rating_should_be_enabled($criteria, $peer) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -182,7 +176,6 @@ class behat_mod_peerwork extends behat_base {
      *
      * @param string $criteria
      * @param string $peer
-     * @return array
      */
     public function criteria_justification_should_be_disabled($criteria, $peer) {
         $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
@@ -199,13 +192,50 @@ class behat_mod_peerwork extends behat_base {
      * @When /^peer "(?P<peer_string>[^"]*)" justification should be disabled$/
      *
      * @param string $peer
-     * @return array
      */
     public function peer_justification_should_be_disabled($peer) {
         $studentid = $this->get_student_id($peer);
         $fieldlocator = "justifications[{$studentid}]";
 
         $this->execute('behat_general::the_element_should_be_disabled', [$fieldlocator, 'field']);
+    }
+
+    /**
+     * Checks that the calculator can be changed before grades are released.
+     *
+     * @Then /^I can change the calculator before grades are released$/
+     *
+     */
+    public function i_can_change_the_calculator_before_grades_are_released() {
+        // Behat steps are only relevant when more than one calculator plugin is installed.
+        $calculators = core_component::get_plugin_list('peerworkcalculator');
+
+        if (count($calculators) > 1) {
+            $this->execute(
+                'behat_general::should_not_exist_in_the',
+                ['.alert-warning', 'css_element', 'Calculator settings', 'fieldset']
+            );
+            $this->execute('behat_general::should_not_exist', ['Recalculate grades', 'select']);
+            $this->execute('behat_general::the_element_should_be_enabled', ['Calculator', 'select']);
+        }
+    }
+
+    /**
+     * Checks that the calculator can be changed after grades are released.
+     *
+     * @Then /^I can change the calculator after grades are released$/
+     *
+     */
+    public function i_can_change_the_calculator_after_grades_are_released() {
+        // Behat steps are only relevant when more than one calculator plugin is installed.
+        $calculators = core_component::get_plugin_list('peerworkcalculator');
+
+        if (count($calculators) > 1) {
+            $this->execute('behat_general::the_element_should_be_enabled', ['Recalculate grades', 'select']);
+            $this->execute('behat_general::the_element_should_be_disabled', ['Calculator', 'select']);
+            $this->execute('behat_forms::i_set_the_field_to', ['Recalculate grades', 'Yes']);
+            $this->execute('behat_general::the_element_should_be_enabled', ['Calculator', 'select']);
+        }
     }
 
     /**
@@ -248,5 +278,60 @@ class behat_mod_peerwork extends behat_base {
         } catch (dml_missing_record_exception $ex) {
             throw new Exception(sprintf("There is no criteria in the database with the description '%s'", $name));
         }
+    }
+
+    /**
+     * Remove the specified user from the group.
+     * You should be in the groups page when running this step.
+     * The user should be specified like "Firstname Lastname (user@example.com)".
+     *
+     * @Given /^I remove "(?P<user_fullname_string>(?:[^"]|\\")*)" user from "(?P<group_name_string>(?:[^"]|\\")*)" group members$/
+     * @throws ElementNotFoundException Thrown by behat_base::find
+     * @param string $username
+     * @param string $groupname
+     */
+    public function i_remove_user_from_group_members($userfullname, $groupname) {
+
+        $userfullname = behat_context_helper::escape($userfullname);
+
+        // Using a xpath liternal to avoid problems with quotes and double quotes.
+        $groupname = behat_context_helper::escape($groupname);
+
+        // We don't know the option text as it contains the number of users in the group.
+        $select = $this->find_field('groups');
+        $xpath = "//select[@id='groups']/descendant::option[contains(., $groupname)]";
+        $groupoption = $this->find('xpath', $xpath);
+        $fulloption = $groupoption->getText();
+        $select->selectOption($fulloption);
+
+        // This is needed by some drivers to ensure relevant event is triggred and button is enabled.
+        $driver = $this->getSession()->getDriver();
+        if ($driver instanceof \Moodle\BehatExtension\Driver\MoodleSelenium2Driver) {
+            $script = "Syn.trigger('change', {}, {{ELEMENT}})";
+            $driver->triggerSynScript($select->getXpath(), $script);
+        }
+        $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
+
+        // Here we don't need to wait for the AJAX response.
+        $this->find_button(get_string('adduserstogroup', 'group'))->click();
+
+        // Wait for add/remove members page to be loaded.
+        $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
+
+        // Getting the option and selecting it.
+        $select = $this->find_field('removeselect');
+        $xpath = "//select[@id='removeselect']/descendant::option[contains(., $userfullname)]";
+        $memberoption = $this->find('xpath', $xpath);
+        $fulloption = $memberoption->getText();
+        $select->selectOption($fulloption);
+
+        // Click add button.
+        $this->find_button(get_string('remove'))->click();
+
+        // Wait for the page to load.
+        $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
+
+        // Returning to the main groups page.
+        $this->find_button(get_string('backtogroups', 'group'))->click();
     }
 }

@@ -167,15 +167,35 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
         return $status;
     }
 
+    $modified = '';
+
+    if ($submission->timecreated != $submission->timemodified) {
+        $modified = get_string(
+            'lasteditedon', 'mod_peerwork',
+            [
+                'date' => userdate($submission->timecreated)
+            ]
+        );
+    }
+
     if ($duedate == PEERWORK_DUEDATE_PASSED) {
         $user = $DB->get_record('user', array('id' => $submission->userid));
         $status->code = PEERWORK_STATUS_SUBMITTED;
-        $status->text = get_string('firstsubmittedbyon', 'mod_peerwork', [
-            'name' => fullname($user),
-            'date' => userdate($submission->timecreated)
-        ]) . ' ' . get_string('duedatepassedago', 'mod_peerwork', format_time(time() - $peerwork->duedate));
-
+        $status->text =
+            get_string(
+                'firstsubmittedbyon', 'mod_peerwork',
+                [
+                    'name' => fullname($user),
+                    'date' => userdate($submission->timecreated)
+                ]
+            ) . $modified .
+            ' ' .
+            get_string(
+                'duedatepassedago', 'mod_peerwork',
+                format_time(time() - $peerwork->duedate)
+            );
         $latepeers = mod_peerwork_get_late_peers($peerwork, $submission);
+
         if (!empty($latepeers)) {
             $status->text .= ' ' . html_writer::tag('span', get_string('thesestudentspastduedate', 'mod_peerwork', implode(', ',
                 array_map(function($peer) {
@@ -192,10 +212,14 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
     } else {
         $user = $DB->get_record('user', array('id' => $submission->userid));
         $status->code = PEERWORK_STATUS_SUBMITTED;
-        $status->text = get_string('firstsubmittedbyon', 'mod_peerwork', [
-            'name' => fullname($user),
-            'date' => userdate($submission->timecreated)
-        ]);
+        $status->text =
+            get_string(
+                'firstsubmittedbyon', 'mod_peerwork',
+                [
+                    'name' => fullname($user),
+                    'date' => userdate($submission->timecreated)
+                ]
+            ) . $modified;
         return $status;
     }
 }
@@ -456,11 +480,13 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     $grades = [];
     $overrides = [];
     $feedback = [];
+    $comments = [];
 
     foreach ($peers as $peer) {
         $grades[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->grade;
         $overrides[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->peergrade;
         $feedback[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->feedback;
+        $comments[$peer->criteriaid][$peer->gradedby][$peer->gradefor] = $peer->comments;
     }
 
     // Translate the scales to grades.
@@ -487,6 +513,9 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
                     if (!isset($feedback[$critid][$member1->id][$member2->id])) {
                         $feedback[$critid][$member1->id][$member2->id] = '-';
                     }
+                    if (!isset($comments[$critid][$member1->id][$member2->id])) {
+                        $comments[$critid][$member1->id][$member2->id] = '-';
+                    }
                 }
             }
         }
@@ -495,6 +524,7 @@ function peerwork_get_peer_grades($peerwork, $group, $membersgradeable = null, $
     $return->grades = $grades;
     $return->overrides = $overrides;
     $return->feedback = $feedback;
+    $return->comments = $comments;
 
     return $return;
 }
@@ -539,9 +569,10 @@ function peerwork_get_cached_pa_result($peerwork, $group, $submission = null) {
  * @param stdClass $peerwork The module instance.
  * @param stdClass $group The group.
  * @param stdClass $submission The submission, to prevent a double fetch.
+ * @param bool $beforeoverride Whether to fetch the results before any teacher override.
  * @return mod_peerwork\pa_result|null Null when the submission was not found or graded.
  */
-function peerwork_get_pa_result($peerwork, $group, $submission = null) {
+function peerwork_get_pa_result($peerwork, $group, $submission = null, $beforeoverride = false) {
     global $DB;
 
     if (!$submission) {
@@ -560,12 +591,13 @@ function peerwork_get_pa_result($peerwork, $group, $submission = null) {
     $groupmark = $submission->grade;
     $paweighting = $submission->paweighting / 100;
     $noncompletionpenalty = $peerwork->noncompletionpenalty / 100;
+    $selfgrade = $peerwork->selfgrading;
 
     $marks = [];
     $members = groups_get_members($group->id);
 
     foreach ($members as $member) {
-        $awarded = peerwork_grades_by_user($peerwork, $member, $members);
+        $awarded = peerwork_grades_by_user($peerwork, $member, $members, $beforeoverride);
         $marks[$member->id] = array_filter($awarded->grade, function($grade) {
             return is_array($grade);
         });
@@ -573,7 +605,7 @@ function peerwork_get_pa_result($peerwork, $group, $submission = null) {
 
     $calculator = calculator_instance($peerwork);
 
-    return $calculator->calculate($marks, $groupmark, $noncompletionpenalty, $paweighting);
+    return $calculator->calculate($marks, $groupmark, $noncompletionpenalty, $paweighting, $selfgrade);
 }
 
 /**
@@ -659,20 +691,30 @@ function peerwork_grade_by_user($peerwork, $user, $membersgradeable) {
  * @param stdClass $peerwork The instance.
  * @param stdClass $user The user.
  * @param stdClass[] $membersgradeable The user's peers.
+ * @param bool $beforeoverride Whether to fetch the results before any teacher override.
+ * @return array $data
  */
-function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
+function peerwork_grades_by_user($peerwork, $user, $membersgradeable, $beforeoverride) {
     global $DB;
 
     $data = new stdClass();
     $data->grade = [];
-    $data->feedback = [];
 
     $mygrades = $DB->get_records('peerwork_peers', array('peerwork' => $peerwork->id,
-        'gradedby' => $user->id), '', 'id,criteriaid,gradefor,grade');
+        'gradedby' => $user->id), '', 'id,criteriaid,gradefor,grade,peergrade');
 
     foreach ($mygrades as $grade) {
         $peerid = $grade->gradefor;
-        $data->grade[$peerid][] = $grade->grade;
+
+        if (!array_key_exists($peerid, $membersgradeable)) {
+            continue;
+        }
+
+        if ($beforeoverride) {
+            $data->grade[$peerid][] = $grade->peergrade;
+        } else {
+            $data->grade[$peerid][] = $grade->grade;
+        }
     }
 
     return $data;
@@ -685,6 +727,7 @@ function peerwork_grades_by_user($peerwork, $user, $membersgradeable) {
  * @param stdClass $peerwork The instance.
  * @param stdClass $user The user.
  * @param stdClass[] $membersgradeable The user's peers.
+ * @return array $data
  */
 function peerwork_grades_overrides_by_user($peerwork, $user, $membersgradeable) {
     global $DB;
@@ -832,6 +875,7 @@ function peerwork_update_local_grades($peerwork, $group, $submission, $userids, 
         $record->score = $result->get_score($userid);
         $record->prelimgrade = $result->get_preliminary_grade($userid);
         $record->grade = $result->get_grade($userid);
+
         if ($revisedgrades !== null) {
             $record->revisedgrade = $revisedgrades[$userid] ?? null;
         }
@@ -1070,6 +1114,8 @@ function peerwork_peer_override($peerworkid, $gradedby, $groupid, $overridden, $
 
                     $DB->update_record('peerwork_peers', $peerworkpeer, true);
 
+                    $peergrade = $peerworkpeer->peergrade ? $peerworkpeer->peergrade : get_string('none');
+
                     $params = array(
                         'objectid' => $peerworkid,
                         'context' => $context,
@@ -1077,7 +1123,8 @@ function peerwork_peer_override($peerworkid, $gradedby, $groupid, $overridden, $
                         'other' => array(
                             'gradefor' => $peerworkpeer->gradefor,
                             'grade' => $peerworkpeer->grade,
-                            'peergrade' => $peerworkpeer->peergrade
+                            'peergrade' => $peergrade,
+                            'comments' => $peerworkpeer->comments
                         )
                     );
 
@@ -1111,7 +1158,8 @@ function peerwork_peer_override($peerworkid, $gradedby, $groupid, $overridden, $
                     'other' => array(
                         'gradefor' => $peerworkpeer->gradefor,
                         'grade' => $peerworkpeer->grade,
-                        'peergrade' => '-'
+                        'peergrade' => get_string('none', 'mod_peerwork'),
+                        'comments' => $peerworkpeer->comments
                     )
                 );
 
@@ -1121,6 +1169,8 @@ function peerwork_peer_override($peerworkid, $gradedby, $groupid, $overridden, $
             }
         }
     }
+
+    mod_peerwork_update_calculation($peerwork);
 }
 
 /**
@@ -1462,7 +1512,7 @@ function mod_peerwork_get_locked_peers($peerwork, $gradedby) {
  * @param stdClass $peerwork The peerwork instance.
  * @return void
  */
-function mod_peerwork_update_calculator($peerwork) {
+function mod_peerwork_update_calculation($peerwork) {
     global $DB;
 
     $submissions = $DB->get_records('peerwork_submission', ['peerworkid' => $peerwork->id]);
@@ -1572,14 +1622,14 @@ function load_plugins($peerwork, $subtype) {
 /**
  * Add one plugins settings to edit plugin form.
  *
- * @param peerwork_plugin $plugin The plugin to add the settings from
+ * @param peerwork_plugin $plugin The plugin to add the settings form
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  *                               This form is modified directly (not returned).
  * @param array $pluginsenabled A list of form elements to be added to a select.
  *                              The new element is added to this array by this function.
  * @return void
  */
-function add_plugin_settings($plugin, MoodleQuickForm $mform, & $pluginsenabled) {
+function get_enabled_plugins($plugin, MoodleQuickForm $mform, & $pluginsenabled) {
     global $CFG;
 
     if ($plugin->is_visible() && $plugin->is_configurable()) {
@@ -1590,22 +1640,42 @@ function add_plugin_settings($plugin, MoodleQuickForm $mform, & $pluginsenabled)
 }
 
 /**
+ * Add one plugins settings to edit plugin form.
+ *
+ * @param peerwork_plugin $plugin The plugin to add the settings form
+ * @param MoodleQuickForm $mform The form to add the configuration settings to.
+ *                               This form is modified directly (not returned).
+ * @param array $pluginsenabled A list of form elements to be added to a select.
+ *                              The new element is added to this array by this function.
+ * @param string $selected The selected plugin to get settings for.
+ * @return void
+ */
+
+
+function add_plugin_settings(MoodleQuickForm $mform, $peerwork, $selected) {
+    global $CFG;
+
+    $calculatorplugins = load_plugins($peerwork, 'peerworkcalculator');
+    $plugin = $calculatorplugins[$selected];
+    $plugin->get_settings($mform);
+}
+
+/**
  * Add settings to edit plugin form.
  *
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  * This form is modified directly (not returned).
  * @param peerwork_plugin $peerwork
- *
  * @return void
  */
-function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
+function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
     $mform->addElement('header', 'calculatortypes', get_string('calculatortypes', 'peerwork'));
     $calculatorplugins = load_plugins($peerwork, 'peerworkcalculator');
     $calculatorpluginsenabled = [];
 
     foreach ($calculatorplugins as $name => $plugin) {
         $calculatorpluginnames[$name] = $plugin->get_name();
-        add_plugin_settings($plugin, $mform, $calculatorpluginsenabled);
+        get_enabled_plugins($plugin, $mform, $calculatorpluginsenabled);
     }
 
     if (count($calculatorpluginsenabled) > 1) {
@@ -1645,9 +1715,8 @@ function add_all_plugin_settings(MoodleQuickForm $mform, $peerwork) {
         );
     }
 
-    foreach ($calculatorplugins as $name => $plugin) {
-        $plugin->get_settings($mform);
-    }
+    // Dummy element to be place calculator settings.
+    $mform->addElement('static', 'calculatorsettings');
 }
 
 /**

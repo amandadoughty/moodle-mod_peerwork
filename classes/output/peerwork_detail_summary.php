@@ -176,7 +176,7 @@ class peerwork_detail_summary implements templatable, renderable {
                         $override = '';
                         $grade = $grades->grades[$critid][$member->id][$peer->id];
 
-                        // Display help tip if original peer grade has been
+                        // Display tool tip if original peer grade has been
                         // overridden.
                         if (
                             // The peergrade may be null.
@@ -186,11 +186,23 @@ class peerwork_detail_summary implements templatable, renderable {
                         ) {
                             $peergrade = $grades->overrides[$critid][$member->id][$peer->id];
 
+                            if (
+                                array_key_exists($critid, $grades->comments) &&
+                                array_key_exists($member->id, $grades->comments[$critid]) &&
+                                array_key_exists($peer->id, $grades->comments[$critid][$member->id])
+                            ) {
+                                $comments = $grades->comments[$critid][$member->id][$peer->id];
+                            }
+
                             if ($peergrade != $grade) {
-                                $peergrade = $peergrade == null ? '-' : $peergrade;
+                                $peergrade = $peergrade == null ? get_string('none', 'mod_peerwork') : $peergrade;
+                                $comments = $comments == null ? get_string('none', 'mod_peerwork') : $comments;
                                 $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
-                                $pixicon = new \pix_icon('help', '', 'moodle', ['title' => $title]);
+                                $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
+                                $attributes = ['title' => $title, 'aria-hidden' => true];
+                                $pixicon = new \pix_icon('docs', '', 'moodle', $attributes);
                                 $override = $output->render($pixicon);
+                                $override .= \html_writer::tag('span', $title, ['class' => 'sr-only']);
                             }
                         }
 
@@ -244,6 +256,38 @@ class peerwork_detail_summary implements templatable, renderable {
                         ];
                     } else {
                         $feedbacktext = '';
+                        $override = '';
+                        $grade = $grades->grades[$critid][$peer->id][$member->id];
+
+                        // Display tool tip if original peer grade has been
+                        // overridden.
+                        if (
+                            // The peergrade may be null.
+                            array_key_exists($critid, $grades->overrides) &&
+                            array_key_exists($peer->id, $grades->overrides[$critid]) &&
+                            array_key_exists($member->id, $grades->overrides[$critid][$peer->id])
+                        ) {
+                            $peergrade = $grades->overrides[$critid][$peer->id][$member->id];
+
+                            if (
+                                array_key_exists($critid, $grades->comments) &&
+                                array_key_exists($peer->id, $grades->comments[$critid]) &&
+                                array_key_exists($member->id, $grades->comments[$critid][$peer->id])
+                            ) {
+                                $comments = $grades->comments[$critid][$peer->id][$member->id];
+                            }
+
+                            if ($peergrade != $grade) {
+                                $peergrade = $peergrade == null ? '-' : $peergrade;
+                                $comments = $comments == null ? get_string('none') : $comments;
+                                $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
+                                $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
+                                $attributes = ['title' => $title, 'aria-hidden' => true];
+                                $pixicon = new \pix_icon('docs', '', 'moodle', $attributes);
+                                $override = $output->render($pixicon);
+                                $override .= \html_writer::tag('span', $title, ['class' => 'sr-only']);
+                            }
+                        }
 
                         if (
                             $justenabledcrit &&
@@ -281,13 +325,12 @@ class peerwork_detail_summary implements templatable, renderable {
 
                         $gradefor['gradedby'][] = [
                             'name' => fullname($peer),
-                            'grade' => $grades->grades[$critid][$peer->id][$member->id] . $feedbacktext
+                            'grade' => $grade . $override . $feedbacktext
                         ];
                     }
                 }
 
-                // Only peergradedby is used in the default template.
-                // Including peergradefor to allow more flexibility
+                // Including extra detail in peergradefor to allow more flexibility
                 // when overriding template.
                 $table['peergradedby'][] = $gradedby;
                 $table['peergradefor'][] = $gradefor;
