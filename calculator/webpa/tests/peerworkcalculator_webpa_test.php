@@ -42,7 +42,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
         $peerwork->id = 1;
         $grades = $this->get_sample();
         $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
-        $result = $calculator->calculate($grades, 80);
+        $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
         $this->assertEquals(1, array_sum($fracs));
@@ -94,7 +94,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
         $peerwork->id = 1;
         $grades = $this->get_sample();
         $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
-        $result = $calculator->calculate($grades, 80, 0, .5);
+        $result = $calculator->calculate($grades, 80, 0, .5, true);
 
         // This does not affect the scores.
         $this->assertEquals(5, array_sum($result->get_scores()));
@@ -120,7 +120,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
         $peerwork->id = 1;
         $grades = $this->get_sample();
         $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
-        $result = $calculator->calculate($grades, 80, .1, .5);
+        $result = $calculator->calculate($grades, 80, .1, .5, true);
 
         // This does not affect the scores.
         $this->assertEquals(5, array_sum($result->get_scores()));
@@ -140,6 +140,33 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     }
 
     /**
+     * Test the WebPA result with weighting and penalty and selfgrade off.
+     */
+    public function test_webpa_result_without_self_grade_a() {
+        $peerwork = new \stdClass();
+        $peerwork->id = 1;
+        $grades = $this->get_sample_a();
+        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $result = $calculator->calculate($grades, 80, .1, .5, false);
+
+        // This does not affect the scores.
+        $this->assertEquals(5, array_sum($result->get_scores()));
+        $this->assertEquals(1.09, round($result->get_score('alice'), 2));
+        $this->assertEquals(1.33, round($result->get_score('bob'), 2));
+        $this->assertEquals(1.26, round($result->get_score('claire'), 2));
+        $this->assertEquals(0.88, round($result->get_score('david'), 2));
+        $this->assertEquals(0.44, round($result->get_score('elaine'), 2));
+
+        // Values are stlightly different from the source because of rounding issues.
+        $this->assertEquals(5, array_sum($result->get_scores()));
+        $this->assertEquals(83.75, round($result->get_grade('alice'), 2));
+        $this->assertEquals(93.33, round($result->get_grade('bob'), 2));
+        $this->assertEquals(90.42, round($result->get_grade('claire'), 2));
+        $this->assertEquals(75.00, round($result->get_grade('david'), 2));
+        $this->assertEquals(51.75, round($result->get_grade('elaine'), 2));
+    }
+
+    /**
      * Test the rebasedpa result when one student did not get grades.
      */
     public function test_webpa_result_outlier_b() {
@@ -147,7 +174,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
         $peerwork->id = 1;
         $grades = $this->get_sample_b();
         $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
-        $result = $calculator->calculate($grades, 80);
+        $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
         $this->assertEquals(1, array_sum($fracs));
@@ -183,7 +210,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
         $peerwork->id = 1;
         $grades = $this->get_sample_c();
         $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
-        $result = $calculator->calculate($grades, 80);
+        $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
         $this->assertEquals(1, array_sum($fracs));
@@ -220,30 +247,34 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
         $peerwork->id = 1;
         $grades = $this->get_sample_d();
         $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
-        $result = $calculator->calculate($grades, 80);
+        $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
-        $this->assertEquals(0, array_sum($fracs));
+        $this->assertEquals(1, array_sum($fracs));
         $this->assertEquals([
+            'alice' => 0.31,
+            'bob' => 0.31,
+            'claire' => 0.23,
+            'david' => 0.15
         ], array_map(function($a) {
             return round($a, 2);  // We must round because the data we were given is rounded.
         }, $fracs));
 
         // If student A  was not given scores by Student B then Student A
         // is treated as not having given any scores.
-        $this->assertFalse($result->has_submitted('alice'));
-        $this->assertFalse($result->has_submitted('bob'));
-        $this->assertFalse($result->has_submitted('claire'));
-        $this->assertFalse($result->has_submitted('david'));
+        $this->assertTrue($result->has_submitted('alice'));
+        $this->assertTrue($result->has_submitted('bob'));
+        $this->assertTrue($result->has_submitted('claire'));
+        $this->assertTrue($result->has_submitted('david'));
         $this->assertFalse($result->has_submitted('elaine'));
 
         // Values are stlightly different from the source because of rounding issues.
-        $this->assertEquals(0, array_sum($result->get_scores()));
-        $this->assertEquals(0, round($result->get_score('alice'), 2));
-        $this->assertEquals(0, round($result->get_score('bob'), 2));
-        $this->assertEquals(0, round($result->get_score('claire'), 2));
-        $this->assertEquals(0, round($result->get_score('david'), 2));
-        $this->assertEquals(0, round($result->get_score('elaine'), 2));
+        $this->assertEquals(5, array_sum($result->get_scores()));
+        $this->assertEquals(1.24, round($result->get_score('alice'), 2));
+        $this->assertEquals(1.59, round($result->get_score('bob'), 2));
+        $this->assertEquals(1.22, round($result->get_score('claire'), 2));
+        $this->assertEquals(0.95, round($result->get_score('david'), 2));
+        $this->assertEquals(0.00, round($result->get_score('elaine'), 2));
     }
 
     /**
@@ -282,6 +313,42 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
                 'claire' => [2, 2],
                 'david' => [1, 2],
                 'elaine' => [1, 0]
+            ],
+            'elaine' => []
+        ];
+    }
+
+    /**
+     * Data sample - atudents do not self grade.
+     *
+     *
+     * @return array
+     */
+    protected function get_sample_a() {
+        return [
+            'alice' => [
+                'bob' => [1, 3],
+                'claire' => [2, 1],
+                'david' => [1, 1],
+                'elaine' => [1, 0]
+            ],
+            'bob' => [
+                'alice' => [2, 1],
+                'claire' => [2, 1],
+                'david' => [1, 1],
+                'elaine' => [0, 0]
+            ],
+            'claire' => [
+                'alice' => [2, 2],
+                'bob' => [2, 2],
+                'david' => [2, 2],
+                'elaine' => [2, 2]
+            ],
+            'david' => [
+                'alice' => [2, 1],
+                'bob' => [3, 2],
+                'claire' => [2, 2],
+                'elaine' => [0, 0]
             ],
             'elaine' => []
         ];

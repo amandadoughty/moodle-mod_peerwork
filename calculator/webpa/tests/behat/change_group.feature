@@ -98,11 +98,11 @@ Feature: Change the group membership
     Given I log in as "student3"
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
-    Then I should see "50.67" in the "My final grade" "table_row"
+    Then I should see "48.00" in the "My final grade" "table_row"
     And I navigate to "User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
-        | Test peerwork name | 50.67 |
+        | Test peerwork name | 48.00 |
     And I log out
     # Remove a member who gave grades.
     And I log in as "teacher1"
@@ -129,11 +129,11 @@ Feature: Change the group membership
     And I log in as "student3"
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
-    Then I should see "50.67" in the "My final grade" "table_row"
+    Then I should see "48.00" in the "My final grade" "table_row"
     And I navigate to "User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
-        | Test peerwork name | 50.67 |
+        | Test peerwork name | 48.00 |
     And I log out
     # Add a new member         
     And I log in as "teacher1"
@@ -144,11 +144,11 @@ Feature: Change the group membership
     And I log in as "student3"
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
-    Then I should see "53.33" in the "My final grade" "table_row"
+    Then I should see "50.00" in the "My final grade" "table_row"
     And I navigate to "User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
-        | Test peerwork name | 53.33 |
+        | Test peerwork name | 50.00 |
     And I log out
     # Overrride a grade
     And I log in as "teacher1"
@@ -162,4 +162,4 @@ Feature: Change the group membership
     And I override "student3" grade for criteria "Criteria 1" with "1" "Very good"
     And I press "Save changes"
     And I expand all fieldsets
-    And "Grade before overrides: 53.33" "icon" should exist in the "mod-peerwork-grader-table" "table"
+    And "Grade before overrides: 50.00" "icon" should exist in the "mod-peerwork-grader-table" "table"

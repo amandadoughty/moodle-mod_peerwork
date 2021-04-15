@@ -480,7 +480,7 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     }
 
     // Finally send the file.
-    send_stored_file($file, 0, 0, true, $options); // download MUST be forced - security!
+    send_stored_file($file, 0, 0, true, $options); // Download MUST be forced - security!
 }
 
 /**

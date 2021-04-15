@@ -138,11 +138,11 @@ Feature: Overide the grades given by a peer
     And I log in as "student2"
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
-    Then I should see "100" in the "My final grade" "table_row"
+    Then I should see "93.33" in the "My final grade" "table_row"
     And I navigate to "User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
-        | Test peerwork name | 100.00 |
+        | Test peerwork name | 93.33 |
     And I log out
     And I log in as "teacher1"
     And I am on "Course 1" course homepage

@@ -37,8 +37,8 @@ require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->libdir . '/gradelib.php');
 
-$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$n = optional_param('n', 0, PARAM_INT); // peerwork instance ID - it should be named as the first character of the module.
+$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or ...
+$n = optional_param('n', 0, PARAM_INT); // ... peerwork instance ID - it should be named as the first character of the module.
 $edit = optional_param('edit', false, PARAM_BOOL);
 
 if ($id) {

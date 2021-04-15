@@ -6,6 +6,9 @@ v2.3.0
 - Made WebPA calculator a dependency
 - Added download all submissions
 - Changed icon
+- Added first and last names to export #48
+- Added student ID to export #57
+- Fixed bug in calculation when self grade turned off #58
 
 v2.2.0
 ------
