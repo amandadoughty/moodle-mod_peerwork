@@ -86,6 +86,7 @@ Feature: Edit the grade of a submission
     And I follow "Test peerwork name"
     Then I should see "70" in the "My final grade" "table_row"
 
+  @javascript
   Scenario: View the gradebook overridden grade.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
@@ -99,11 +100,13 @@ Feature: Edit the grade of a submission
     And I follow "Test peerwork name"
     Then I should see "60" in the "My final grade" "table_row"
 
+  @javascript
   Scenario: Cannot view the gradebook hidden grade.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Setup > Gradebook setup" in the course gradebook
-    And I hide the grade item "Test peerwork name"
+    And I set the following settings for grade item "Test peerwork name":
+      | Hidden | 1 |
     And I log out
     And I log in as "student1"
     And I am on "Course 1" course homepage
