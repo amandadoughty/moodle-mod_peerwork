@@ -92,6 +92,7 @@ $string['defaultscale_help'] = 'The default scale to use for all other criteria.
 $string['downloadallsubmissions'] = 'Download all submissions';
 $string['draftnotsubmitted'] = 'Draft (not submitted).';
 $string['duedateat'] = 'Due date: {$a}';
+$string['duedatenotpassed'] = 'The due date has not passed. If you grade now then students will no longer be able to edit submissions.';
 $string['duedatepassedago'] = 'Due date has passed {$a} ago.';
 $string['editablebecause'] = 'Editable because: {$a}';
 $string['editinglocked'] = 'Editing is locked';
