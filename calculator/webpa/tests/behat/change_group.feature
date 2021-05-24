@@ -1,4 +1,4 @@
-@peerworkcalculator @peerworkcalculator_webpa @peerworkcalculator_webpa_change_group @mod_peerwork
+@peerworkcalculator @peerworkcalculator_webpa @peerworkcalculator_webpa_change_group @mod_peerwork @mod
 Feature: Change the group membership
     In order to test changes in group membership
     As a teacher

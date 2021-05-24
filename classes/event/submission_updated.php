@@ -48,7 +48,6 @@ class submission_updated extends \core\event\base {
      * @return void
      */
     protected function init() {
-        // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'peerwork_submission';
