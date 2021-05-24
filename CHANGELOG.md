@@ -1,3 +1,14 @@
+v2.3.2
+------
+- Removed deprecated string grade/core
+- Removed deprecated function user_picture::fields()
+
+v2.3.1
+------
+
+- Added grading before due date warning #59
+- Improved display of criteria scales #60
+
 v2.3.0
 ------
 

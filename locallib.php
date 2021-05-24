@@ -1393,7 +1393,7 @@ function mod_peerwork_clear_submissions($peerwork, $context, $groupid = 0) {
  *
  * @param stdClass $peerwork Peerwork record.
  * @param stdClass $submission Submission record.
- * @return array Where keys are user IDs, and values are user_picture::fields() and timegraded.
+ * @return array Where keys are user IDs, and values are \core_user\fields::for_userpic() and timegraded.
  */
 function mod_peerwork_get_late_peers($peerwork, $submission) {
     global $DB;
@@ -1404,7 +1404,8 @@ function mod_peerwork_get_late_peers($peerwork, $submission) {
 
     // Group all grades given and select the first grading time (they should be grading everyone
     // at the same time anyway), for those graders where the first time was past the due date.
-    $ufields = user_picture::fields('u');
+    $ufieldsapi = \core_user\fields::for_userpic();
+    $ufields = 'u.id, u.username' . $ufieldsapi->get_sql('u')->selects;
     $sql = "SELECT $ufields, MIN(p.timecreated) AS timegraded
               FROM {peerwork_peers} p
               JOIN {user} u

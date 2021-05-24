@@ -39,7 +39,6 @@ class submissions_exported extends \core\event\base {
      * @return void
      */
     protected function init() {
-        // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }

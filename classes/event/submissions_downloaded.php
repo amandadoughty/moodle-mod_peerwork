@@ -34,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
 class submissions_downloaded extends \core\event\base {
 
     protected function init() {
-        // This is c(reate), r(ead), u(pdate), d(elete).
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }

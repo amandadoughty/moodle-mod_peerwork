@@ -56,6 +56,7 @@ class mod_peerwork_details_form extends moodleform {
         $justifications = $this->_customdata['justifications'];
         $submission = $this->_customdata['submission'];
         $canunlock = $this->_customdata['canunlock'];
+        $duedatenotpassed = $this->_customdata['duedatenotpassed'];
         $pac = new mod_peerwork_criteria( $peerwork->id );
         $criteria = $pac->get_criteria();
         $justificationtype = $peerwork->justificationtype;
@@ -140,6 +141,10 @@ class mod_peerwork_details_form extends moodleform {
         foreach ($members as $member) {
             $mform->addElement('hidden', 'grade_' . $member->id, '');
             $mform->setType('grade_' . $member->id, PARAM_RAW); // We don't want the value to be forced to 0.
+        }
+
+        if ($duedatenotpassed) {
+            $mform->addElement('static', 'duedatenotpassed', '');
         }
 
         $mform->addElement('static', 'finalgrades', get_string('calculatedgrades', 'mod_peerwork'));

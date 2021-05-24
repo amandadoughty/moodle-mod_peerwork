@@ -1,8 +1,8 @@
-@mod @mod_peerwork @mod_peerwork_prevent_changes_after_submission
-Feature: Prevent some changes after a submission has been made
-    In order to test the assessment setting options
-    As a student
-    The visibility of grades and justification should not change after I have relied on them in my submission
+@mod @mod_peerwork @mod_peerwork_grade_before_duedate
+Feature: Grade a submission before the due date has passed
+    In order to test the grading warning before a due date has passed
+    As a teacher
+    I need to see a warning when I start to enter a grade
 
   Background:
     Given the following "courses" exist:
@@ -42,6 +42,7 @@ Feature: Prevent some changes after a submission has been made
         | Require justification | Disabled |
         | Criteria 1 description | Criteria 1 |
         | Criteria 1 scoring type | Default competence scale |
+        | Peer assessment weighting | 0 |
     And I log out
     And I log in as "student1"
     And I am on "Course 1" course homepage
@@ -54,15 +55,28 @@ Feature: Prevent some changes after a submission has been made
     And I log out
 
   @javascript
-  Scenario: Edit the assessment settings
+  Scenario: View the warning message if due date has not passed.
     Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    And I follow "Group 1"
+    And I set the following fields to these values:
+        | Group grade out of 100 | 80 |
+    Then "The due date has not passed. If you grade now then students will no longer be able to edit submissions." "text" should be visible
+
+  @javascript
+  Scenario: Warning message is not shown if due date has  passed.
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
     And I navigate to "Edit settings" in current page administration
-    And I expand all fieldsets
-    Then "Peer grades visibility" "field" should not be visible
-    And "Require justification" "field" should not be visible
-    And "Justification type" "field" should not be visible
-    And the "Justification character limit" "field" should be disabled
-    And "Criteria 1 scoring type" "field" should not be visible
-    And "Allow students to self-grade along with peers" "field" should not be visible
+    And I set the following fields to these values:
+        | Due date | ## -1 day ## |
+    And I press "Save and display"
+    And I follow "Test peerwork name"
+    And I follow "Group 1"
+    And I set the following fields to these values:
+        | Group grade out of 100 | 80 |
+    Then "The due date has not passed. If you grade now then students will no longer be able to edit submissions." "text" should not be visible
+
+

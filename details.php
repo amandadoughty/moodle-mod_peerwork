@@ -76,12 +76,15 @@ if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
 $lockedgraders = mod_peerwork_get_locked_graders($peerwork->id);
 $isopen = peerwork_is_open($peerwork, $group->id);
 $canunlock = !empty($isopen->code) && $submission && !$submission->timegraded;
+$duedate = peerwork_due_date($peerwork);
+$duedatenotpassed = $duedate !== PEERWORK_DUEDATE_PASSED;
 $mform = new mod_peerwork_details_form($PAGE->url->out(false), [
     'peerwork' => $peerwork,
     'justifications' => $justifications,
     'submission' => $submission,
     'members' => $members,
     'canunlock' => $canunlock,
+    'duedatenotpassed' => $duedatenotpassed,
 ]);
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
@@ -165,6 +168,13 @@ if (peerwork_was_submission_graded_from_status($status)) {
             'overridden' => $grade->overridden,
             'locked' => $grade->locked
         );
+    }
+} else {
+    $duedate = peerwork_due_date($peerwork);
+
+    if ($duedate !== PEERWORK_DUEDATE_PASSED) {
+        $duedatehtml = html_writer::tag('div', get_string('duedatenotpassed', 'mod_peerwork'), ['class' => 'alert alert-danger']);
+        $data['duedatenotpassed'] = $duedatehtml;
     }
 }
 $mform->set_data($data);
