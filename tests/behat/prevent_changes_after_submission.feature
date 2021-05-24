@@ -1,8 +1,8 @@
 @mod @mod_peerwork @mod_peerwork_prevent_changes_after_submission
-Feature: Prevent som changes after a submission has been made
+Feature: Prevent some changes after a submission has been made
     In order to test the assessment setting options
     As a student
-    The visibility of grades and justification should not change after I have relied them in my submission
+    The visibility of grades and justification should not change after I have relied on them in my submission
 
   Background:
     Given the following "courses" exist:
