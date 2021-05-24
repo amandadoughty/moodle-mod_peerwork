@@ -88,9 +88,11 @@ if (!empty($groupids)) {
     list($ingroupsql, $ingroupparams) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
 }
 
-$stufields = user_picture::fields('u', ['email', 'username', 'idnumber'], 'user_id', 'user_');
-$graderfields = user_picture::fields('ug', null, 'grader_id', 'grader_');
-$releaserfields = user_picture::fields('ur', null, 'reluser_id', 'reluser_');
+$ufieldsapi = \core_user\fields::for_userpic()->including('email', 'username', 'idnumber');
+$stufields = $ufieldsapi->get_sql('u', false, 'user_', 'user_id', false)->selects;
+$ufieldsapi = \core_user\fields::for_userpic();
+$graderfields = $ufieldsapi->get_sql('ug', false, 'grader_', 'grader_id', false)->selects;
+$releaserfields = $ufieldsapi->get_sql('ur', false, 'reluser_', 'reluser_id', false)->selects;
 
 $uniqid = $DB->sql_concat_join("'-'", ['g.id', 'COALESCE(s.id, 0)', 'COALESCE(u.id, 0)']);
 $sql = "SELECT $uniqid, $stufields, $graderfields, $releaserfields,
