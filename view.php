@@ -132,7 +132,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
         $menu = new action_menu();
         $menu->add_secondary_action(new action_link(
             $detailsurl,
-            $wasgraded ? get_string('edit') : get_string('grade')
+            $wasgraded ? get_string('edit') : get_string('grade', 'mod_peerwork')
         ));
         $menu->add_secondary_action(new action_link(
             new moodle_url('export.php', ['id' => $cm->id, 'groupid' => $group->id, 'sesskey' => sesskey()]),

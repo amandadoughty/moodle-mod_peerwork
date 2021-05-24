@@ -135,7 +135,7 @@ class mod_peerwork_override_form extends moodleform {
                     $value = null;
                 }
 
-                $mform->addElement('static', 'grade', get_string('grade', 'moodle'), $value);
+                $mform->addElement('static', 'grade', get_string('grade', 'mod_peerwork'), $value);
                 $uniqueid = 'idx_' . $criterion->id . '[' . $peer->id . ']';
 
                 $mform->addElement('checkbox', 'overridden_' . $uniqueid, get_string('overridden', 'mod_peerwork'));
