@@ -71,11 +71,7 @@ Feature: Grade a submission before the due date has passed
     And I follow "Test peerwork name"
     And I navigate to "Edit settings" in current page administration
     And I set the following fields to these values:
-        | duedate[day]       | ## 1 day ago ## j ## |
-        | duedate[month]     | ## 1 day ago ## F ## |
-        | duedate[year]      | ## 1 day ago ## Y ## |
-        | duedate[hour]      | ## 1 day ago ## G ## |
-        | duedate[minute]    | ## 1 day ago ## i ## |
+        | Due date | ## -1 day ## |
     And I press "Save and display"
     And I follow "Test peerwork name"
     And I follow "Group 1"
