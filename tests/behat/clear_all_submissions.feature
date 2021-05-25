@@ -3,7 +3,7 @@ Feature: Clear submissions
     In order to test clearing submissions
     As a teacher
     I need to be able to delete all content from submissions
-  
+
   Background:
     Given the following "courses" exist:
         | fullname | shortname | category | groupmode |
@@ -22,7 +22,7 @@ Feature: Clear submissions
         | student1 | C1 | student |
         | student2 | C1 | student |
         | student3 | C1 | student |
-     And the following "groups" exist:
+    And the following "groups" exist:
         | name | course | idnumber |
         | Group 1 | C1 | G1 |
     And the following "group members" exist:
@@ -50,7 +50,7 @@ Feature: Clear submissions
     And I upload "lib/tests/fixtures/empty.txt" file to "Assignment" filemanager
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
-    And I give "student3" grade "1" for criteria "Criteria 1"    
+    And I give "student3" grade "1" for criteria "Criteria 1"
     And I set the following fields in the "Justification" "fieldset" to these values:
         | Student 0 | Poor |
         | Student 2 | Did well |
@@ -63,12 +63,12 @@ Feature: Clear submissions
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student1" grade "1" for criteria "Criteria 1"
-    And I give "student3" grade "1" for criteria "Criteria 1"    
+    And I give "student3" grade "1" for criteria "Criteria 1"
     And I set the following fields in the "Justification" "fieldset" to these values:
         | Student 0 | Poor |
         | Student 1 | Did well |
         | Student 3 | Exceeded |
-    And I press "Save changes"    
+    And I press "Save changes"
     And I log out
     And I log in as "student3"
     And I am on "Course 1" course homepage

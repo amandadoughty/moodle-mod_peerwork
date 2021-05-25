@@ -135,7 +135,7 @@ Feature: Change the group membership
         | Grade item | Grade |
         | Test peerwork name | 48.00 |
     And I log out
-    # Add a new member         
+    # Add a new member
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Users > Groups" in current page administration
