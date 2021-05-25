@@ -79,4 +79,3 @@ Feature: Grade a submission before the due date has passed
         | Group grade out of 100 | 80 |
     Then "The due date has not passed. If you grade now then students will no longer be able to edit submissions." "text" should not be visible
 
-

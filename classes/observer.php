@@ -67,7 +67,6 @@ class mod_peerwork_observer {
      * @param \core\event\base $event The event object.
      * @param $removed boolean
      *
-     *
      */
     protected static function group_members_updated(\core\event\base $event, $removed = true) {
         global $CFG, $DB;

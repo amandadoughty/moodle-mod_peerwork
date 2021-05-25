@@ -33,20 +33,40 @@ defined('MOODLE_INTERNAL') || die();
  **/
 class submissions_downloaded extends \core\event\base {
 
+    /**
+     * Init method.
+     *
+     * @return void
+     */
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventsubmissionsdownloaded', 'mod_peerwork');
     }
 
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
     public function get_description() {
         return "The user with id '{$this->userid}'' downloaded the submissions for the 'peerwork'
         activity with course module id '{$this->contextinstanceid}'.";
     }
 
+    /**
+     * Returns relevant URL.
+     *
+     * @return \moodle_url
+     */
     public function get_url() {
         return new \moodle_url(
             '/mod/peerwork/downloadallsubmissions.php',
