@@ -49,7 +49,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      *
      * @return string
      */
-    public final function get_subtype() {
+    final public function get_subtype() {
         return 'peerworkcalculator';
     }
 

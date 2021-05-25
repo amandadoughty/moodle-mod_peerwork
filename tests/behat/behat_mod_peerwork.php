@@ -283,12 +283,14 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Remove the specified user from the group.
      * You should be in the groups page when running this step.
-     * The user should be specified like "Firstname Lastname (user@example.com)".
+     * The user should be specified like "Firstname Lastname".
      *
      * @Given /^I remove "(?P<user_fullname_string>(?:[^"]|\\")*)" user from "(?P<group_name_string>(?:[^"]|\\")*)" group members$/
-     * @throws ElementNotFoundException Thrown by behat_base::find
+     * 
      * @param string $username
      * @param string $groupname
+     * @throws ElementNotFoundException Thrown by behat_base::find
+     * 
      */
     public function i_remove_user_from_group_members($userfullname, $groupname) {
 

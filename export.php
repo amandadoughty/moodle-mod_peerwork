@@ -21,6 +21,7 @@
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');

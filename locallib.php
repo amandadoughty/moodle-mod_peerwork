@@ -1650,8 +1650,6 @@ function get_enabled_plugins($plugin, MoodleQuickForm $mform, & $pluginsenabled)
  * @param string $selected The selected plugin to get settings for.
  * @return void
  */
-
-
 function add_plugin_settings(MoodleQuickForm $mform, $peerwork, $selected) {
     global $CFG;
 
