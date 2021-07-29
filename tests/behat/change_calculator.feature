@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_change_calculator
+@cul @mod @mod_peerwork @mod_peerwork_change_calculator
 Feature: Change the calculator setting
     In order to test changing the calculator
     As a teacher

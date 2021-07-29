@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_grading_status
+@cul @mod @mod_peerwork @mod_peerwork_grading_status
 Feature: View the grading status of a submission
     In order to test the grading status for submissions is displaying correctly
     As a student

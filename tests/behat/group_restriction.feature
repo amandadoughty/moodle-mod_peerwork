@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_group_restriction
+@cul @mod @mod_peerwork @mod_peerwork_group_restriction
 Feature: Group availability
     In order to test group availability
     As a teacher

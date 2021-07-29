@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_override_peer_grade
+@cul @mod @mod_peerwork @mod_peerwork_override_peer_grade
 Feature: Overide the grades given by a peer
     In order to test that a peer grade can be overridden
     As a teacher

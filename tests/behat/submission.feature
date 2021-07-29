@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_submission
+@cul @mod @mod_peerwork @mod_peerwork_submission
 Feature: Assignment submissions
 
   Background:

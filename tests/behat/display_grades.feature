@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_display_grades
+@cul @mod @mod_peerwork @mod_peerwork_display_grades
 Feature: View the peer grades and justification of a submission
     In order to test the peer grades and justification are displaying correctly
     As a student

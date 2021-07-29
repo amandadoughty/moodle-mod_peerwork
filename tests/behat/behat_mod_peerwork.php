@@ -286,11 +286,11 @@ class behat_mod_peerwork extends behat_base {
      * The user should be specified like "Firstname Lastname".
      *
      * @Given /^I remove "(?P<user_fullname_string>(?:[^"]|\\")*)" user from "(?P<group_name_string>(?:[^"]|\\")*)" group members$/
-     * 
-     * @param string $username
+     *
+     * @param string $userfullname
      * @param string $groupname
      * @throws ElementNotFoundException Thrown by behat_base::find
-     * 
+     *
      */
     public function i_remove_user_from_group_members($userfullname, $groupname) {
 

@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_justification
+@cul @mod @mod_peerwork @mod_peerwork_justification
 Feature: Peerwork justification
     In order to test the peer justification type setting is working correctly
     As a student
