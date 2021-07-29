@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_prevent_changes_after_submission
+@cul @mod @mod_peerwork @mod_peerwork_prevent_changes_after_submission
 Feature: Prevent some changes after a submission has been made
     In order to test the assessment setting options
     As a student

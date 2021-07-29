@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_grade_before_duedate
+@cul @mod @mod_peerwork @mod_peerwork_grade_before_duedate
 Feature: Grade a submission before the due date has passed
     In order to test the grading warning before a due date has passed
     As a teacher

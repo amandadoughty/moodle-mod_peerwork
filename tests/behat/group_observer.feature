@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_group_observer
+@cul @mod @mod_peerwork @mod_peerwork_group_observer
 Feature: Change the group members after grading
     In order to test the group observer
     As a teacher

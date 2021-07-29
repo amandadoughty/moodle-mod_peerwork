@@ -1,4 +1,4 @@
-@_file_upload @mod @mod_peerwork @mod_peerwork_clear_all_submissions
+@cul @_file_upload @mod @mod_peerwork @mod_peerwork_clear_all_submissions
 Feature: Clear submissions
     In order to test clearing submissions
     As a teacher

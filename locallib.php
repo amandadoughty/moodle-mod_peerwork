@@ -1643,11 +1643,9 @@ function get_enabled_plugins($plugin, MoodleQuickForm $mform, & $pluginsenabled)
 /**
  * Add one plugins settings to edit plugin form.
  *
- * @param peerwork_plugin $plugin The plugin to add the settings form
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  *                               This form is modified directly (not returned).
- * @param array $pluginsenabled A list of form elements to be added to a select.
- *                              The new element is added to this array by this function.
+ * @param peerwork_plugin $peerwork
  * @param string $selected The selected plugin to get settings for.
  * @return void
  */

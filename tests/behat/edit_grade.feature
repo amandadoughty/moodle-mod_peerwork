@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_edit_grade
+@cul @mod @mod_peerwork @mod_peerwork_edit_grade
 Feature: Edit the grade of a submission
     In order to test the grading edit options
     As a student
