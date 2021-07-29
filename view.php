@@ -154,13 +154,21 @@ if (has_capability('mod/peerwork:grade', $context)) {
             ));
         }
 
+        $duedate = peerwork_due_date($peerwork);
+
+        if ($duedate !== PEERWORK_DUEDATE_PASSED) {
+            $PAGE->requires->js_call_amd('mod_peerwork/inplace_editable');
+        }     
+
         $gradeinplace = new core\output\inplace_editable(
             'mod_peerwork',
             'groupgrade_' . $peerwork->id,
             $group->id,
             true,
             $wasgraded ? $grader->get_grade() : '-',
-            $wasgraded ? $grader->get_grade() : null
+            $wasgraded ? $grader->get_grade() : null,
+            get_string('editgrade', 'mod_peerwork', $group->name),
+            get_string('editgrade', 'mod_peerwork', $group->name)
         );
         $gradecell = new html_table_cell($OUTPUT->render($gradeinplace));
         $gradecell->attributes['class'] = 'inplace-grading';
@@ -177,6 +185,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
         $t->data[] = $row;
     }
     echo html_writer::table($t);
+
 
     echo $OUTPUT->box_start('generalbox', null);
 

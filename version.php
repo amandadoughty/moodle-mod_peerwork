@@ -24,11 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020120101;
-$plugin->requires  = 2018120300;      // Moodle 3.6.0.
+$plugin->version   = 2020120102;
+$plugin->requires  = 2020061505;      // Moodle 3.6; Moodle 3.9.5 (for behat tests).
 $plugin->component = 'mod_peerwork';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.3.1';
+$plugin->release   = '3.9.0';
 $plugin->dependencies = array(
     'peerworkcalculator_webpa' => 2020052200,
 );
