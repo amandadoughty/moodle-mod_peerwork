@@ -266,7 +266,7 @@ class behat_mod_peerwork extends behat_base {
         if (count($calculators) > 1) {
             $this->execute('behat_forms::the_field_matches_value', ['Calculator', 'Web PA']);
         }
-    }
+    }    
 
     /**
      * Returns the id of the student with the given username.

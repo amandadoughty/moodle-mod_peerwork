@@ -1624,18 +1624,21 @@ function load_plugins($peerwork, $subtype) {
  * Add one plugins settings to edit plugin form.
  *
  * @param peerwork_plugin $plugin The plugin to add the settings form
- * @param MoodleQuickForm $mform The form to add the configuration settings to.
- *                               This form is modified directly (not returned).
+ * @param peerwork_plugin $peerwork
  * @param array $pluginsenabled A list of form elements to be added to a select.
  *                              The new element is added to this array by this function.
  * @return void
  */
-function get_enabled_plugins($plugin, MoodleQuickForm $mform, & $pluginsenabled) {
-    global $CFG;
+function get_enabled_plugins($plugin, $peerwork, & $pluginsenabled) {
+    global $CFG, $DB;
 
-    if ($plugin->is_visible() && $plugin->is_configurable()) {
-        $name = $plugin->get_type();
-        $value = $plugin->get_name();
+    $name = $plugin->get_type();
+    $value = $plugin->get_name();
+
+    if ($plugin->is_visible() && $plugin->is_configurable()) {        
+        $pluginsenabled[$name] = $value;
+    } else if (isset($peerwork->calculator) && ($peerwork->calculator == $name)) {
+        // The calculator is no longer enabled but is still being used.
         $pluginsenabled[$name] = $value;
     }
 }
@@ -1662,7 +1665,7 @@ function add_plugin_settings(MoodleQuickForm $mform, $peerwork, $selected) {
  *
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  * This form is modified directly (not returned).
- * @param peerwork_plugin $peerwork
+ * @param fieldset|null Existing $peerwork record if updating or null if adding new.
  * @return void
  */
 function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
@@ -1672,7 +1675,7 @@ function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
 
     foreach ($calculatorplugins as $name => $plugin) {
         $calculatorpluginnames[$name] = $plugin->get_name();
-        get_enabled_plugins($plugin, $mform, $calculatorpluginsenabled);
+        get_enabled_plugins($plugin, $peerwork, $calculatorpluginsenabled);
     }
 
     if (count($calculatorpluginsenabled) > 1) {
