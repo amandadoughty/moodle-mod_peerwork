@@ -1634,7 +1634,7 @@ function get_enabled_plugins($plugin, $peerwork, & $pluginsenabled) {
     $name = $plugin->get_type();
     $value = $plugin->get_name();
 
-    if ($plugin->is_visible() && $plugin->is_configurable()) {        
+    if ($plugin->is_visible() && $plugin->is_configurable()) {
         $pluginsenabled[$name] = $value;
     } else if (isset($peerwork->calculator) && ($peerwork->calculator == $name)) {
         // The calculator is no longer enabled but is still being used.

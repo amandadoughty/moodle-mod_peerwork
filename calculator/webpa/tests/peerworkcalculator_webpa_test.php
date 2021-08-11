@@ -167,7 +167,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     }
 
     /**
-     * Test the rebasedpa result when one student did not get grades.
+     * Test the webpa result when one student did not get grades.
      */
     public function test_webpa_result_outlier_b() {
         $peerwork = new \stdClass();
@@ -203,7 +203,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     }
 
     /**
-     * Test the rebasedpa result when only one student gave grades.
+     * Test the webpa result when only one student gave grades.
      */
     public function test_webpa_result_outlier_c() {
         $peerwork = new \stdClass();
@@ -240,7 +240,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     }
 
     /**
-     * Test the rebasedpa result when one student did not give or get grades.
+     * Test the webpa result when one student did not give or get grades.
      */
     public function test_webpa_result_outlier_d() {
         $peerwork = new \stdClass();

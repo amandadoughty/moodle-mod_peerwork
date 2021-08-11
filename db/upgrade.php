@@ -446,7 +446,7 @@ function xmldb_peerwork_upgrade($oldversion) {
         }
 
         // Now add exisitng groupingid from course_modules.
-        $sql = "SELECT cm.instance, cm.groupingid 
+        $sql = "SELECT cm.instance, cm.groupingid
                 FROM mdl_course_modules cm
                 INNER JOIN mdl_modules m
                 ON m.id = cm.module

@@ -128,7 +128,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addElement('header', 'groupsubmissionsettings', get_string('groupsubmissionsettings', 'peerwork'));
 
         $options = array();
-        if ($groupings = $DB->get_records('groupings', array('courseid'=>$COURSE->id))) {
+        if ($groupings = $DB->get_records('groupings', array('courseid' => $COURSE->id))) {
             foreach ($groupings as $grouping) {
                 $options[$grouping->id] = format_string($grouping->name);
             }
