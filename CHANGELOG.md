@@ -5,7 +5,7 @@ r3.11.0
 - Added grading before due date warning #59 (for group summary screen)
 - Bumped release number to match latest major Moodle version supported
 
-v2.3.2
+r2.3.2
 ------
 - Removed deprecated string grade/core
 - Removed deprecated function user_picture::fields()
