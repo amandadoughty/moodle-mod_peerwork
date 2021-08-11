@@ -165,7 +165,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
             'groupgrade_' . $peerwork->id,
             $group->id,
             true,
-            $wasgraded ? $grader->get_grade() : '-',
+            $wasgraded ? format_float($grader->get_grade(), -1) : '-',
             $wasgraded ? $grader->get_grade() : null,
             get_string('editgrade', 'mod_peerwork', $group->name),
             get_string('editgrade', 'mod_peerwork', $group->name)

@@ -424,5 +424,15 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020090701, 'peerwork');
     }
 
+    if ($oldversion < 2020120102) {
+
+        // Allow grades with decimal places.
+        $table = new xmldb_table('peerwork_submission');
+        $field = new xmldb_field('grade', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null, 'userid');
+        $dbman->change_field_type($table, $field);
+
+        upgrade_mod_savepoint(true, 2020120102, 'peerwork');
+    }
+
     return true;
 }

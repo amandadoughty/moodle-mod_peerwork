@@ -554,7 +554,7 @@ function mod_peerwork_inplace_editable($rawitemtype, $itemid, $newvalue) {
 
             $grader = new mod_peerwork\group_grader($peerwork, $groupid);
             $wasgraded = $grader->was_graded();
-            $grade = clean_param($newvalue, PARAM_INT);
+            $grade = clean_param($newvalue, PARAM_FLOAT);
 
             // The user did not really want to grade this.
             if (!$wasgraded && !$grade && ($newvalue === '' || $newvalue === '-')) {
