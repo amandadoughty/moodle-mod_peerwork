@@ -124,6 +124,20 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         $this->add_assessment_criteria();
 
+        // Groupings selector - used to select grouping for groups in activity.
+        $mform->addElement('header', 'groupsubmissionsettings', get_string('groupsubmissionsettings', 'peerwork'));
+
+        $options = array();
+        if ($groupings = $DB->get_records('groupings', array('courseid'=>$COURSE->id))) {
+            foreach ($groupings as $grouping) {
+                $options[$grouping->id] = format_string($grouping->name);
+            }
+        }
+        core_collator::asort($options);
+        $options = array(0 => get_string('none')) + $options;
+        $mform->addElement('select', 'groupingid', get_string('grouping', 'group'), $options);
+        $mform->addHelpButton('groupingid', 'grouping', 'group');
+
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 

@@ -35,7 +35,7 @@ require_sesskey();
 require_capability('mod/peerwork:grade', $cm->context);
 
 $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
-$allgroups = groups_get_all_groups($course->id, 0, $cm->groupingid);
+$allgroups = groups_get_all_groups($course->id, 0, $peerwork->groupingid);
 
 // Increase the server timeout to handle the creation and sending of large zip files.
 core_php_time_limit::raise();

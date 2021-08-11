@@ -120,6 +120,7 @@ $string['gradeoverride'] = 'Final grade';
 $string['groupgrade'] = 'Group grade';
 $string['groupgradeoutof100'] = 'Group grade out of 100';
 $string['gradesandfeedbacksaved'] = 'The grades and feedback have been saved.';
+$string['groupsubmissionsettings'] = 'Group submission settings';
 $string['groupsubmittedon'] = 'Group submitted on';
 $string['hideshow'] = 'Hide/Show';
 $string['invalidgrade'] = 'Invalid grade';

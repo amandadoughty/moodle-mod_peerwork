@@ -72,6 +72,12 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
         $data->duedate = $this->apply_date_offset($data->duedate);
         $data->fromdate = $this->apply_date_offset($data->fromdate);
 
+        if (!empty($data->groupingid)) {
+            $data->groupingid = $this->get_mappingid('grouping', $data->groupingid);
+        } else {
+            $data->groupingid = 0;
+        }
+
         $newitemid = $DB->insert_record('peerwork', $data);
         $this->apply_activity_instance($newitemid);
     }

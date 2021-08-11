@@ -1,3 +1,7 @@
+r3.9.2
+------
+Refactored activity to used own setting for grouping instead of Common module settings.
+
 r3.9.1
 ------
 - Refactored submission grade to allow float values
