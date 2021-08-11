@@ -239,6 +239,36 @@ class behat_mod_peerwork extends behat_base {
     }
 
     /**
+     * Checks that the disabled calculator is updated before submissions are graded.
+     *
+     * @Then /^the disabled calculator is updated before grading$/
+     *
+     */
+    public function disabled_calculator_updated_before_grading() {
+        // Behat steps are only relevant when more than one calculator plugin is installed.
+        $calculators = core_component::get_plugin_list('peerworkcalculator');
+
+        if (count($calculators) > 1) {
+            $this->execute('behat_forms::the_field_does_not_match_value', ['Calculator', 'Web PA']);
+        }
+    }
+
+    /**
+     * Checks that the disabled calculator is not updated after submissions are graded.
+     *
+     * @Then /^the disabled calculator is not updated after grading$/
+     *
+     */
+    public function disabled_calculator_not_updated_after_grading() {
+        // Behat steps are only relevant when more than one calculator plugin is installed.
+        $calculators = core_component::get_plugin_list('peerworkcalculator');
+
+        if (count($calculators) > 1) {
+            $this->execute('behat_forms::the_field_matches_value', ['Calculator', 'Web PA']);
+        }
+    }
+
+    /**
      * Returns the id of the student with the given username.
      *
      * Please note that this function requires the student to exist. If it does not exist an ExpectationException is thrown.

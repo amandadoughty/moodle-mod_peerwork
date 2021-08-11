@@ -158,7 +158,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
         if ($duedate !== PEERWORK_DUEDATE_PASSED) {
             $PAGE->requires->js_call_amd('mod_peerwork/inplace_editable');
-        }     
+        }
 
         $gradeinplace = new core\output\inplace_editable(
             'mod_peerwork',
