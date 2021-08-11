@@ -1,13 +1,7 @@
-r3.9.2
+r3.9.5
 ------
-Refactored activity to used own setting for grouping instead of Common module settings.
-
-r3.9.1
-------
+- Refactored activity to used own setting for grouping instead of Common module settings.
 - Refactored submission grade to allow float values
-
-r3.9.0
-------
 - Added grading before due date warning #59 (for group summary screen)
 - Bumped release number to match latest major Moodle version supported
 
