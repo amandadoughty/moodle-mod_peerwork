@@ -288,6 +288,10 @@ class mod_peerwork_details_form extends moodleform {
             $data['finalgrades'] = html_writer::tag('em', get_string('notyetgraded', 'mod_peerwork'));
         }
 
+        if (array_key_exists('grade', $data)) {
+            $data['grade'] = format_float($data['grade'], -1);
+        }
+
         return parent::set_data($data);
     }
 
@@ -340,6 +344,6 @@ class mod_peerwork_details_form extends moodleform {
      * @return int|null
      */
     protected static function clean_grade($rawgrade) {
-        return trim($rawgrade) === '' ? null : clean_param($rawgrade, PARAM_INT);
+        return trim($rawgrade) === '' ? null : clean_param($rawgrade, PARAM_FLOAT);
     }
 }
