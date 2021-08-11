@@ -434,5 +434,35 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020120102, 'peerwork');
     }
 
+    if ($oldversion < 2020120103) {
+
+        // Add back grouping setting.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('groupingid', XMLDB_TYPE_INTEGER, '10', null,
+            XMLDB_NOTNULL, null, '0');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Now add exisitng groupingid from course_modules.
+        $sql = "SELECT cm.instance, cm.groupingid 
+                FROM mdl_course_modules cm
+                INNER JOIN mdl_modules m
+                ON m.id = cm.module
+                AND m.name = 'peerwork'";
+        $recordset = $DB->get_recordset_sql($sql);
+        foreach ($recordset as $record) {
+            $object = new stdClass();
+            $object->id = $record->instance;
+            $object->groupingid = $record->groupingid;
+            $DB->update_record('peerwork', $object);
+        }
+
+        $recordset->close();
+
+        upgrade_mod_savepoint(true, 2020120103, 'peerwork');
+    }
+
     return true;
 }
