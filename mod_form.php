@@ -116,9 +116,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // Select field if more than one enabled calculator plugin.
         add_all_calculator_plugins($mform, $peerwork);
 
-        $mform->addElement('select', 'paweighting', get_string('paweighting', 'peerwork'), $zerotohundredpcopts);
-        $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
-
         $mform->addElement('select', 'noncompletionpenalty', get_string('noncompletionpenalty', 'peerwork'), $zerotohundredpcopts);
         $mform->addHelpButton('noncompletionpenalty', 'noncompletionpenalty', 'peerwork');
 
@@ -344,17 +341,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
             if ($mform->elementExists($elname)) {
                 $mform->freeze($elname); // Prevent adding more criteria.
-            }
-        }
-
-        foreach ($calculators as $name => $path) {
-            $calculator = '\peerworkcalculator_' . $name;
-            $calculatorclass = '\peerworkcalculator_' . $name . '\calculator';
-
-            if (!$calculatorclass::usespaweighting()) {
-                if ($mform->elementExists('calculator')) {
-                    $mform->hideIf('paweighting', 'calculator', 'eq', $name);
-                }
             }
         }
 

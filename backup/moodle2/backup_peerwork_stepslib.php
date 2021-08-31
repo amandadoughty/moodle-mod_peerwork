@@ -120,7 +120,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         // Define id annotations.
 
         $peerwork->annotate_ids('grouping', 'groupingid');
-        
+
         $peer->annotate_ids('user', 'gradedby');
         $peer->annotate_ids('user', 'gradefor');
         $peer->annotate_ids('user', 'overriddenby');

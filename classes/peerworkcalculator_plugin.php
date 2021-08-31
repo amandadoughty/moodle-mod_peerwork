@@ -172,4 +172,36 @@ class peerworkcalculator_plugin extends peerwork_plugin {
     public function translate_scales_to_scores($grades) {
         return $grades;
     }
+
+    /**
+     * Get the settings for calculator plugin.
+     *
+     * @param MoodleQuickForm $mform The form to add the elements to
+     * @return $array
+     */
+    public function get_settings(\MoodleQuickForm $mform) {
+        if ($this->usespaweighting()) {
+            if (!$this->peerwork) {
+                $paw = get_config('peerwork', 'paweighting');
+            } else {
+                $paw = $this->peerwork->paweighting;
+            }
+
+            $steps = range(0, 100, 1);
+            $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
+                return $i . '%';
+            }, $steps));
+
+            $paweighting = $mform->createElement(
+                'select',
+                'paweighting',
+                get_string('paweighting', 'peerwork'),
+                $zerotohundredpcopts
+            );
+
+            $mform->insertElementBefore($paweighting, 'calculatorsettings');
+            $mform->setDefault('paweighting', $paw);
+            $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
+        }
+    }
 }
