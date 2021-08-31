@@ -69,13 +69,13 @@ Feature: Disable a calculator which has been used in peerwork
         | disabled | 1 | peerworkcalculator_webpa |
 
   @javascript
-  Scenario: Disabled calculator updated before submisssions are graded
+  Scenario: Disabled calculator not updated before submisssions are graded
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I follow "Another test peerwork name"
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    Then the disabled calculator is updated before grading
+    Then the disabled calculator is not updated before grading
 
   @javascript
   Scenario: Disabled calculator still used after submisssions are graded

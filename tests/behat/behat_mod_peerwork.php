@@ -239,17 +239,17 @@ class behat_mod_peerwork extends behat_base {
     }
 
     /**
-     * Checks that the disabled calculator is updated before submissions are graded.
+     * Checks that the disabled calculator is not updated before submissions are graded.
      *
-     * @Then /^the disabled calculator is updated before grading$/
+     * @Then /^the disabled calculator is not updated before grading$/
      *
      */
-    public function disabled_calculator_updated_before_grading() {
+    public function disabled_calculator_not_updated_before_grading() {
         // Behat steps are only relevant when more than one calculator plugin is installed.
         $calculators = core_component::get_plugin_list('peerworkcalculator');
 
         if (count($calculators) > 1) {
-            $this->execute('behat_forms::the_field_does_not_match_value', ['Calculator', 'Web PA']);
+            $this->execute('behat_forms::the_field_matches_value', ['Calculator', 'Web PA']);
         }
     }
 
