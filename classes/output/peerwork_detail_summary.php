@@ -175,35 +175,36 @@ class peerwork_detail_summary implements templatable, renderable {
                         $feedbacktext = '';
                         $override = '';
                         $grade = $grades->grades[$critid][$member->id][$peer->id];
+                        $peergrade = null;
 
                         // Display tool tip if original peer grade has been
                         // overridden.
                         if (
                             // The peergrade may be null.
-                            array_key_exists($critid, $grades->overrides) &&
-                            array_key_exists($member->id, $grades->overrides[$critid]) &&
-                            array_key_exists($peer->id, $grades->overrides[$critid][$member->id])
+                            isset($grades->overrides[$critid]) &&
+                            isset($grades->overrides[$critid][$member->id]) &&
+                            isset($grades->overrides[$critid][$member->id][$peer->id])
                         ) {
                             $peergrade = $grades->overrides[$critid][$member->id][$peer->id];
+                        }
 
-                            if (
-                                array_key_exists($critid, $grades->comments) &&
-                                array_key_exists($member->id, $grades->comments[$critid]) &&
-                                array_key_exists($peer->id, $grades->comments[$critid][$member->id])
-                            ) {
-                                $comments = $grades->comments[$critid][$member->id][$peer->id];
-                            }
+                        if (
+                            array_key_exists($critid, $grades->comments) &&
+                            array_key_exists($member->id, $grades->comments[$critid]) &&
+                            array_key_exists($peer->id, $grades->comments[$critid][$member->id])
+                        ) {
+                            $comments = $grades->comments[$critid][$member->id][$peer->id];
+                        }
 
-                            if ($peergrade != $grade) {
-                                $peergrade = $peergrade == null ? get_string('none', 'mod_peerwork') : $peergrade;
-                                $comments = $comments == null ? get_string('none', 'mod_peerwork') : $comments;
-                                $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
-                                $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
-                                $attributes = ['title' => $title, 'aria-hidden' => true];
-                                $pixicon = new \pix_icon('docs', '', 'moodle', $attributes);
-                                $override = $output->render($pixicon);
-                                $override .= \html_writer::tag('span', $title, ['class' => 'sr-only']);
-                            }
+                        if ($peergrade != $grade) {
+                            $peergrade = $peergrade == null ? get_string('none', 'mod_peerwork') : $peergrade;
+                            $comments = $comments == null ? get_string('none', 'mod_peerwork') : $comments;
+                            $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
+                            $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
+                            $attributes = ['title' => $title, 'aria-hidden' => true];
+                            $pixicon = new \pix_icon('docs', '', 'moodle', $attributes);
+                            $override = $output->render($pixicon);
+                            $override .= \html_writer::tag('span', $title, ['class' => 'sr-only']);
                         }
 
                         if (
