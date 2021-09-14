@@ -438,7 +438,7 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Add back grouping setting.
         $table = new xmldb_table('peerwork');
-        $field = new xmldb_field('groupingid', XMLDB_TYPE_INTEGER, '10', null,
+        $field = new xmldb_field('pwgroupingid', XMLDB_TYPE_INTEGER, '10', null,
             XMLDB_NOTNULL, null, '0');
 
         if (!$dbman->field_exists($table, $field)) {
@@ -455,7 +455,7 @@ function xmldb_peerwork_upgrade($oldversion) {
         foreach ($recordset as $record) {
             $object = new stdClass();
             $object->id = $record->instance;
-            $object->groupingid = $record->groupingid;
+            $object->pwgroupingid = $record->groupingid;
             $DB->update_record('peerwork', $object);
         }
 
