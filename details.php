@@ -48,11 +48,12 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 require_capability('mod/peerwork:grade', $context);
 
-$classname = '\\peerworkcalculator_' . $peerwork->calculator . '\calculator';
+$plugin = 'peerworkcalculator_' . $peerwork->calculator;
+$classname = '\\' . $plugin . '\calculator';
 $calcmissing = !class_exists($classname);
 
 // If the original calculator used no longer exists then just print a warning.
-if ($calcmissing) {
+if ($peerwork->calculator && $calcmissing) {
     echo $OUTPUT->header();
     $error = 'calcmissing';
     $a = '';

@@ -464,5 +464,15 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020120103, 'peerwork');
     }
 
+    if ($oldversion < 2020120106) {
+
+        // Allow null calculator.
+        $table = new xmldb_table('peerwork');
+        $field = new xmldb_field('calculator', XMLDB_TYPE_CHAR, 255, null, null, null, null, 'lockediting');
+        $dbman->change_field_type($table, $field);
+
+        upgrade_mod_savepoint(true, 2020120106, 'peerwork');
+    }
+
     return true;
 }
