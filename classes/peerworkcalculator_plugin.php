@@ -140,7 +140,22 @@ class peerworkcalculator_plugin extends peerwork_plugin {
             return $carry;
         });
 
-        return new \mod_peerwork\pa_result($sumscores, $pascores, $prelimgrades, $prelimgrades, $noncompletionpenalties);
+        // Calculate the grades again, but with weighting and penalties.
+        $grades = array_reduce(
+            $memberids,
+            function($carry, $memberid) use ($noncompletionpenalties, $groupmark) {
+                $grade = $groupmark;
+                $penaltyamount = $noncompletionpenalties[$memberid];
+                if ($penaltyamount > 0) {
+                    $grade *= (1 - $penaltyamount);
+                }
+
+                $carry[$memberid] = $grade;
+                return $carry;
+            },
+        []);
+
+        return new \mod_peerwork\pa_result($sumscores, $pascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
 
     /**
@@ -149,7 +164,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      * @return bool
      */
     public static function usespaweighting() {
-        return true;
+        return false;
     }
 
     /**
