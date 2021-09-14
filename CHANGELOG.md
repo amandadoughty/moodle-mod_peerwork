@@ -4,6 +4,9 @@ r3.11.0
 - Refactored submission grade to allow float values
 - Added grading before due date warning #59 (for group summary screen)
 - Bumped release number to match latest major Moodle version supported
+- Refactored settings to allow null calculator in order to allow for cases where
+  all calculators are disabled/uninstalled.
+- Moved PA weighting setting to calculator class.
 
 r2.3.2
 ------
