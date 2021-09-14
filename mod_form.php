@@ -140,6 +140,26 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         // Apply default values from admin settings.
         $this->apply_admin_defaults();
+        // Calculators can be disabled or uninstalled after they have been set as
+        // the site default. We need a fallback to ensure available scales are
+        // correct.
+        $defaultcalculator = get_config('peerwork', 'calculator');
+        $plugin = 'peerworkcalculator_' . $defaultcalculator;
+        $classname = '\\' . $plugin . '\calculator';
+        $disabled = get_config($plugin, 'disabled');
+
+        if ($disabled) {
+            $plugins = core_component::get_plugin_list('peerworkcalculator');
+
+            foreach ($plugins as $name => $path) {
+                $disabled = get_config('peerworkcalculator' . '_' . $name, 'disabled');
+
+                if (!$disabled) {
+                    $mform->setDefault('calculator', $name);
+                    break;
+                }
+            }
+        }
 
         // Add actions.
         $this->add_action_buttons();

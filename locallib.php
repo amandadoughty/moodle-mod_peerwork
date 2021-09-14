@@ -1539,14 +1539,23 @@ function mod_peerwork_update_calculation($peerwork) {
 function calculator_class($calculator) {
     global $CFG;
 
-    $classname = '\\peerworkcalculator_' . $calculator . '\calculator';
+    if (!$calculator) {
+        debugging('No calculator is set');
+        return '\\mod_peerwork\peerworkcalculator_plugin';
+    }
+
+    $plugin = 'peerworkcalculator_' . $calculator;
+    $classname = '\\' . $plugin . '\calculator';
+    $disabled = get_config($plugin, 'disabled');
 
     if (!class_exists($classname)) {
-        debugging($classname . ' does not exist');
+        debugging($classname . ' is missing or disabled');
 
         // Get the default.
         $defaultcalculator = get_config('peerwork', 'calculator');
-        $classname = '\\peerworkcalculator_' . $defaultcalculator . '\calculator';
+        $plugin = 'peerworkcalculator_' . $defaultcalculator;
+        $classname = '\\' . $plugin . '\calculator';
+        $disabled = get_config($plugin, 'disabled');
 
         // Fall back to base.
         if (!class_exists($classname)) {
