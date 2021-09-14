@@ -424,21 +424,16 @@ function xmldb_peerwork_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020090701, 'peerwork');
     }
 
-    if ($oldversion < 2020120102) {
+    if ($oldversion < 2021052402) {
 
         // Allow grades with decimal places.
         $table = new xmldb_table('peerwork_submission');
         $field = new xmldb_field('grade', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null, 'userid');
         $dbman->change_field_type($table, $field);
 
-        upgrade_mod_savepoint(true, 2020120102, 'peerwork');
-    }
-
-    if ($oldversion < 2020120103) {
-
         // Add back grouping setting.
         $table = new xmldb_table('peerwork');
-        $field = new xmldb_field('groupingid', XMLDB_TYPE_INTEGER, '10', null,
+        $field = new xmldb_field('pwgroupingid', XMLDB_TYPE_INTEGER, '10', null,
             XMLDB_NOTNULL, null, '0');
 
         if (!$dbman->field_exists($table, $field)) {
@@ -455,23 +450,18 @@ function xmldb_peerwork_upgrade($oldversion) {
         foreach ($recordset as $record) {
             $object = new stdClass();
             $object->id = $record->instance;
-            $object->groupingid = $record->groupingid;
+            $object->pwgroupingid = $record->groupingid;
             $DB->update_record('peerwork', $object);
         }
 
         $recordset->close();
-
-        upgrade_mod_savepoint(true, 2020120103, 'peerwork');
-    }
-
-    if ($oldversion < 2020120106) {
 
         // Allow null calculator.
         $table = new xmldb_table('peerwork');
         $field = new xmldb_field('calculator', XMLDB_TYPE_CHAR, 255, null, null, null, null, 'lockediting');
         $dbman->change_field_type($table, $field);
 
-        upgrade_mod_savepoint(true, 2020120106, 'peerwork');
+        upgrade_mod_savepoint(true, 2021052402, 'peerwork');
     }
 
     return true;
