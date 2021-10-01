@@ -40,7 +40,7 @@ require_capability('mod/peerwork:grade', $cm->context);
 $PAGE->set_url(new moodle_url('/mod/peerwork/export.php', ['id' => $id, 'groupid' => $groupid]));
 
 if (empty($groupid)) {
-    $groupids = array_keys(groups_get_all_groups($course->id, 0, $cm->groupingid));
+    $groupids = array_keys(groups_get_all_groups($course->id, 0, $peerwork->pwgroupingid));
 } else {
     $groupids = [$groupid];
 }

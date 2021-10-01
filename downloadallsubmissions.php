@@ -16,7 +16,7 @@
 
 /**
  * Download submissions
- * 
+ *
  * @package    mod_peerwork
  * @copyright  2020 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -35,7 +35,7 @@ require_sesskey();
 require_capability('mod/peerwork:grade', $cm->context);
 
 $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
-$allgroups = groups_get_all_groups($course->id, 0, $cm->groupingid);
+$allgroups = groups_get_all_groups($course->id, 0, $peerwork->pwgroupingid);
 
 // Increase the server timeout to handle the creation and sending of large zip files.
 core_php_time_limit::raise();
@@ -69,5 +69,5 @@ if ($zipper->archive_to_pathname($groupfiles, $temppath)) {
     send_temp_file($temppath, $filename);
     // We will not get here - send_temp_file calls exit.
 } else {
-    print_error('cannotdownloaddir', 'repository');
+    throw new moodle_exception('cannotdownloaddir', 'repository');
 }

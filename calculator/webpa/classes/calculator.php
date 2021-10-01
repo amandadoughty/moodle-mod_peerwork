@@ -184,4 +184,13 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
 
         return new \mod_peerwork\pa_result($fracscores, $webpascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
+
+    /**
+     * Function to return if calculation uses paweighting.
+     *
+     * @return bool
+     */
+    public static function usespaweighting() {
+        return true;
+    }
 }

@@ -1,8 +1,8 @@
-@cul @mod @mod_peerwork @mod_peerwork_change_calculator
-Feature: Change the calculator setting
-    In order to test changing the calculator
+@cul @mod @mod_peerwork @mod_peerwork_disable_calculator
+Feature: Disable a calculator which has been used in peerwork
+    In order to test disabling the calculator
     As a teacher
-    I need to edit the activity before and after grades are released
+    I need to edit the activity before and after submissions are graded
 
   Background:
     Given the following "courses" exist:
@@ -41,6 +41,12 @@ Feature: Change the calculator setting
         | Criteria 1 description | Criteria 1 |
         | Criteria 1 scoring type | Default competence scale |
         | Peer assessment weighting | 0 |
+    And I add a "Peer Assessment" to section "1" and I fill the form with:
+        | Peer assessment | Another test peerwork name |
+        | Description | Another test peerwork description |
+        | Criteria 1 description | Criteria 1 |
+        | Criteria 1 scoring type | Default competence scale |
+        | Peer assessment weighting | 0 |
     And I log out
     And I log in as "student1"
     And I am on "Course 1" course homepage
@@ -59,22 +65,24 @@ Feature: Change the calculator setting
         | Group grade out of 100 | 80 |
     And I press "Save changes"
     And I log out
+    And the following config values are set as admin:
+        | disabled | 1 | peerworkcalculator_webpa |
 
   @javascript
-  Scenario: Teachers can change the calculator before grades are released
+  Scenario: Disabled calculator not updated before submisssions are graded
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
+    And I follow "Another test peerwork name"
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    Then I can change the calculator before grades are released
+    Then the disabled calculator is not updated before grading
 
   @javascript
-  Scenario: Teachers must agree to regrade students if the calculator changes after grades are released
+  Scenario: Disabled calculator still used after submisssions are graded
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I follow "Test peerwork name"
     And I press "Release all grades for all groups"
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    Then I can change the calculator after grades are released
+    Then the disabled calculator is not updated after grading

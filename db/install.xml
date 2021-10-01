@@ -27,7 +27,8 @@
         <FIELD NAME="peergradesvisibility" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="displaypeergradestotals" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="lockediting" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether we should be locking editing of submission and peer grades after they've been submitted."/>
-        <FIELD NAME="calculator" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="webpa" SEQUENCE="false"/>
+        <FIELD NAME="calculator" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="pwgroupingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="A grouping id to get groups for submissions"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -42,7 +43,7 @@
         <FIELD NAME="peerworkid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The group id for team submissions"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="grade" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" PREVIOUS="userid" NEXT="paweighting"/>
         <FIELD NAME="paweighting" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="50" SEQUENCE="false"/>
         <FIELD NAME="feedbacktext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="feedbackformat" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false"/>

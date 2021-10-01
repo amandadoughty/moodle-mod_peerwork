@@ -48,6 +48,26 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 require_capability('mod/peerwork:grade', $context);
 
+$plugin = 'peerworkcalculator_' . $peerwork->calculator;
+$classname = '\\' . $plugin . '\calculator';
+$calcmissing = !class_exists($classname);
+
+// If the original calculator used no longer exists then just print a warning.
+if ($peerwork->calculator && $calcmissing) {
+    echo $OUTPUT->header();
+    $error = 'calcmissing';
+    $a = '';
+
+    if ($submission && peerwork_was_submission_graded_from_status($status)) {
+        $a = get_string('calcmissinggraded', 'mod_peerwork');
+    }
+
+    throw new moodle_exception($error, 'mod_peerwork', '', $a);
+
+    echo $OUTPUT->footer();
+    return;
+}
+
 // Start the form, initialise with some data.
 $fileoptions = mod_peerwork_details_form::$fileoptions;
 $draftitemid = file_get_submitted_draft_itemid('feedback_files');
@@ -84,7 +104,7 @@ $mform = new mod_peerwork_details_form($PAGE->url->out(false), [
     'submission' => $submission,
     'members' => $members,
     'canunlock' => $canunlock,
-    'duedatenotpassed' => $duedatenotpassed,
+    'duedatenotpassed' => $duedatenotpassed
 ]);
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
@@ -156,7 +176,7 @@ if (peerwork_was_submission_graded_from_status($status)) {
             $overriddenweightedgrade = $overiddenresult->get_grade($member->id);
         }
 
-        $data['finalgrades'][] = array(
+        $data['finalgrades'][] = [
             'memberid' => $member->id,
             'fullname' => fullname($member),
             'contribution' => $result->get_score($member->id),
@@ -167,16 +187,13 @@ if (peerwork_was_submission_graded_from_status($status)) {
             'revisedgrade' => $localgrades[$member->id]->revisedgrade ?? null,
             'overridden' => $grade->overridden,
             'locked' => $grade->locked
-        );
+        ];
     }
-} else {
-    $duedate = peerwork_due_date($peerwork);
-
-    if ($duedate !== PEERWORK_DUEDATE_PASSED) {
+} else if ($duedatenotpassed) {
         $duedatehtml = html_writer::tag('div', get_string('duedatenotpassed', 'mod_peerwork'), ['class' => 'alert alert-danger']);
         $data['duedatenotpassed'] = $duedatehtml;
-    }
 }
+
 $mform->set_data($data);
 
 if ($mform->is_cancelled()) {

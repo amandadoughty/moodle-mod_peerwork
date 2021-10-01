@@ -65,7 +65,7 @@ class mod_peerwork_observer {
      * to the group members.
      *
      * @param \core\event\base $event The event object.
-     * @param $removed boolean
+     * @param boolean $removed Whether the change was a member removed.
      *
      */
     protected static function group_members_updated(\core\event\base $event, $removed = true) {

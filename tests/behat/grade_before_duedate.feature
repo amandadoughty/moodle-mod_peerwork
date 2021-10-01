@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_grade_before_duedate
+@cul @mod @mod_peerwork @mod_peerwork_grade_before_duedate
 Feature: Grade a submission before the due date has passed
     In order to test the grading warning before a due date has passed
     As a teacher
@@ -65,7 +65,25 @@ Feature: Grade a submission before the due date has passed
     Then "The due date has not passed. If you grade now then students will no longer be able to edit submissions." "text" should be visible
 
   @javascript
-  Scenario: Warning message is not shown if due date has  passed.
+  Scenario: View the warning message when using inline editing, if due date has not passed.
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    When I click on "Edit grade for group: Group 1" "link"    
+    Then I should see "The due date has not passed. If you grade now then students will no longer be able to edit submissions. Do you wish to continue?"
+    And I click on "Cancel" "button" in the "Grading before due date" "dialogue"
+    Then ".inplace-grading .inplaceeditingon input" "css_element" should not exist
+    And "Group 1" row "Grade" column of "mod-peerwork-summary-table" table should not contain "Escape to cancel, Enter when finished"
+    #Then the focused element is "Edit grade for group: Group 1" "field"
+    And I click on "Edit grade for group: Group 1" "link"    
+    Then I should see "The due date has not passed. If you grade now then students will no longer be able to edit submissions. Do you wish to continue?"
+    And I click on "Yes" "button" in the "Grading before due date" "dialogue"
+    #Then "Escape to cancel, Enter when finished" "field" should exist
+    Then ".inplace-grading .inplaceeditingon input" "css_element" should exist
+    And "Group 1" row "Grade" column of "mod-peerwork-summary-table" table should contain "Escape to cancel, Enter when finished"
+
+  @javascript
+  Scenario: Warning message is not shown if due date has passed.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "Test peerwork name"
@@ -78,4 +96,17 @@ Feature: Grade a submission before the due date has passed
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     Then "The due date has not passed. If you grade now then students will no longer be able to edit submissions." "text" should not be visible
+
+  @javascript
+  Scenario: Warning message is not shown when using inline editing, if due date has not passed.
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "Test peerwork name"
+    And I navigate to "Edit settings" in current page administration
+    And I set the following fields to these values:
+        | Due date | ## -1 day ## |
+    And I press "Save and display"
+    And I follow "Test peerwork name"
+    When I click on "Edit grade for group: Group 1" "link"    
+    Then I should not see "The due date has not passed. If you grade now then students will no longer be able to edit submissions."
 

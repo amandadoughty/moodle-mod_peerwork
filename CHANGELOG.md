@@ -1,15 +1,24 @@
-v2.3.2
+r3.11.0
+-------
+- Refactored activity to used own setting for grouping instead of Common module settings.
+- Refactored submission grade to allow float values
+- Added grading before due date warning #59 (for group summary screen)
+- Bumped release number to match latest major Moodle version supported
+- Refactored settings to allow null calculator in order to allow for cases where
+  all calculators are disabled/uninstalled.
+- Moved PA weighting setting to calculator class.
+
+r2.3.2
 ------
 - Removed deprecated string grade/core
 - Removed deprecated function user_picture::fields()
 
-v2.3.1
+r2.3.1
 ------
-
 - Added grading before due date warning #59
 - Improved display of criteria scales #60
 
-v2.3.0
+r2.3.0
 ------
 
 - Added group restriction check #54
@@ -21,13 +30,13 @@ v2.3.0
 - Added student ID to export #57
 - Fixed bug in calculation when self grade turned off #58
 
-v2.2.0
+r2.2.0
 ------
 
 - Fixed single calculator plugin error #55 #56
 - Added support for v3.10
 
-v2.1.0
+r2.1.0
 ------
 
 - Added individual peer grade override
@@ -35,13 +44,13 @@ v2.1.0
 	Justification - disabled, hidden, visible anonymous, visible with usernames
 - Added suite of Behat tests
 
-v2.0.0
+r2.0.0
 ------
 
 - Refactored the calculator as a subplugin
 - Added course scales to selection
 
-v1.1.0
+r1.1.0
 ------
 
 - Added site settings:
@@ -62,7 +71,7 @@ v1.1.0
 	Add criteria
 - Style changes to improve responsiveness
 
-v1.0.0
+r1.0.0
 ------
 
 - Upgrade requirement to Moodle 3.6
