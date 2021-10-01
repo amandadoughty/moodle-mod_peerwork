@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_group_observer
+@cul @mod @mod_peerwork @mod_peerwork_group_observer
 Feature: Change the group members after grading
     In order to test the group observer
     As a teacher
@@ -107,7 +107,7 @@ Feature: Change the group members after grading
         | Grade item | Grade |
         | Test peerwork name | 100.00 |
     And I log out
-    # Add a new member         
+    # Add a new member
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Users > Groups" in current page administration

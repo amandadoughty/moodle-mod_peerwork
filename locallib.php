@@ -1539,14 +1539,23 @@ function mod_peerwork_update_calculation($peerwork) {
 function calculator_class($calculator) {
     global $CFG;
 
-    $classname = '\\peerworkcalculator_' . $calculator . '\calculator';
+    if (!$calculator) {
+        debugging('No calculator is set');
+        return '\\mod_peerwork\peerworkcalculator_plugin';
+    }
+
+    $plugin = 'peerworkcalculator_' . $calculator;
+    $classname = '\\' . $plugin . '\calculator';
+    $disabled = get_config($plugin, 'disabled');
 
     if (!class_exists($classname)) {
-        debugging($classname . ' does not exist');
+        debugging($classname . ' is missing or disabled');
 
         // Get the default.
         $defaultcalculator = get_config('peerwork', 'calculator');
-        $classname = '\\peerworkcalculator_' . $defaultcalculator . '\calculator';
+        $plugin = 'peerworkcalculator_' . $defaultcalculator;
+        $classname = '\\' . $plugin . '\calculator';
+        $disabled = get_config($plugin, 'disabled');
 
         // Fall back to base.
         if (!class_exists($classname)) {
@@ -1623,18 +1632,21 @@ function load_plugins($peerwork, $subtype) {
  * Add one plugins settings to edit plugin form.
  *
  * @param peerwork_plugin $plugin The plugin to add the settings form
- * @param MoodleQuickForm $mform The form to add the configuration settings to.
- *                               This form is modified directly (not returned).
+ * @param peerwork_plugin $peerwork
  * @param array $pluginsenabled A list of form elements to be added to a select.
  *                              The new element is added to this array by this function.
  * @return void
  */
-function get_enabled_plugins($plugin, MoodleQuickForm $mform, & $pluginsenabled) {
-    global $CFG;
+function get_enabled_plugins($plugin, $peerwork, & $pluginsenabled) {
+    global $CFG, $DB;
+
+    $name = $plugin->get_type();
+    $value = $plugin->get_name();
 
     if ($plugin->is_visible() && $plugin->is_configurable()) {
-        $name = $plugin->get_type();
-        $value = $plugin->get_name();
+        $pluginsenabled[$name] = $value;
+    } else if (isset($peerwork->calculator) && ($peerwork->calculator == $name)) {
+        // The calculator is no longer enabled but is still being used.
         $pluginsenabled[$name] = $value;
     }
 }
@@ -1642,16 +1654,12 @@ function get_enabled_plugins($plugin, MoodleQuickForm $mform, & $pluginsenabled)
 /**
  * Add one plugins settings to edit plugin form.
  *
- * @param peerwork_plugin $plugin The plugin to add the settings form
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  *                               This form is modified directly (not returned).
- * @param array $pluginsenabled A list of form elements to be added to a select.
- *                              The new element is added to this array by this function.
+ * @param peerwork_plugin $peerwork
  * @param string $selected The selected plugin to get settings for.
  * @return void
  */
-
-
 function add_plugin_settings(MoodleQuickForm $mform, $peerwork, $selected) {
     global $CFG;
 
@@ -1665,7 +1673,7 @@ function add_plugin_settings(MoodleQuickForm $mform, $peerwork, $selected) {
  *
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  * This form is modified directly (not returned).
- * @param peerwork_plugin $peerwork
+ * @param fieldset|null Existing $peerwork record if updating or null if adding new.
  * @return void
  */
 function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
@@ -1675,7 +1683,7 @@ function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
 
     foreach ($calculatorplugins as $name => $plugin) {
         $calculatorpluginnames[$name] = $plugin->get_name();
-        get_enabled_plugins($plugin, $mform, $calculatorpluginsenabled);
+        get_enabled_plugins($plugin, $peerwork, $calculatorpluginsenabled);
     }
 
     if (count($calculatorpluginsenabled) > 1) {
@@ -1707,6 +1715,9 @@ function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
         $mform->setType('calculator', PARAM_TEXT);
         $mform->setDefault('calculator', $value);
     } else {
+        $mform->addElement('hidden', 'calculator');
+        $mform->setType('calculator', PARAM_TEXT);
+
         $mform->addElement(
             'static',
             'nocalculator',

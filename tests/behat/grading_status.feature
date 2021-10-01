@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_grading_status
+@cul @mod @mod_peerwork @mod_peerwork_grading_status
 Feature: View the grading status of a submission
     In order to test the grading status for submissions is displaying correctly
     As a student
@@ -53,11 +53,7 @@ Feature: View the grading status of a submission
     And I follow "Test peerwork name"
     And I navigate to "Edit settings" in current page administration
     And I set the following fields to these values:
-        | duedate[day]       | ## 1 day ago ## j ## |
-        | duedate[month]     | ## 1 day ago ## F ## |
-        | duedate[year]      | ## 1 day ago ## Y ## |
-        | duedate[hour]      | ## 1 day ago ## G ## |
-        | duedate[minute]    | ## 1 day ago ## i ## |
+        | Due date | ## -1 day ## |
     And I press "Save and display"
     And I log out
     And I log in as "student1"
@@ -76,11 +72,7 @@ Feature: View the grading status of a submission
     And I follow "Test peerwork name"
     And I navigate to "Edit settings" in current page administration
     And I set the following fields to these values:
-        | duedate[day]       | ## 1 day 10 min  ## j ## |
-        | duedate[month]     | ## 1 day 10 min ## F ## |
-        | duedate[year]      | ## 1 day 10 min ## Y ## |
-        | duedate[hour]      | ## 1 day 10 min ## G ## |
-        | duedate[minute]    | ## 1 day 10 min ## i ## |
+        | Due date | ## 1 day 10 min ## |
     And I press "Save and display"
     And I log out
     And I log in as "student1"
@@ -109,11 +101,7 @@ Feature: View the grading status of a submission
     And I follow "Test peerwork name"
     And I navigate to "Edit settings" in current page administration
     And I set the following fields to these values:
-        | duedate[day]       | ## 1 day ago ## j ## |
-        | duedate[month]     | ## 1 day ago ## F ## |
-        | duedate[year]      | ## 1 day ago ## Y ## |
-        | duedate[hour]      | ## 1 day ago ## G ## |
-        | duedate[minute]    | ## 1 day ago ## i ## |
+        | Due date | ## -1 day ## |
     And I press "Save and display"
     And I log out
     And I log in as "student1"

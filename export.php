@@ -21,6 +21,7 @@
  * @copyright  2013 LEARNING TECHNOLOGY SERVICES
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
@@ -39,7 +40,7 @@ require_capability('mod/peerwork:grade', $cm->context);
 $PAGE->set_url(new moodle_url('/mod/peerwork/export.php', ['id' => $id, 'groupid' => $groupid]));
 
 if (empty($groupid)) {
-    $groupids = array_keys(groups_get_all_groups($course->id, 0, $cm->groupingid));
+    $groupids = array_keys(groups_get_all_groups($course->id, 0, $peerwork->pwgroupingid));
 } else {
     $groupids = [$groupid];
 }

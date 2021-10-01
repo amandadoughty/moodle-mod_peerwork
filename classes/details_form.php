@@ -123,6 +123,10 @@ class mod_peerwork_details_form extends moodleform {
 
         $mform->addElement('header', 'mod_peerwork_grading', get_string('tutorgrading', 'mod_peerwork'));
 
+        if ($duedatenotpassed) {
+            $mform->addElement('static', 'duedatenotpassed', '');
+        }
+
         $mform->addElement('text', 'grade', get_string('groupgradeoutof100', 'mod_peerwork'), ['maxlength' => 15, 'size' => 10]);
         $mform->setType('grade', PARAM_RAW);    // We do not use PARAM_INT to capture an empty field.
 
@@ -141,10 +145,6 @@ class mod_peerwork_details_form extends moodleform {
         foreach ($members as $member) {
             $mform->addElement('hidden', 'grade_' . $member->id, '');
             $mform->setType('grade_' . $member->id, PARAM_RAW); // We don't want the value to be forced to 0.
-        }
-
-        if ($duedatenotpassed) {
-            $mform->addElement('static', 'duedatenotpassed', '');
         }
 
         $mform->addElement('static', 'finalgrades', get_string('calculatedgrades', 'mod_peerwork'));
@@ -288,6 +288,10 @@ class mod_peerwork_details_form extends moodleform {
             $data['finalgrades'] = html_writer::tag('em', get_string('notyetgraded', 'mod_peerwork'));
         }
 
+        if (array_key_exists('grade', $data)) {
+            $data['grade'] = format_float($data['grade'], -1);
+        }
+
         return parent::set_data($data);
     }
 
@@ -340,6 +344,6 @@ class mod_peerwork_details_form extends moodleform {
      * @return int|null
      */
     protected static function clean_grade($rawgrade) {
-        return trim($rawgrade) === '' ? null : clean_param($rawgrade, PARAM_INT);
+        return trim($rawgrade) === '' ? null : clean_param($rawgrade, PARAM_FLOAT);
     }
 }

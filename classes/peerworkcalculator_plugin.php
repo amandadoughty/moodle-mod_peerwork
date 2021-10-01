@@ -49,7 +49,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      *
      * @return string
      */
-    public final function get_subtype() {
+    final public function get_subtype() {
         return 'peerworkcalculator';
     }
 
@@ -140,7 +140,22 @@ class peerworkcalculator_plugin extends peerwork_plugin {
             return $carry;
         });
 
-        return new \mod_peerwork\pa_result($sumscores, $pascores, $prelimgrades, $prelimgrades, $noncompletionpenalties);
+        // Calculate the grades again, but with weighting and penalties.
+        $grades = array_reduce(
+            $memberids,
+            function($carry, $memberid) use ($noncompletionpenalties, $groupmark) {
+                $grade = $groupmark;
+                $penaltyamount = $noncompletionpenalties[$memberid];
+                if ($penaltyamount > 0) {
+                    $grade *= (1 - $penaltyamount);
+                }
+
+                $carry[$memberid] = $grade;
+                return $carry;
+            },
+        []);
+
+        return new \mod_peerwork\pa_result($sumscores, $pascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
 
     /**
@@ -149,7 +164,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      * @return bool
      */
     public static function usespaweighting() {
-        return true;
+        return false;
     }
 
     /**
@@ -171,5 +186,37 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      */
     public function translate_scales_to_scores($grades) {
         return $grades;
+    }
+
+    /**
+     * Get the settings for calculator plugin.
+     *
+     * @param MoodleQuickForm $mform The form to add the elements to
+     * @return $array
+     */
+    public function get_settings(\MoodleQuickForm $mform) {
+        if ($this->usespaweighting()) {
+            if (!$this->peerwork) {
+                $paw = get_config('peerwork', 'paweighting');
+            } else {
+                $paw = $this->peerwork->paweighting;
+            }
+
+            $steps = range(0, 100, 1);
+            $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
+                return $i . '%';
+            }, $steps));
+
+            $paweighting = $mform->createElement(
+                'select',
+                'paweighting',
+                get_string('paweighting', 'peerwork'),
+                $zerotohundredpcopts
+            );
+
+            $mform->insertElementBefore($paweighting, 'calculatorsettings');
+            $mform->setDefault('paweighting', $paw);
+            $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
+        }
     }
 }

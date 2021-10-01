@@ -1,4 +1,4 @@
-@mod @mod_peerwork @mod_peerwork_submission_locking
+@cul @mod @mod_peerwork @mod_peerwork_submission_locking
 Feature: Lock and unlock submissions
     In order to test locked submissions
     As a teacher

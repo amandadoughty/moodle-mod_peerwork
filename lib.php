@@ -190,14 +190,14 @@ function peerwork_get_completion_state($course, $cm, $userid, $type) {
 
     // Check whether the user has graded all their peers.
     if ($peerwork->completiongradedpeers) {
-        $groupid = peerwork_get_mygroup($course->id, $userid, $cm->groupingid, false);
+        $groupid = peerwork_get_mygroup($course->id, $userid, $peerwork->pwgroupingid, false);
 
         // The user does not have the expected group.
         if (!$groupid) {
             return $result;
         }
 
-        $peers = peerwork_get_peers($course, $peerwork, $cm->groupingid, $groupid, $userid);
+        $peers = peerwork_get_peers($course, $peerwork, $peerwork->pwgroupingid, $groupid, $userid);
         $gradedcount = $DB->count_records_select('peerwork_peers', 'peerwork = ?', [$peerwork->id], 'COUNT(DISTINCT gradefor)');
         $hasgradedpeers = count($peers) <= $gradedcount;
         $result = $type == COMPLETION_AND ? $result && $hasgradedpeers : $result || $hasgradedpeers;
@@ -450,8 +450,7 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     }
 
     $peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('peerwork', $peerwork->id, $peerwork->course, false, MUST_EXIST);
-    $groupingid = $cm->groupingid;
+    $groupingid = $peerwork->pwgroupingid;
     $itemid = (int)array_shift($args);
     $mygroup = peerwork_get_mygroup($course->id, $USER->id, $groupingid, false);
 
@@ -554,7 +553,7 @@ function mod_peerwork_inplace_editable($rawitemtype, $itemid, $newvalue) {
 
             $grader = new mod_peerwork\group_grader($peerwork, $groupid);
             $wasgraded = $grader->was_graded();
-            $grade = clean_param($newvalue, PARAM_INT);
+            $grade = clean_param($newvalue, PARAM_FLOAT);
 
             // The user did not really want to grade this.
             if (!$wasgraded && !$grade && ($newvalue === '' || $newvalue === '-')) {

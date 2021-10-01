@@ -189,7 +189,7 @@ class group_grader {
         $paweighting = min(100, max(0, (int) $paweighting));
 
         $record = $this->get_submission_record();
-        $record->grade = min(100, max(0, (int) $grade));
+        $record->grade = min(100, max(0, (float) $grade));
         $record->paweighting = $paweighting;
         $record->gradedby = $USER->id;
         $record->timegraded = time();

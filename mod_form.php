@@ -116,19 +116,50 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // Select field if more than one enabled calculator plugin.
         add_all_calculator_plugins($mform, $peerwork);
 
-        $mform->addElement('select', 'paweighting', get_string('paweighting', 'peerwork'), $zerotohundredpcopts);
-        $mform->addHelpButton('paweighting', 'paweighting', 'peerwork');
-
         $mform->addElement('select', 'noncompletionpenalty', get_string('noncompletionpenalty', 'peerwork'), $zerotohundredpcopts);
         $mform->addHelpButton('noncompletionpenalty', 'noncompletionpenalty', 'peerwork');
 
         $this->add_assessment_criteria();
+
+        // Groupings selector - used to select grouping for groups in activity.
+        $mform->addElement('header', 'groupsubmissionsettings', get_string('groupsubmissionsettings', 'peerwork'));
+
+        $options = [];
+        $options[0] = get_string('none');
+        $groupings = groups_get_all_groupings($COURSE->id);
+
+        foreach ($groupings as $grouping) {
+            $options[$grouping->id] = format_string($grouping->name);
+        }
+
+        $mform->addElement('select', 'pwgroupingid', get_string('grouping', 'group'), $options);
+        $mform->addHelpButton('pwgroupingid', 'grouping', 'group');
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
         // Apply default values from admin settings.
         $this->apply_admin_defaults();
+        // Calculators can be disabled or uninstalled after they have been set as
+        // the site default. We need a fallback to ensure available scales are
+        // correct.
+        $defaultcalculator = get_config('peerwork', 'calculator');
+        $plugin = 'peerworkcalculator_' . $defaultcalculator;
+        $classname = '\\' . $plugin . '\calculator';
+        $disabled = get_config($plugin, 'disabled');
+
+        if ($disabled) {
+            $plugins = core_component::get_plugin_list('peerworkcalculator');
+
+            foreach ($plugins as $name => $path) {
+                $disabled = get_config('peerworkcalculator' . '_' . $name, 'disabled');
+
+                if (!$disabled) {
+                    $mform->setDefault('calculator', $name);
+                    break;
+                }
+            }
+        }
 
         // Add actions.
         $this->add_action_buttons();
@@ -330,17 +361,6 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
             if ($mform->elementExists($elname)) {
                 $mform->freeze($elname); // Prevent adding more criteria.
-            }
-        }
-
-        foreach ($calculators as $name => $path) {
-            $calculator = '\peerworkcalculator_' . $name;
-            $calculatorclass = '\peerworkcalculator_' . $name . '\calculator';
-
-            if (!$calculatorclass::usespaweighting()) {
-                if ($mform->elementExists('calculator')) {
-                    $mform->hideIf('paweighting', 'calculator', 'eq', $name);
-                }
             }
         }
 

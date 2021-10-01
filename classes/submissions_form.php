@@ -268,9 +268,13 @@ class mod_peerwork_submissions_form extends moodleform {
             $mform->addElement('header', 'justificationhdr', get_string('justification', 'mod_peerwork'));
             $mform->setExpanded('justificationhdr', true);
 
+            $data['notestr'] = get_string($notestr, 'mod_peerwork');
+            $html = $renderer->render_from_template('mod_peerwork/justifalert', $data);
+
             $mform->addElement('static', '', '', get_string('justificationintro', 'mod_peerwork') .
                 html_writer::empty_tag('br') .
-                html_writer::tag('strong', get_string($notestr, 'mod_peerwork')));
+                $html
+            );
 
             // Don't set the maxlength property because it does not work well with UTF-8 characters.
             $textareaattrs = ['rows' => 2, 'style' => 'width: 100%'];
