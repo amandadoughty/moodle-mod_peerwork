@@ -1715,6 +1715,9 @@ function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
         $mform->setType('calculator', PARAM_TEXT);
         $mform->setDefault('calculator', $value);
     } else {
+        $mform->addElement('hidden', 'calculator');
+        $mform->setType('calculator', PARAM_TEXT);
+
         $mform->addElement(
             'static',
             'nocalculator',
