@@ -50,7 +50,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
             'fromdate', 'allowlatesubmissions', 'peergradesvisibility',
             'justification', 'justificationtype', 'justificationmaxlength',
             'paweighting', 'noncompletionpenalty', 'completiongradedpeers', 'displaypeergradestotals',
-            'lockediting', 'calculator', 'groupingid'));
+            'lockediting', 'calculator', 'pwgroupingid'));
 
         $criteria = new backup_nested_element('criteria');
         $criterion = new backup_nested_element('criterion', ['id'], [
@@ -119,7 +119,7 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         // Define id annotations.
 
-        $peerwork->annotate_ids('grouping', 'groupingid');
+        $peerwork->annotate_ids('grouping', 'pwgroupingid');
 
         $peer->annotate_ids('user', 'gradedby');
         $peer->annotate_ids('user', 'gradefor');
