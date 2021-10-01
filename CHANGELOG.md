@@ -1,8 +1,11 @@
 r3.9.5
 ------
+
 - Refactored activity to used own setting for grouping instead of Common module settings.
 - Refactored submission grade to allow float values
 - Added grading before due date warning #59 (for group summary screen)
+- Moved PA Weighting setting to calculator class
+- Refactored base plugin and other functions to allow for situations where calculator is disabled/uninstalled
 - Bumped release number to match latest major Moodle version supported
 
 r2.3.1
