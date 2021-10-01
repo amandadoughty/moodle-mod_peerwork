@@ -62,7 +62,8 @@ if ($peerwork->calculator && $calcmissing) {
         $a = get_string('calcmissinggraded', 'mod_peerwork');
     }
 
-    print_error($error, 'mod_peerwork', '', $a);
+    throw new moodle_exception($error, 'mod_peerwork', '', $a);
+
     echo $OUTPUT->footer();
     return;
 }

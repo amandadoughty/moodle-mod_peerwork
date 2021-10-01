@@ -69,5 +69,5 @@ if ($zipper->archive_to_pathname($groupfiles, $temppath)) {
     send_temp_file($temppath, $filename);
     // We will not get here - send_temp_file calls exit.
 } else {
-    print_error('cannotdownloaddir', 'repository');
+    throw new moodle_exception('cannotdownloaddir', 'repository');
 }

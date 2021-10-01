@@ -98,12 +98,12 @@ function peerwork_get_mygroup($courseid, $userid, $groupingid = 0, $die = true) 
 
     if (count($mygroups) == 0) {
         if ($die) {
-            print_error('youdonotbelongtoanygroup', 'mod_peerwork');
+            throw new moodle_exception('youdonotbelongtoanygroup', 'mod_peerwork');
         }
         return null;
     } else if (count($mygroups) > 1) {
         if ($die) {
-            print_error('youbelongtomorethanonegroup', 'mod_peerwork');
+            throw new moodle_exception('youbelongtomorethanonegroup', 'mod_peerwork');
         }
         return null;
     }
@@ -1758,7 +1758,7 @@ function plugin_data_preprocessing(&$defaultvalues) {
 function update_plugin_instance(\mod_peerwork\peerwork_plugin $plugin, stdClass $formdata) {
     if ($plugin->is_visible()) {
         if (!$plugin->save_settings($formdata)) {
-            print_error($plugin->get_error());
+            throw new moodle_exception($plugin->get_error());
             return false;
         }
     }
