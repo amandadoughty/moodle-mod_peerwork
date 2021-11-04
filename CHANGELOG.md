@@ -7,6 +7,9 @@ r3.11.0
 - Refactored settings to allow null calculator in order to allow for cases where
   all calculators are disabled/uninstalled.
 - Moved PA weighting setting to calculator class.
+- AMOS string fix #3 provided by https://github.com/izendegi.
+- Table prefix fix #1 provided by https://github.com/izendegi.
+
 
 r2.3.2
 ------
