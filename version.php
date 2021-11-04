@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020120106;
+$plugin->version   = 2020120107;
 $plugin->requires  = 2020061500;      // Moodle 3.9.5 (for behat tests).
 $plugin->component = 'mod_peerwork';
 $plugin->maturity  = MATURITY_STABLE;
