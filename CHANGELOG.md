@@ -7,6 +7,7 @@ r3.9.5
 - Moved PA Weighting setting to calculator class
 - Refactored base plugin and other functions to allow for situations where calculator is disabled/uninstalled
 - Bumped release number to match latest major Moodle version supported
+- AMOS string fix #3 provided by https://github.com/izendegi
 
 r2.3.1
 ------
