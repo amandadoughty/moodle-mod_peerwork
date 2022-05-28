@@ -152,13 +152,20 @@ class peerwork_detail_summary implements templatable, renderable {
                 }
 
                 $gradedby = ['name' => $label];
+                $url = new \moodle_url('/mod/peerwork/override.php', [
+                    'id' => $cmid,
+                    'pid' => $peerwork->id,
+                    'gid' => $groupid,
+                    'uid' => $member->id,
+                ]);
 
                 $memberdropdown[$member->id] = [
                     'id' => $cmid,
                     'peerworkid' => $peerwork->id,
                     'groupid' => $groupid,
                     'gradedby' => $member->id,
-                    'name' => fullname($member)
+                    'name' => fullname($member),
+                    'href' => $url->out()
                 ];
 
                 foreach ($members as $peer) {
