@@ -50,7 +50,7 @@ Authors
 Supported Versions
 ==================
 
- - The module has been tested with Moodle versions 3.6, 3.8, 3.9, 3.10
+ - The module has been tested with Moodle versions 4.0
 
 
 Installation instructions

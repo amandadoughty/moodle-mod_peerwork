@@ -121,10 +121,15 @@ class provider implements
             'contextlevel' => CONTEXT_MODULE
         ];
         $defaultsql = "SELECT ctx.id
-                        FROM {course_modules} cm
-                        JOIN {modules} m ON cm.module = m.id AND m.name = :modulename
-                        JOIN {context} ctx ON cm.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
-                        JOIN {peerwork} p ON cm.instance = p.id ";
+                         FROM {course_modules} cm
+                         JOIN {modules} m 
+                           ON cm.module = m.id 
+                          AND m.name = :modulename
+                         JOIN {context} ctx
+                           ON cm.id = ctx.instanceid
+                          AND ctx.contextlevel = :contextlevel
+                         JOIN {peerwork} p
+                           ON cm.instance = p.id ";
 
         $sql = $defaultsql .
             "JOIN {peerwork_submission} ps
