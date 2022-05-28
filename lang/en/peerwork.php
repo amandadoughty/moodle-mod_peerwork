@@ -276,6 +276,7 @@ $string['studentondate'] = '{$a->fullname} on {$a->date}';
 $string['studentrevisedgrade'] = 'Student revised grade';
 $string['studentfinalgrade'] = 'Student final grade';
 $string['studentfinalweightedgrade'] = 'Student final weighted grade';
+$string['submissionstatus'] = 'Submission status';
 $string['tasknodifystudents'] = 'Notify students';
 $string['thesestudentspastduedate'] = 'These students submitted past the due date: {$a}.';
 $string['timeremaining'] = 'Time remaining';
