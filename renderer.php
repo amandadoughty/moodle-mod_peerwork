@@ -62,7 +62,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         $t->data[] = $row;
 
         $row = new html_table_row();
-        $cell1 = new html_table_cell('Submission status');
+        $cell1 = new html_table_cell(get_string('submissionstatus', 'mod_peerwork'));
 
         $text = "<p>$status</p>";
         if (!empty($outstanding)) {
