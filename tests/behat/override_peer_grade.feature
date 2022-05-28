@@ -44,9 +44,7 @@ Feature: Overide the grades given by a peer
         | Criteria 1 description | Criteria 1 |
         | Criteria 1 scoring type | Default competence scale |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "1" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -56,9 +54,7 @@ Feature: Overide the grades given by a peer
 
   @javascript
   Scenario: Override the grades given by a student to their peer
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     And I click on "Select" "link" in the "#memberdropdown" "css_element"
@@ -74,19 +70,15 @@ Feature: Overide the grades given by a peer
     And I press "Save changes"
     And I expand all fieldsets
     And "Grade before overrides: " "icon" should exist in the "mod-peerwork-grader-table" "table"
-    And I follow "Test peerwork name"
+    And I follow "Peer Assessment"
     And I press "Release all grades for all groups"
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     Then I should see "Student 1: Not yet competent" in the "Peer grades" "table_row"
 
   @javascript
   Scenario: Override the grades when student has not submitted
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     And I click on "Select" "link" in the "#memberdropdown" "css_element"
@@ -100,19 +92,15 @@ Feature: Overide the grades given by a peer
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
-    And I follow "Test peerwork name"
+    And I follow "Peer Assessment"
     And I press "Release all grades for all groups"
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     Then I should see "Student 3: Not yet competent" in the "Peer grades" "table_row"
 
   @javascript
   Scenario: Override the grades without providing a comment
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     And I click on "Select" "link" in the "#memberdropdown" "css_element"
@@ -124,29 +112,24 @@ Feature: Overide the grades given by a peer
 
   @javascript
   Scenario: Override the grades after they have released
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
-    And I follow "Test peerwork name"
+    And I follow "Peer Assessment"
     And I press "Release all grades for all groups"
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     Then I should see "93.33" in the "My final grade" "table_row"
-    And I navigate to "User report" in the course gradebook
+    And I am on "Course 1" course homepage
+    And I navigate to "View > User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
         | Test peerwork name | 93.33 |
     And I log out
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     And I click on "Select" "link" in the "#memberdropdown" "css_element"
@@ -155,11 +138,10 @@ Feature: Overide the grades given by a peer
     And I override "student2" grade for criteria "Criteria 1" with "0" "Very poor"
     And I press "Save changes"
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     Then I should see "40.00" in the "My final grade" "table_row"
-    And I navigate to "User report" in the course gradebook
+    And I am on "Course 1" course homepage
+    And I navigate to "View > User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
         | Test peerwork name | 40.00 |

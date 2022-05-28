@@ -46,78 +46,63 @@ Feature: Change the group members after grading
         | Criteria 1 scoring type | Default competence scale |
         | Peer assessment weighting | 50 |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
     And I give "student3" grade "1" for criteria "Criteria 1"
     And I press "Save changes"
     And I log out
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I set the following fields to these values:
         | Group grade out of 100 | 100 |
     And I press "Save changes"
-    And I follow "Test peerwork name"
+    And I follow "Peer Assessment"
     And I press "Release all grades for all groups"
     And I log out
 
   @javascript
   Scenario: View the calculated grade after group membership changes.
-    Given I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     Then I should see "100" in the "My final grade" "table_row"
-    And I navigate to "User report" in the course gradebook
+    And I am on "Course 1" course homepage
+    And I navigate to "View > User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
         | Test peerwork name | 100.00 |
     And I log out
     # Remove the member who gave grades.
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Users > Groups" in current page administration
+    And I am on the "Course 1" "groups" page logged in as teacher1
     And I remove "Student 1 (student1@example.com)" user from "Group 1" group members
-    And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     Then I should see "50" in the "My final grade" "table_row"
-    And I navigate to "User report" in the course gradebook
+    And I am on "Course 1" course homepage
+    And I navigate to "View > User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
         | Test peerwork name | 50.00 |
     And I log out
     # Add back the member who gave grades
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Users > Groups" in current page administration
+    And I am on the "Course 1" "groups" page logged in as teacher1
     And I add "Student 1 (student1@example.com)" user to "Group 1" group members
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     Then I should see "100" in the "My final grade" "table_row"
-    And I navigate to "User report" in the course gradebook
+    And I am on "Course 1" course homepage
+    And I navigate to "View > User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
         | Test peerwork name | 100.00 |
     And I log out
     # Add a new member
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Users > Groups" in current page administration
+    And I am on the "Course 1" "groups" page logged in as teacher1
     And I add "Student 4 (student4@example.com)" user to "Group 1" group members
     And I log out
-    And I log in as "student4"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student4
     Then I should see "50" in the "My final grade" "table_row"
-    And I navigate to "User report" in the course gradebook
+    And I am on "Course 1" course homepage
+    And I navigate to "View > User report" in the course gradebook
     Then the following should exist in the "user-grade" table:
         | Grade item | Grade |
         | Test peerwork name | 50.00 |

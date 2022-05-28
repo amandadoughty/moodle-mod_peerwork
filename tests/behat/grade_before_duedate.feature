@@ -44,9 +44,7 @@ Feature: Grade a submission before the due date has passed
         | Criteria 1 scoring type | Default competence scale |
         | Peer assessment weighting | 0 |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -56,9 +54,7 @@ Feature: Grade a submission before the due date has passed
 
   @javascript
   Scenario: View the warning message if due date has not passed.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
@@ -66,16 +62,14 @@ Feature: Grade a submission before the due date has passed
 
   @javascript
   Scenario: View the warning message when using inline editing, if due date has not passed.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
-    When I click on "Edit grade for group: Group 1" "link"    
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
+    When I click on "Edit grade for group: Group 1" "link"
     Then I should see "The due date has not passed. If you grade now then students will no longer be able to edit submissions. Do you wish to continue?"
     And I click on "Cancel" "button" in the "Grading before due date" "dialogue"
     Then ".inplace-grading .inplaceeditingon input" "css_element" should not exist
     And "Group 1" row "Grade" column of "mod-peerwork-summary-table" table should not contain "Escape to cancel, Enter when finished"
     #Then the focused element is "Edit grade for group: Group 1" "field"
-    And I click on "Edit grade for group: Group 1" "link"    
+    And I click on "Edit grade for group: Group 1" "link"
     Then I should see "The due date has not passed. If you grade now then students will no longer be able to edit submissions. Do you wish to continue?"
     And I click on "Yes" "button" in the "Grading before due date" "dialogue"
     #Then "Escape to cancel, Enter when finished" "field" should exist
@@ -84,14 +78,11 @@ Feature: Grade a submission before the due date has passed
 
   @javascript
   Scenario: Warning message is not shown if due date has passed.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Due date | ## -1 day ## |
     And I press "Save and display"
-    And I follow "Test peerwork name"
+    And I follow "Peer Assessment"
     And I follow "Group 1"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
@@ -99,14 +90,11 @@ Feature: Grade a submission before the due date has passed
 
   @javascript
   Scenario: Warning message is not shown when using inline editing, if due date has not passed.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Due date | ## -1 day ## |
     And I press "Save and display"
-    And I follow "Test peerwork name"
-    When I click on "Edit grade for group: Group 1" "link"    
+    And I follow "Peer Assessment"
+    When I click on "Edit grade for group: Group 1" "link"
     Then I should not see "The due date has not passed. If you grade now then students will no longer be able to edit submissions."
 

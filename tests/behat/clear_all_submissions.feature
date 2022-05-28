@@ -43,9 +43,7 @@ Feature: Clear submissions
         | Criteria 1 description | Criteria 1 |
         | Criteria 1 scoring type | Default competence scale |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I upload "lib/tests/fixtures/empty.txt" file to "Assignment" filemanager
     And I give "student0" grade "0" for criteria "Criteria 1"
@@ -57,9 +55,7 @@ Feature: Clear submissions
         | Student 3 | Exceeded |
     And I press "Save changes"
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student1" grade "1" for criteria "Criteria 1"
@@ -70,9 +66,7 @@ Feature: Clear submissions
         | Student 3 | Exceeded |
     And I press "Save changes"
     And I log out
-    And I log in as "student3"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student3
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student1" grade "1" for criteria "Criteria 1"
@@ -86,9 +80,7 @@ Feature: Clear submissions
 
   @javascript
   Scenario: Teachers can clear submissions
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     Then I should see "empty.txt" in the "Peer submission and grades" "fieldset"
@@ -98,7 +90,7 @@ Feature: Clear submissions
         | Student 0 | Poor |
         | Student 1 | Did well |
         | Student 3 | Exceeded |
-    And I follow "Test peerwork name"
+    And I follow "Peer Assessment"
     And I press "Clear all submissions"
     And I click on "Yes" "button" in the "Confirmation" "dialogue"
     And I follow "Group 1"

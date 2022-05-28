@@ -44,52 +44,41 @@ Feature: Edit the grade of a submission
         | Criteria 1 scoring type | Default competence scale |
         | Peer assessment weighting | 0 |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
     And I give "student3" grade "1" for criteria "Criteria 1"
     And I press "Save changes"
     And I log out
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
-    And I follow "Test peerwork name"
+    And I follow "Peer Assessment"
     And I press "Release all grades for all groups"
     And I log out
 
   @javascript
   Scenario: View the calculated grade.
-    Given I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     Then I should see "80" in the "My final grade" "table_row"
 
   @javascript
   Scenario: View the revised grade.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     And I give "student1" revised grade "70"
     And I press "Save changes"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     Then I should see "70" in the "My final grade" "table_row"
 
   @javascript
   Scenario: View the gradebook overridden grade.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
+    Given I am on the "Course 1" course page logged in as teacher1
     And I navigate to "View > Grader report" in the course gradebook
     And I turn editing mode on
     And I give the grade "60.00" to the user "Student 1" for the grade item "Test peerwork name"
@@ -102,13 +91,10 @@ Feature: Edit the grade of a submission
 
   @javascript
   Scenario: Cannot view the gradebook hidden grade.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
+    Given I am on the "Course 1" course page logged in as teacher1
     And I navigate to "Setup > Gradebook setup" in the course gradebook
     And I set the following settings for grade item "Test peerwork name":
       | Hidden | 1 |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     Then "My final grade" "table_row" should not exist

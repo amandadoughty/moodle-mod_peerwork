@@ -47,34 +47,24 @@ Feature: Peerwork justification
 
   @javascript
   Scenario: Teacher views grades when justification is disabled.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     Then "Justifications" "link" should not exist
 
   @javascript
   Scenario: Students do not give justification when set to 'Disabled'
-    Given I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     Then "Justifications" "link" should not exist
     And I log out
 
   @javascript
   Scenario: Students must give justification when set to 'Hidden from students'
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Require justification | Hidden from students |
     And I press "Save and display"
-    And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     Then "Justification" "link" should exist
     And I should see "Note: your comments will be hidden from your peers and only visible to teaching staff."
@@ -82,17 +72,12 @@ Feature: Peerwork justification
 
   @javascript
   Scenario: Students must give justification when set to 'Visible anonymous'
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Require justification | Visible anonymous |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     Then "Justification" "link" should exist
     And I should see "Note: your comments will be visible to your peers but anonymised, your username will not be shown next to comments you leave."
@@ -100,17 +85,12 @@ Feature: Peerwork justification
 
   @javascript
   Scenario: Students must give justification when set to 'Visible with usernames'
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Require justification | Visible with usernames |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     Then "Justification" "link" should exist
     And I should see "Note: your comments and your username will be visible to your peers."
@@ -118,18 +98,13 @@ Feature: Peerwork justification
 
   @javascript
   Scenario: Students cannot give justification longer than the setting 'Justification character limit'
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Require justification | Visible with usernames |
         | Justification character limit | 10 |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -145,10 +120,7 @@ Feature: Peerwork justification
 
   @javascript
   Scenario: Students must give justification for each criteria
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I expand all fieldsets
     And I press "Add 1 more criteria"
     And I set the following fields to these values:
@@ -158,9 +130,7 @@ Feature: Peerwork justification
         | Criteria 2 scoring type | Default competence scale |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     Then "Justification" "link" should not exist
     And "Justification" "field" should appear after "Competent" "radio"
@@ -168,19 +138,14 @@ Feature: Peerwork justification
 
   @javascript
   Scenario: Teacher views grades when justification is enabled and has been submitted.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I expand all fieldsets
     And I press "Add 1 more criteria"
     And I set the following fields to these values:
         | Require justification | Visible with usernames |
     And I press "Save and display"
     And I log out
-    Given I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -191,8 +156,6 @@ Feature: Peerwork justification
         | Student 3 | Exceeded |
     And I press "Save changes"
     And I log out
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     Then "Justifications" "link" should exist

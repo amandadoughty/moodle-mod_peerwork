@@ -43,9 +43,7 @@ Feature: Assignment submissions
 
   @javascript
   Scenario: Students must grade every peer
-    Given I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -55,17 +53,12 @@ Feature: Assignment submissions
 
   @javascript
   Scenario: Students must grade themselves when Allow students to self-grade along with peers is set to yes
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Allow students to self-grade along with peers | Yes |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     Then I should see "Student 1 (you)" in the "Grade your peers" "fieldset"
     And I give "student0" grade "0" for criteria "Criteria 1"
@@ -80,17 +73,12 @@ Feature: Assignment submissions
 
   @javascript @_file_upload
   Scenario: Students can upload and view files
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Maximum number of uploaded files | 2 |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     When I press "Add submission"
     And I upload "lib/tests/fixtures/empty.txt" file to "Assignment" filemanager
     And I give "student0" grade "0" for criteria "Criteria 1"
@@ -107,9 +95,7 @@ Feature: Assignment submissions
     And "empty.txt" "link" should exist
     And "upload_users.csv" "link" should exist
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     And I press "Add submission"
     And ".ffilemanager .fm-maxfiles .fp-btn-add" "css_element" should not be visible
     And I delete "empty.txt" from "Assignment" filemanager
@@ -125,10 +111,7 @@ Feature: Assignment submissions
 
   @javascript
   Scenario: Students cannot edit locked submissions - justification per peer
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I expand all fieldsets
     And I press "Add 1 more criteria"
     And I set the following fields to these values:
@@ -137,9 +120,7 @@ Feature: Assignment submissions
         | Lock editing | 1 |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -162,10 +143,7 @@ Feature: Assignment submissions
 
   @javascript
   Scenario: Students cannot edit locked submissions - justification per criteria
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I expand all fieldsets
     And I press "Add 1 more criteria"
     And I set the following fields to these values:
@@ -174,9 +152,7 @@ Feature: Assignment submissions
         | Lock editing | 1 |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"

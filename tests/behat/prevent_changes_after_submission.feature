@@ -43,9 +43,7 @@ Feature: Prevent some changes after a submission has been made
         | Criteria 1 description | Criteria 1 |
         | Criteria 1 scoring type | Default competence scale |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -55,10 +53,7 @@ Feature: Prevent some changes after a submission has been made
 
   @javascript
   Scenario: Edit the assessment settings
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I expand all fieldsets
     Then "Peer grades visibility" "field" should not be visible
     And "Require justification" "field" should not be visible

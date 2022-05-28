@@ -45,9 +45,7 @@ Feature: Lock and unlock submissions
         | Criteria 1 scoring type | Default competence scale |
         | Lock editing | 1 |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
@@ -55,9 +53,7 @@ Feature: Lock and unlock submissions
     And I click on "Save changes" "button"
     And I click on "Yes" "button"
     And I log out
-    And I log in as "student2"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student2
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student1" grade "1" for criteria "Criteria 1"
@@ -65,9 +61,7 @@ Feature: Lock and unlock submissions
     And I click on "Save changes" "button"
     And I click on "Yes" "button"
     And I log out
-    And I log in as "student3"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student3
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student1" grade "1" for criteria "Criteria 1"
@@ -78,18 +72,14 @@ Feature: Lock and unlock submissions
 
   @javascript
   Scenario: Teachers can unlock submissions
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     Then "unlock_submission_btn" "link" should exist in the "Peer submission and grades" "fieldset"
     And I follow "unlock_submission_btn"
     And I click on "Yes" "button" in the "Are you sure?" "dialogue"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Edit submission"
     Then the "Assignment" "field" should be enabled
     And "Criteria 1" "student0" rating should be disabled
@@ -99,17 +89,13 @@ Feature: Lock and unlock submissions
 
   @javascript
   Scenario: Teachers can unlock peer grades
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I expand all fieldsets
     And I click on "//a[@data-graderfullname='Student 1']" "xpath_element"
     And I click on "Yes" "button" in the "Are you sure?" "dialogue"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Edit submission"
     Then "Assignment" "field" should not be visible
     And "Criteria 1" "student0" rating should be enabled

@@ -42,18 +42,14 @@ Feature: Change the calculator setting
         | Criteria 1 scoring type | Default competence scale |
         | Peer assessment weighting | 0 |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
     And I give "student3" grade "1" for criteria "Criteria 1"
     And I press "Save changes"
     And I log out
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
@@ -62,19 +58,14 @@ Feature: Change the calculator setting
 
   @javascript
   Scenario: Teachers can change the calculator before grades are released
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I expand all fieldsets
     Then I can change the calculator before grades are released
 
   @javascript
   Scenario: Teachers must agree to regrade students if the calculator changes after grades are released
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I press "Release all grades for all groups"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     Then I can change the calculator after grades are released

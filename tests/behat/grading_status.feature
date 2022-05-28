@@ -48,10 +48,7 @@ Feature: View the grading status of a submission
   @javascript
   Scenario: View the grading status.
     # No submission made and submission is closed.
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Due date | ## -1 day ## |
     And I press "Save and display"
@@ -67,17 +64,12 @@ Feature: View the grading status of a submission
     And "Edit submission" "button" should not exist
     And I log out
     # No submission made and submission is open.
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    And I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Due date | ## 1 day 10 min ## |
     And I press "Save and display"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     Then I should see "1 day" in the "Time remaining" "table_row"
     And I should see "Nothing submitted yet." in the "Submission status" "table_row"
     And I should see "Editable because: Assessment open." in the "Submission status" "table_row"
@@ -96,10 +88,7 @@ Feature: View the grading status of a submission
     And "Add submission" "button" should not exist
     And "Edit submission" "button" should exist
     And I log out
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    And I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
         | Due date | ## -1 day ## |
     And I press "Save and display"
@@ -115,30 +104,21 @@ Feature: View the grading status of a submission
     And "Edit submission" "button" should not exist
     And I log out
     # Submission graded
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
     And I press "Save changes"
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     Then I should see "Graded by Teacher 1" in the "Submission status" "table_row"
     And I should see "Not editable because: Assessment already graded." in the "Submission status" "table_row"
     And "My final grade" "table_row" should not exist
     And I log out
     # Grades released
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I press "Release all grades for all groups"
-    And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     Then I should see "Grades released by Teacher 1" in the "Submission status" "table_row"
     And I should see "Not editable because: Assessment already graded." in the "Submission status" "table_row"
     And I should see "80" in the "My final grade" "table_row"

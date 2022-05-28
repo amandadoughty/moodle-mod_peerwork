@@ -48,18 +48,14 @@ Feature: Disable a calculator which has been used in peerwork
         | Criteria 1 scoring type | Default competence scale |
         | Peer assessment weighting | 0 |
     And I log out
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
     And I press "Add submission"
     And I give "student0" grade "0" for criteria "Criteria 1"
     And I give "student2" grade "1" for criteria "Criteria 1"
     And I give "student3" grade "1" for criteria "Criteria 1"
     And I press "Save changes"
     And I log out
-    And I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
+    And I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I follow "Group 1"
     And I set the following fields to these values:
         | Group grade out of 100 | 80 |
@@ -70,19 +66,14 @@ Feature: Disable a calculator which has been used in peerwork
 
   @javascript
   Scenario: Disabled calculator not updated before submisssions are graded
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Another test peerwork name"
-    And I navigate to "Edit settings" in current page administration
+    Given I am on the "Another test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I expand all fieldsets
     Then the disabled calculator is not updated before grading
 
   @javascript
   Scenario: Disabled calculator still used after submisssions are graded
-    Given I log in as "teacher1"
-    And I am on "Course 1" course homepage with editing mode on
-    And I follow "Test peerwork name"
+    Given I am on the "Test peerwork name" "peerwork activity" page logged in as teacher1
     And I press "Release all grades for all groups"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     Then the disabled calculator is not updated after grading
