@@ -3,42 +3,42 @@ Feature: Assignment submissions
 
   Background:
     Given the following "courses" exist:
-        | fullname | shortname | category | groupmode |
-        | Course 1 | C1 | 0 | 1 |
+      | fullname | shortname | category | groupmode |
+      | Course 1 | C1        | 0        | 1         |
     And the following "users" exist:
-        | username | firstname | lastname | email |
-        | teacher1 | Teacher | 1 | teacher1@example.com |
-        | student0 | Student | 0 | student0@example.com |
-        | student1 | Student | 1 | student1@example.com |
-        | student2 | Student | 2 | student2@example.com |
-        | student3 | Student | 3 | student3@example.com |
+      | username | firstname | lastname | email                |
+      | teacher1 | Teacher   | 1        | teacher1@example.com |
+      | student0 | Student   | 0        | student0@example.com |
+      | student1 | Student   | 1        | student1@example.com |
+      | student2 | Student   | 2        | student2@example.com |
+      | student3 | Student   | 3        | student3@example.com |
     And the following "course enrolments" exist:
-        | user | course | role |
-        | teacher1 | C1 | editingteacher |
-        | student0 | C1 | student |
-        | student1 | C1 | student |
-        | student2 | C1 | student |
-        | student3 | C1 | student |
+      | user     | course | role           |
+      | teacher1 | C1     | editingteacher |
+      | student0 | C1     | student        |
+      | student1 | C1     | student        |
+      | student2 | C1     | student        |
+      | student3 | C1     | student        |
     And the following "groups" exist:
-        | name | course | idnumber |
-        | Group 1 | C1 | G1 |
+      | name    | course | idnumber |
+      | Group 1 | C1     | G1       |
     And the following "group members" exist:
-        | user | group |
-        | student0 | G1 |
-        | student1 | G1 |
-        | student2 | G1 |
-        | student3 | G1 |
+      | user     | group |
+      | student0 | G1    |
+      | student1 | G1    |
+      | student2 | G1    |
+      | student3 | G1    |
     And the following config values are set as admin:
-        | calculator | webpa | peerwork |
+      | calculator | webpa | peerwork |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "Peer Assessment" to section "1" and I fill the form with:
-        | Peer assessment | Test peerwork name |
-        | Description | Test peerwork description |
-        | Peer grades visibility | Hidden from students |
-        | Require justification | Disabled |
-        | Criteria 1 description | Criteria 1 |
-        | Criteria 1 scoring type | Default competence scale |
+      | Peer assessment         | Test peerwork name        |
+      | Description             | Test peerwork description |
+      | Peer grades visibility  | Hidden from students      |
+      | Require justification   | Disabled                  |
+      | Criteria 1 description  | Criteria 1                |
+      | Criteria 1 scoring type | Default competence scale  |
     And I log out
 
   @javascript
@@ -55,7 +55,7 @@ Feature: Assignment submissions
   Scenario: Students must grade themselves when Allow students to self-grade along with peers is set to yes
     Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
-        | Allow students to self-grade along with peers | Yes |
+      | Allow students to self-grade along with peers | Yes |
     And I press "Save and display"
     And I log out
     And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
@@ -75,7 +75,7 @@ Feature: Assignment submissions
   Scenario: Students can upload and view files
     Given I am on the "Test peerwork name" "peerwork activity editing" page logged in as teacher1
     And I set the following fields to these values:
-        | Maximum number of uploaded files | 2 |
+      | Maximum number of uploaded files | 2 |
     And I press "Save and display"
     And I log out
     And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
@@ -115,9 +115,9 @@ Feature: Assignment submissions
     And I expand all fieldsets
     And I press "Add 1 more criteria"
     And I set the following fields to these values:
-        | Require justification | Visible with usernames |
-        | Justification type | Peer |
-        | Lock editing | 1 |
+      | Require justification | Visible with usernames |
+      | Justification type    | Peer                   |
+      | Lock editing          | 1                      |
     And I press "Save and display"
     And I log out
     And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
@@ -126,9 +126,9 @@ Feature: Assignment submissions
     And I give "student2" grade "1" for criteria "Criteria 1"
     And I give "student3" grade "1" for criteria "Criteria 1"
     And I set the following fields in the "Justification" "fieldset" to these values:
-        | Student 0 | Poor |
-        | Student 2 | Did well |
-        | Student 3 | Exceeded |
+      | Student 0 | Poor     |
+      | Student 2 | Did well |
+      | Student 3 | Exceeded |
     And I click on "Save changes" "button"
     And I click on "Yes" "button"
     And I press "Edit submission"
@@ -147,9 +147,9 @@ Feature: Assignment submissions
     And I expand all fieldsets
     And I press "Add 1 more criteria"
     And I set the following fields to these values:
-        | Require justification | Visible with usernames |
-        | Justification type | Criteria |
-        | Lock editing | 1 |
+      | Require justification | Visible with usernames |
+      | Justification type    | Criteria               |
+      | Lock editing          | 1                      |
     And I press "Save and display"
     And I log out
     And I am on the "Test peerwork name" "peerwork activity" page logged in as student1

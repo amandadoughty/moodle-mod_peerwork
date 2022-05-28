@@ -22,6 +22,8 @@
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace peerworkcalculator_webpa;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -32,16 +34,16 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
+class calculator_test extends \basic_testcase {
 
     /**
      * Test the WebPA result with no weighting or penalties.
      */
-    public function test_webpa_result_basic() {
+    public function test_webpa_result_basic(): void {
         $peerwork = new \stdClass();
         $peerwork->id = 1;
         $grades = $this->get_sample();
-        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $calculator = new calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
@@ -89,11 +91,11 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     /**
      * Test the WebPA result with weighting.
      */
-    public function test_webpa_result_with_weighting() {
+    public function test_webpa_result_with_weighting(): void {
         $peerwork = new \stdClass();
         $peerwork->id = 1;
         $grades = $this->get_sample();
-        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $calculator = new calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80, 0, .5, true);
 
         // This does not affect the scores.
@@ -115,11 +117,11 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     /**
      * Test the WebPA result with weighting and penalty.
      */
-    public function test_webpa_result_with_weighting_and_penalty() {
+    public function test_webpa_result_with_weighting_and_penalty(): void {
         $peerwork = new \stdClass();
         $peerwork->id = 1;
         $grades = $this->get_sample();
-        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $calculator = new calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80, .1, .5, true);
 
         // This does not affect the scores.
@@ -142,11 +144,11 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     /**
      * Test the WebPA result with weighting and penalty and selfgrade off.
      */
-    public function test_webpa_result_without_self_grade_a() {
+    public function test_webpa_result_without_self_grade_a(): void {
         $peerwork = new \stdClass();
         $peerwork->id = 1;
         $grades = $this->get_sample_a();
-        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $calculator = new calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80, .1, .5, false);
 
         // This does not affect the scores.
@@ -169,11 +171,11 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     /**
      * Test the webpa result when one student did not get grades.
      */
-    public function test_webpa_result_outlier_b() {
+    public function test_webpa_result_outlier_b(): void {
         $peerwork = new \stdClass();
         $peerwork->id = 1;
         $grades = $this->get_sample_b();
-        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $calculator = new calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
@@ -205,11 +207,11 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     /**
      * Test the webpa result when only one student gave grades.
      */
-    public function test_webpa_result_outlier_c() {
+    public function test_webpa_result_outlier_c(): void {
         $peerwork = new \stdClass();
         $peerwork->id = 1;
         $grades = $this->get_sample_c();
-        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $calculator = new calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
@@ -242,11 +244,11 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
     /**
      * Test the webpa result when one student did not give or get grades.
      */
-    public function test_webpa_result_outlier_d() {
+    public function test_webpa_result_outlier_d(): void {
         $peerwork = new \stdClass();
         $peerwork->id = 1;
         $grades = $this->get_sample_d();
-        $calculator = new peerworkcalculator_webpa\calculator($peerwork, 'webpa');
+        $calculator = new calculator($peerwork, 'webpa');
         $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
@@ -284,7 +286,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
      *
      * @return array
      */
-    protected function get_sample() {
+    protected function get_sample(): array {
         return [
             'alice' => [
                 'alice' => [2, 2],
@@ -324,7 +326,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
      *
      * @return array
      */
-    protected function get_sample_a() {
+    protected function get_sample_a(): array {
         return [
             'alice' => [
                 'bob' => [1, 3],
@@ -360,7 +362,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
      *
      * @return array
      */
-    protected function get_sample_b() {
+    protected function get_sample_b(): array {
         return [
             'alice' => [
                 'bob' => [1, 3],
@@ -396,7 +398,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
      *
      * @return array
      */
-    protected function get_sample_c() {
+    protected function get_sample_c(): array {
         return [
             'alice' => [
                 'alice' => [2, 2],
@@ -418,7 +420,7 @@ class peerworkcalculator_webpa_calculator_testcase extends basic_testcase {
      *
      * @return array
      */
-    protected function get_sample_d() {
+    protected function get_sample_d(): array {
         return [
             'alice' => [
                 'alice' => [2, 2],

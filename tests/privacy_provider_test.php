@@ -22,6 +22,7 @@
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_peerwork;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -41,18 +42,27 @@ use mod_peerwork\privacy\provider;
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
+class privacy_provider_test extends \advanced_testcase {
 
-    public function setUp(): void {
+    /**
+     * This method is called before each test.
+     */
+    protected function setUp(): void {
         $this->resetAfterTest(true);
     }
 
-    public function test_get_metadata() {
+    /**
+     * @return void
+     */
+    public function test_get_metadata(): void {
         $data = provider::get_metadata(new collection('mod_peerwork'));
         $this->assertCount(5, $data->get_collection());
     }
 
-    public function test_get_contexts_for_userid() {
+    /**
+     * @return void
+     */
+    public function test_get_contexts_for_userid(): void {
         $dg = $this->getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
@@ -71,9 +81,9 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $p1id = $p1->id;
         $p2id = $p2->id;
         $p3id = $p3->id;
-        $p1ctx = context_module::instance($p1->cmid);
-        $p2ctx = context_module::instance($p2->cmid);
-        $p3ctx = context_module::instance($p3->cmid);
+        $p1ctx = \context_module::instance($p1->cmid);
+        $p2ctx = \context_module::instance($p2->cmid);
+        $p3ctx = \context_module::instance($p3->cmid);
 
         // Validate all empty.
         $this->assertEmpty(provider::get_contexts_for_userid($u1->id)->get_contextids());
@@ -88,13 +98,13 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         // Validate that context is returned for submission related fields.
         $ctxu1 = provider::get_contexts_for_userid($u1->id)->get_contextids();
         $this->assertCount(1, $ctxu1);
-        $this->assertContains($p1ctx->id, $ctxu1);
+        $this->assertContains((string)$p1ctx->id, $ctxu1);
         $ctxu2 = provider::get_contexts_for_userid($u2->id)->get_contextids();
         $this->assertCount(1, $ctxu2);
-        $this->assertContains($p2ctx->id, $ctxu2);
+        $this->assertContains((string)$p2ctx->id, $ctxu2);
         $ctxu3 = provider::get_contexts_for_userid($u3->id)->get_contextids();
         $this->assertCount(1, $ctxu3);
-        $this->assertContains($p2ctx->id, $ctxu3);
+        $this->assertContains((string)$p2ctx->id, $ctxu3);
         $ctxu4 = provider::get_contexts_for_userid($u4->id)->get_contextids();
         $this->assertEmpty($ctxu4);
 
@@ -108,35 +118,35 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
 
         $ctxu1 = provider::get_contexts_for_userid($u1->id)->get_contextids();
         $this->assertCount(2, $ctxu1);
-        $this->assertContains($p1ctx->id, $ctxu1);
-        $this->assertContains($p3ctx->id, $ctxu1);
+        $this->assertContains((string)$p1ctx->id, $ctxu1);
+        $this->assertContains((string)$p3ctx->id, $ctxu1);
         $ctxu2 = provider::get_contexts_for_userid($u2->id)->get_contextids();
         $this->assertCount(1, $ctxu2);
-        $this->assertContains($p2ctx->id, $ctxu2);
+        $this->assertContains((string)$p2ctx->id, $ctxu2);
         $ctxu3 = provider::get_contexts_for_userid($u3->id)->get_contextids();
         $this->assertCount(1, $ctxu3);
-        $this->assertContains($p2ctx->id, $ctxu3);
+        $this->assertContains((string)$p2ctx->id, $ctxu3);
         $ctxu4 = provider::get_contexts_for_userid($u4->id)->get_contextids();
         $this->assertCount(1, $ctxu4);
-        $this->assertContains($p3ctx->id, $ctxu4);
+        $this->assertContains((string)$p3ctx->id, $ctxu4);
 
         // Validate that receiving a final grade is found.
         $pg->create_grade(['peerworkid' => $p1id, 'userid' => $u2->id, 'submissionid' => $p2s1->id]);
 
         $ctxu1 = provider::get_contexts_for_userid($u1->id)->get_contextids();
         $this->assertCount(2, $ctxu1);
-        $this->assertContains($p1ctx->id, $ctxu1);
-        $this->assertContains($p3ctx->id, $ctxu1);
+        $this->assertContains((string)$p1ctx->id, $ctxu1);
+        $this->assertContains((string)$p3ctx->id, $ctxu1);
         $ctxu2 = provider::get_contexts_for_userid($u2->id)->get_contextids();
         $this->assertCount(2, $ctxu2);
-        $this->assertContains($p1ctx->id, $ctxu2);
-        $this->assertContains($p2ctx->id, $ctxu2);
+        $this->assertContains((string)$p1ctx->id, $ctxu2);
+        $this->assertContains((string)$p2ctx->id, $ctxu2);
         $ctxu3 = provider::get_contexts_for_userid($u3->id)->get_contextids();
         $this->assertCount(1, $ctxu3);
-        $this->assertContains($p2ctx->id, $ctxu3);
+        $this->assertContains((string)$p2ctx->id, $ctxu3);
         $ctxu4 = provider::get_contexts_for_userid($u4->id)->get_contextids();
         $this->assertCount(1, $ctxu4);
-        $this->assertContains($p3ctx->id, $ctxu4);
+        $this->assertContains((string)$p3ctx->id, $ctxu4);
     }
 
     public function test_get_users_in_context() {
@@ -159,9 +169,9 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $p1id = $p1->id;
         $p2id = $p2->id;
         $p3id = $p3->id;
-        $p1ctx = context_module::instance($p1->cmid);
-        $p2ctx = context_module::instance($p2->cmid);
-        $p3ctx = context_module::instance($p3->cmid);
+        $p1ctx = \context_module::instance($p1->cmid);
+        $p2ctx = \context_module::instance($p2->cmid);
+        $p3ctx = \context_module::instance($p3->cmid);
 
         // Validate all empty.
         $userlist = new userlist($p1ctx, 'mod_peerwork');
@@ -182,12 +192,13 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $userlist = new userlist($p1ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(1, $userlist->get_userids());
-        $this->assertContains($u1->id, $userlist->get_userids());
+        $a = $userlist->get_userids();
+        $this->assertContains((int)$u1->id, $userlist->get_userids());
         $userlist = new userlist($p2ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(2, $userlist->get_userids());
-        $this->assertContains($u2->id, $userlist->get_userids());
-        $this->assertContains($u3->id, $userlist->get_userids());
+        $this->assertContains((int)$u2->id, $userlist->get_userids());
+        $this->assertContains((int)$u3->id, $userlist->get_userids());
         $userlist = new userlist($p3ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(0, $userlist->get_userids());
@@ -203,19 +214,19 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $userlist = new userlist($p1ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(1, $userlist->get_userids());
-        $this->assertContains($u1->id, $userlist->get_userids());
+        $this->assertContains((int)$u1->id, $userlist->get_userids());
         $userlist = new userlist($p2ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(2, $userlist->get_userids());
-        $this->assertContains($u2->id, $userlist->get_userids());
-        $this->assertContains($u3->id, $userlist->get_userids());
+        $this->assertContains((int)$u2->id, $userlist->get_userids());
+        $this->assertContains((int)$u3->id, $userlist->get_userids());
         $userlist = new userlist($p3ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(4, $userlist->get_userids());
-        $this->assertContains($u1->id, $userlist->get_userids());
-        $this->assertContains($u2->id, $userlist->get_userids());
-        $this->assertContains($u3->id, $userlist->get_userids());
-        $this->assertContains($u4->id, $userlist->get_userids());
+        $this->assertContains((int)$u1->id, $userlist->get_userids());
+        $this->assertContains((int)$u2->id, $userlist->get_userids());
+        $this->assertContains((int)$u3->id, $userlist->get_userids());
+        $this->assertContains((int)$u4->id, $userlist->get_userids());
 
         // Validate that receiving a final grade is found.
         $pg->create_grade(['peerworkid' => $p2id, 'userid' => $u1->id, 'submissionid' => $p2s1->id]);
@@ -223,23 +234,26 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $userlist = new userlist($p1ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(1, $userlist->get_userids());
-        $this->assertContains($u1->id, $userlist->get_userids());
+        $this->assertContains((int)$u1->id, $userlist->get_userids());
         $userlist = new userlist($p2ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(3, $userlist->get_userids());
-        $this->assertContains($u1->id, $userlist->get_userids());
-        $this->assertContains($u2->id, $userlist->get_userids());
-        $this->assertContains($u3->id, $userlist->get_userids());
+        $this->assertContains((int)$u1->id, $userlist->get_userids());
+        $this->assertContains((int)$u2->id, $userlist->get_userids());
+        $this->assertContains((int)$u3->id, $userlist->get_userids());
         $userlist = new userlist($p3ctx, 'mod_peerwork');
         provider::get_users_in_context($userlist);
         $this->assertCount(4, $userlist->get_userids());
-        $this->assertContains($u1->id, $userlist->get_userids());
-        $this->assertContains($u2->id, $userlist->get_userids());
-        $this->assertContains($u3->id, $userlist->get_userids());
-        $this->assertContains($u4->id, $userlist->get_userids());
+        $this->assertContains((int)$u1->id, $userlist->get_userids());
+        $this->assertContains((int)$u2->id, $userlist->get_userids());
+        $this->assertContains((int)$u3->id, $userlist->get_userids());
+        $this->assertContains((int)$u4->id, $userlist->get_userids());
     }
 
-    public function test_delete_data_for_all_users_in_context() {
+    /**
+     * @return void
+     */
+    public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
         $dg = $this->getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
@@ -308,7 +322,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
             $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
         }
 
-        provider::delete_data_for_all_users_in_context(context_module::instance($p1->cmid));
+        provider::delete_data_for_all_users_in_context(\context_module::instance($p1->cmid));
 
         // Confirm deletion.
         $p = $p1;
@@ -355,7 +369,10 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
     }
 
-    public function test_delete_data_for_user() {
+    /**
+     * @return void
+     */
+    public function test_delete_data_for_user(): void {
         global $DB;
         $dg = $this->getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
@@ -425,7 +442,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         }
 
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [
-            context_module::instance($p1->cmid)->id
+            \context_module::instance($p1->cmid)->id
         ]);
         provider::delete_data_for_user($contextlist);
 
@@ -472,7 +489,10 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
     }
 
-    public function test_delete_data_for_users() {
+    /**
+     * @return void
+     */
+    public function test_delete_data_for_users(): void {
         global $DB;
         $dg = $this->getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
@@ -545,7 +565,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
             $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
         }
 
-        $contextlist = new approved_userlist(context_module::instance($p1->cmid), 'mod_peerwork', [$u1->id, $u2->id]);
+        $contextlist = new approved_userlist(\context_module::instance($p1->cmid), 'mod_peerwork', [$u1->id, $u2->id]);
         provider::delete_data_for_users($contextlist);
 
         // Confirm deletion, and not deletion.
@@ -589,7 +609,10 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
     }
 
-    public function test_export_data_for_user() {
+    /**
+     * @return void
+     */
+    public function test_export_data_for_user(): void {
         global $DB;
         $dg = $this->getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
@@ -647,7 +670,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u2->id, 'submissionid' => $sub->id, 'grade' => 12.30]);
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u3->id, 'submissionid' => $sub2->id, 'grade' => 13.37]);
 
-        $ctx = context_module::instance($p1->cmid);
+        $ctx = \context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
@@ -675,9 +698,9 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $this->assertEquals(transform::datetime($sub->timegraded), $submission->graded_on);
         $this->assertEquals(transform::datetime($sub->released), $submission->released_on);
 
-        $sc1 = grade_scale::fetch(['id' => $scale1->id]);
+        $sc1 = \grade_scale::fetch(['id' => $scale1->id]);
         $sc1->load_items();
-        $sc2 = grade_scale::fetch(['id' => $scale2->id]);
+        $sc2 = \grade_scale::fetch(['id' => $scale2->id]);
         $sc2->load_items();
 
         // The order matters.
@@ -736,7 +759,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
         $p1->justification = MOD_PEERWORK_JUSTIFICATION_HIDDEN;
         $DB->update_record('peerwork', $p1);
 
-        $ctx = context_module::instance($p1->cmid);
+        $ctx = \context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
@@ -754,7 +777,7 @@ class mod_peerwork_privacy_provider_testcase extends advanced_testcase {
 
         // Now test again with the teacher.
         writer::reset();
-        $ctx = context_module::instance($p1->cmid);
+        $ctx = \context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u9, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
