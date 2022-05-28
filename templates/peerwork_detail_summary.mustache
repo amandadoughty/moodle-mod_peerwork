@@ -52,7 +52,7 @@
                             }
                         ]
                     }
-                ]                 
+                ]
             }
         ]
     }
@@ -70,12 +70,12 @@
     </tr>
     </thead>
     <tbody>
-        {{# peergradedby }}        
+        {{# peergradedby }}
         <tr>
             <td>{{{ name }}}</td>
-            {{# gradefor }} 
-            <td>{{{ grade }}}</td> 
-            {{/ gradefor }}           
+            {{# gradefor }}
+            <td>{{{ grade }}}</td>
+            {{/ gradefor }}
         </tr>
         {{/ peergradedby }}
     </tbody>
@@ -90,9 +90,9 @@
     </a>
     <div class="dropdown-menu mt-0" aria-labelledby="drop-down-{{ uniqid }}">
         {{# memberdropdown }}
-        <a 
-            class="dropdown-item" 
-            href="/mod/peerwork/override.php?id={{{ id }}}&pid={{{ peerworkid }}}&gid={{{ groupid }}}&uid={{{ gradedby }}}" 
+        <a
+            class="dropdown-item"
+            href="{{{ href }}}"
             title="{{{ name }}}"
         >
             {{{ name }}}

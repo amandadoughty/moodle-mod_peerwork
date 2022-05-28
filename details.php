@@ -33,7 +33,7 @@ $groupid = required_param('groupid', PARAM_INT);
 
 $cm             = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
 $course         = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
+$peerwork       = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
 $submission     = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $groupid));
 $members        = groups_get_members($groupid);
 $group          = $DB->get_record('groups', array('id' => $groupid), '*', MUST_EXIST);
