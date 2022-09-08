@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->libdir . '/csvlib.class.php');
@@ -79,6 +79,7 @@ $headers = [
 ];
 
 $filename = clean_filename($peerwork->name . '-' . $id . '_' . ($groupid ? $groupid : 'all'));
+$filename = preg_replace('/[^a-z0-9-]/', '_', core_text::strtolower(strip_tags($filename)));
 $csvexport = new csv_export_writer();
 $csvexport->set_filename($filename);
 $csvexport->add_data($headers);

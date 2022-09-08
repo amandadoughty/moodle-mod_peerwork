@@ -22,9 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
-require_once("$CFG->libdir/filestorage/zip_archive.php");
+require_once($CFG->libdir . '/filestorage/zip_archive.php');
 
 $id = required_param('id', PARAM_INT);
 list($course, $cm) = get_course_and_cm_from_cmid($id, 'peerwork');
