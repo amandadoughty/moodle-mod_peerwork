@@ -134,7 +134,6 @@ class peerwork_detail_summary implements templatable, renderable {
 
             foreach ($members as $member) {
                 $gradedby = [];
-                $gradefor = [];
                 $gradefor = ['name' => fullname($member)];
                 $label = fullname($member);
 
