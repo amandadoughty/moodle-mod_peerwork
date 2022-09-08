@@ -35,6 +35,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
+require_once($CFG->libdir . '/completionlib.php');
 require_once($CFG->libdir . '/gradelib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or ...
@@ -72,6 +73,7 @@ $PAGE->set_url('/mod/peerwork/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($peerwork->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
+$PAGE->add_body_class('limitedwidth');
 
 $event = \mod_peerwork\event\course_module_viewed::create($params);
 $event->add_record_snapshot('course', $course);
@@ -83,20 +85,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     // Output starts here.
     echo $OUTPUT->header();
-
-    // Show mod details.
-    echo $OUTPUT->heading(format_string($peerwork->name));
-    echo $OUTPUT->box(format_string($peerwork->intro));
-
-    $duedate = peerwork_due_date($peerwork);
-    if ($duedate != PEERWORK_DUEDATE_NOT_USED) {
-        echo $OUTPUT->box(get_string('duedateat', 'mod_peerwork', userdate($peerwork->duedate)));
-        if ($duedate == PEERWORK_DUEDATE_PASSED) {
-            echo $OUTPUT->box(get_string('assessmentclosedfor', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
-        } else {
-            echo $OUTPUT->box(get_string('timeremainingcolon', 'mod_peerwork', format_time(time() - $peerwork->duedate)));
-        }
-    }
 
     $allgroups = groups_get_all_groups($course->id, 0, $groupingid);
     $anynongraded = false;
