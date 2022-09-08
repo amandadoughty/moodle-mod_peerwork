@@ -182,38 +182,6 @@ function peerwork_delete_instance($id) {
 }
 
 /**
- * Obtains the completion state.
- *
- * @param stdClass $course The course.
- * @param stdClass $cm The course module.
- * @param int $userid The user ID.
- * @param bool $type The type of comparison (COMPLETION_AND or _OR), or the default return value.
- */
-function peerwork_get_completion_state($course, $cm, $userid, $type) {
-    global $DB;
-    $result = $type;
-
-    $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
-
-    // Check whether the user has graded all their peers.
-    if ($peerwork->completiongradedpeers) {
-        $groupid = peerwork_get_mygroup($course->id, $userid, $peerwork->pwgroupingid, false);
-
-        // The user does not have the expected group.
-        if (!$groupid) {
-            return $result;
-        }
-
-        $peers = peerwork_get_peers($course, $peerwork, $peerwork->pwgroupingid, $groupid, $userid);
-        $gradedcount = $DB->count_records_select('peerwork_peers', 'peerwork = ?', [$peerwork->id], 'COUNT(DISTINCT gradefor)');
-        $hasgradedpeers = count($peers) <= $gradedcount;
-        $result = $type == COMPLETION_AND ? $result && $hasgradedpeers : $result || $hasgradedpeers;
-    }
-
-    return $result;
-}
-
-/**
  * Returns a small object with summary information about what a user has done.
  *
  * $return->time = the time they did it
@@ -242,21 +210,6 @@ function peerwork_user_outline($course, $user, $mod, $peerwork) {
  * @return void, is supposed to echo directly.
  */
 function peerwork_user_complete($course, $user, $mod, $peerwork) {
-}
-
-/**
- * Given a course and a time, this module should find recent activity
- * that has occurred in peerwork activities and print it out.
- * Return true if there was output, or false is there was none.
- *
- * @param stdClass $course The course.
- * @param bool $viewfullnames Whether to view full names.
- * @param int $timestart Time start.
- * @return boolean
- */
-function peerwork_print_recent_activity($course, $viewfullnames, $timestart) {
-    // True if anything was printed, otherwise false.
-    return false;
 }
 
 /**
@@ -580,4 +533,76 @@ function mod_peerwork_inplace_editable($rawitemtype, $itemid, $newvalue) {
     }
 
     return new core\output\inplace_editable('mod_peerwork', $rawitemtype, $itemid, true, $displayvalue, $value);
+}
+
+/**
+ * Callback which returns human-readable strings describing the active completion custom rules for the module instance.
+ *
+ * @param cm_info|stdClass $cm object with fields ->completion and ->customdata['customcompletionrules']
+ * @return array $descriptions the array of descriptions for the custom rules.
+ */
+function mod_peerwork_get_completion_active_rule_descriptions($cm) {
+    // Values will be present in cm_info, and we assume these are up to date.
+    if (empty($cm->customdata['customcompletionrules'])
+        || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+        return [];
+    }
+
+    $descriptions = [];
+    foreach ($cm->customdata['customcompletionrules'] as $key => $val) {
+        switch ($key) {
+            case 'completiongradedpeers':
+                if (!empty($val)) {
+                    $descriptions[] = get_string('completiongradedpeers', 'peerwork');
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return $descriptions;
+}
+
+/**
+ * Add a get_coursemodule_info function in case any peerwork type wants to add 'extra' information
+ * for the course (see resource).
+ *
+ * Given a course_module object, this function returns any "extra" information that may be needed
+ * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
+ *
+ * @param stdClass $coursemodule The coursemodule object (record).
+ * @return cached_cm_info An object on information that the courses
+ *                        will know about (most noticeably, an icon).
+ */
+function peerwork_get_coursemodule_info($coursemodule) {
+    global $DB;
+
+    $dbparams = array('id'=>$coursemodule->instance);
+    $fields = 'id, name, intro, introformat, completiongradedpeers,
+        duedate, fromdate';
+    if (! $peerwork = $DB->get_record('peerwork', $dbparams, $fields)) {
+        return false;
+    }
+
+    $result = new cached_cm_info();
+    $result->name = $peerwork->name;
+    if ($coursemodule->showdescription) {
+        // Convert intro to html. Do not filter cached version, filters run at display time.
+        $result->content = format_module_intro('peerwork', $peerwork, $coursemodule->id, false);
+    }
+
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $result->customdata['customcompletionrules']['completiongradedpeers'] = $peerwork->completiongradedpeers;
+    }
+
+    // Populate some other values that can be used in calendar or on dashboard.
+    if ($peerwork->duedate) {
+        $result->customdata['duedate'] = $peerwork->duedate;
+    }
+    if ($peerwork->fromdate) {
+        $result->customdata['fromdate'] = $peerwork->fromdate;
+    }
+
+    return $result;
 }

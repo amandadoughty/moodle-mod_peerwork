@@ -79,6 +79,10 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // Adding the standard "intro" and "introformat" fields.
         $this->standard_intro_elements();
 
+        // Grade settings.
+        $this->standard_grading_coursemodule_elements();
+        $mform->removeElement('grade');
+
         // Adding the rest of peerwork settings, spreading all them into this fieldset,
         // or adding more fieldsets ('header' elements) if needed for better logic.
         $mform->addElement('header', 'peerworkfieldset', get_string('peerworkfieldset', 'peerwork'));
