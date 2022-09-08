@@ -24,6 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['activitydate:closed'] = 'Closed: ';
+$string['activitydate:closes'] = 'Due: ';
+$string['activitydate:opened'] = 'Opened: ';
+$string['activitydate:opens'] = 'Opens: ';
 $string['addmorecriteria'] = 'Add {no} more criteria';
 $string['addmorecriteriastep'] = 'Add more criteria increments';
 $string['addmorecriteriastep_help'] = 'The number of assessment criteria to append to the form when an educator clicks the button to add more criteria.';
@@ -55,7 +59,7 @@ $string['critscale_help'] = 'The scale by which the criteria are to be graded.';
 $string['comment'] = 'Comment: ';
 $string['comments'] = 'Comments';
 $string['comments_help'] = 'Required comment giving reason for override. This will not be visible to students. It will be recorded in the logs.';
-$string['completiongradedpeers'] = 'Require peers graded';
+$string['completiongradedpeers'] = 'Grade peers in group';
 $string['completiongradedpeers_desc'] = 'Students must grade all their peers';
 $string['completiongradedpeers_help'] = 'When enabled, a student must grade all their peers for this requirement to be met.';
 $string['confimrclearsubmission'] = 'Are you sure that you would like to clear the submission of this group? This will remove the information provided by all students.';
