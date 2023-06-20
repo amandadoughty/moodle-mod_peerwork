@@ -90,7 +90,7 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
      * @param int $noncompletionpenalty The penalty to be applied.
      * @param int $paweighting The weighting to be applied.
      * @param bool $selfgrade If self grading is enabled.
-     * @return mod_peerwork\pa_result.
+     * @return \mod_peerwork\pa_result.
      */
     public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
         $memberids = array_keys($grades);

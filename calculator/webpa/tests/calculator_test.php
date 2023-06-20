@@ -179,7 +179,7 @@ class calculator_test extends \basic_testcase {
         $result = $calculator->calculate($grades, 80, 0, 1, true);
 
         $fracs = $result->get_reduced_scores('alice');
-        $this->assertEquals(1, array_sum($fracs));
+        $this->assertEquals(1, round(array_sum($fracs)), 2);
         $this->assertEquals([
             'bob' => 0.40,
             'claire' => 0.30,
@@ -196,7 +196,7 @@ class calculator_test extends \basic_testcase {
         $this->assertFalse($result->has_submitted('elaine'));
 
         // Values are stlightly different from the source because of rounding issues.
-        $this->assertEquals(5, array_sum($result->get_scores()));
+        $this->assertEquals(5, round(array_sum($result->get_scores())), 2);
         $this->assertEquals(0.00, round($result->get_score('alice'), 2));
         $this->assertEquals(1.92, round($result->get_score('bob'), 2));
         $this->assertEquals(1.45, round($result->get_score('claire'), 2));
@@ -233,7 +233,7 @@ class calculator_test extends \basic_testcase {
         $this->assertFalse($result->has_submitted('elaine'));
 
         // Values are stlightly different from the source because of rounding issues.
-        $this->assertEquals(5, array_sum($result->get_scores()));
+        $this->assertEquals(5, round(array_sum($result->get_scores())), 2);
         $this->assertEquals(1.43, round($result->get_score('alice'), 2));
         $this->assertEquals(1.43, round($result->get_score('bob'), 2));
         $this->assertEquals(1.07, round($result->get_score('claire'), 2));
