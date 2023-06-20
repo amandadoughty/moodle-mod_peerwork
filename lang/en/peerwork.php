@@ -332,12 +332,14 @@ $string['peerwork:view'] = 'View peer assessment content';
 
 $string['assessmentcriteria:header'] = 'Assessment criteria settings';
 $string['assessmentcriteria:description'] = 'Criteria {no} description';
+$string['assessmentcriteria:description:help'] = 'criteria description';
 $string['assessmentcriteria:scoretype'] = 'Criteria {no} scoring type';
+$string['assessmentcriteria:scoretype:help'] = 'criteria scoring type';
 $string['assessmentcriteria:weight'] = 'Weight';
 $string['assessmentcriteria:modgradetypescale'] = "Likert";
 
-$string['assessmentcriteria:description_help'] = 'Use this to concisely describe the purpose of this criteria';
-$string['assessmentcriteria:scoretype_help'] = 'Choose the scale by which this criteria is to be graded';
+$string['assessmentcriteria:description:help_help'] = 'Use this to concisely describe the purpose of this criteria';
+$string['assessmentcriteria:scoretype:help_help'] = 'Choose the scale by which this criteria is to be graded';
 $string['assessmentcriteria:weight_help'] = 'TODO not yet used';
 $string['assessmentcriteria:nocriteria'] = 'No Criteria have been set for this assignment.';
 
@@ -368,5 +370,3 @@ $string['eventsubmission_exported'] = 'peerwork export';
 $string['eventsubmissions_exported'] = 'peerwork export all';
 
 $string['multiplegroups'] = 'The following people belong to more than one group: {$a}. Their grades have not been updated.';
-
-
