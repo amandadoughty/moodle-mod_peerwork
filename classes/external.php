@@ -28,9 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 
 use context_module;
-use external_api;
-use external_function_parameters;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
 
 /**
  * External.
@@ -80,7 +80,7 @@ class external extends external_api {
     /**
      * External function returns.
      *
-     * @return external_function_parameters
+     * @return external_value
      */
     public static function unlock_grader_returns() {
         return new external_value(PARAM_BOOL);
@@ -123,7 +123,7 @@ class external extends external_api {
     /**
      * External function returns.
      *
-     * @return external_function_parameters
+     * @return external_value
      */
     public static function unlock_submission_returns() {
         return new external_value(PARAM_BOOL);

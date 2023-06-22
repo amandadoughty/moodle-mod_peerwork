@@ -300,13 +300,12 @@ class behat_mod_peerwork extends behat_base {
         try {
             $sql = "SELECT id
                     FROM {peerwork_criteria}
-                    WHERE " . $DB->sql_compare_text('description') . " = " . $DB->sql_compare_text(':description');
-            $record = $DB->get_records_sql($sql, ['description' => $description]);
+                    WHERE " . $DB->sql_compare_text('description') . " LIKE " . $DB->sql_compare_text(':description');
+            $record = $DB->get_records_sql($sql, ['description' => "%$description%"]);
 
-            // Function array_key_first() for PHP > 7.3.
-            return current(array_keys($record));
+            return array_key_first($record);
         } catch (dml_missing_record_exception $ex) {
-            throw new Exception(sprintf("There is no criteria in the database with the description '%s'", $name));
+            throw new Exception(sprintf("There is no criteria in the database with the description '%s'", $description));
         }
     }
 
