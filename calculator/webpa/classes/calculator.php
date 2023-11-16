@@ -113,6 +113,9 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
 
                     $totalscores[$graderid][$memberid] = $sum;
                 }
+                else {
+                    $totalscores[$graderid][$memberid] = 0; // zero must be inserted if a grade is not set
+                }
             }
         }
 
