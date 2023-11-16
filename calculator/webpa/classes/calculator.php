@@ -120,6 +120,11 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
         foreach ($memberids as $memberid) {
             $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);
+            if($total == 0) { // in the event of a total non-submission...
+                foreach($gradesgiven as $grade) {
+                    $gradesgiven[$grade] += 1; // ...replace all grades given (all zeros) with ones
+                }
+            }
 
             $fracscores[$memberid] = array_reduce(array_keys($gradesgiven), function($carry, $peerid) use ($total, $gradesgiven) {
                 $grade = $gradesgiven[$peerid];
@@ -145,7 +150,7 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
 
         // Apply the fudge factor to all scores received.
         $nummembers = count($memberids);
-        $fudgefactor = $numsubmitted > 0 ? $nummembers / $numsubmitted : 1;
+        $fudgefactor = 1; //$numsubmitted > 0 ? $nummembers / $numsubmitted : 1; // "fudge factor" unfairly favors non-submitters - set it to one since non-submissions have been replaced with straight ones above
         $webpascores = array_map(function($grade) use ($fudgefactor) {
             return $grade * $fudgefactor;
         }, $webpascores);
