@@ -101,10 +101,6 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
         // Calculate the total scores.
         foreach ($memberids as $memberid) {
             foreach ($grades as $graderid => $gradesgiven) {
-                if (!isset($totalscores[$graderid])) {
-                    $totalscores[$graderid] = [];
-                }
-
                 if (isset($gradesgiven[$memberid])) {
                     $sum = array_reduce($gradesgiven[$memberid], function($carry, $item) {
                         $carry += $item;
@@ -124,9 +120,10 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
             $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);
             if($total == 0) { // in the event of a total non-submission...
-                foreach($gradesgiven as $grade) {
-                    $gradesgiven[$grade] += 1; // ...replace all grades given (all zeros) with ones
+                foreach($gradesgiven as $key => $grade) {
+                    $gradesgiven[$key] = 1; // ...replace all grades given (all zeros) with ones
                 }
+                $total = array_sum($gradesgiven);
             }
 
             $fracscores[$memberid] = array_reduce(array_keys($gradesgiven), function($carry, $peerid) use ($total, $gradesgiven) {
