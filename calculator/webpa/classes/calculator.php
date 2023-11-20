@@ -101,10 +101,6 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
         // Calculate the total scores.
         foreach ($memberids as $memberid) {
             foreach ($grades as $graderid => $gradesgiven) {
-                if (!isset($totalscores[$graderid])) {
-                    $totalscores[$graderid] = [];
-                }
-
                 if (isset($gradesgiven[$memberid])) {
                     $sum = array_reduce($gradesgiven[$memberid], function($carry, $item) {
                         $carry += $item;
@@ -113,6 +109,9 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
 
                     $totalscores[$graderid][$memberid] = $sum;
                 }
+                else {
+                    $totalscores[$graderid][$memberid] = 0; // zero must be inserted if a grade is not set
+                }
             }
         }
 
@@ -120,6 +119,14 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
         foreach ($memberids as $memberid) {
             $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);
+            if($total == 0) { // in the event of a non-submission...
+                foreach($gradesgiven as $key => $grade) {
+                    if($memberid != $key || $selfgrade)
+                        $gradesgiven[$key] = 1; // ...replace relevant grades given (all zeros) with ones
+                    }
+                }
+                $total = array_sum($gradesgiven);
+            }
 
             $fracscores[$memberid] = array_reduce(array_keys($gradesgiven), function($carry, $peerid) use ($total, $gradesgiven) {
                 $grade = $gradesgiven[$peerid];
@@ -145,7 +152,7 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
 
         // Apply the fudge factor to all scores received.
         $nummembers = count($memberids);
-        $fudgefactor = $numsubmitted > 0 ? $nummembers / $numsubmitted : 1;
+        $fudgefactor = 1; //$numsubmitted > 0 ? $nummembers / $numsubmitted : 1; // "fudge factor" unfairly favors non-submitters - set it to one since non-submissions have been replaced with straight ones above
         $webpascores = array_map(function($grade) use ($fudgefactor) {
             return $grade * $fudgefactor;
         }, $webpascores);
