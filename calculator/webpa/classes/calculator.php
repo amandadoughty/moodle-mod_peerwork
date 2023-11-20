@@ -119,9 +119,11 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
         foreach ($memberids as $memberid) {
             $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);
-            if($total == 0) { // in the event of a total non-submission...
+            if($total == 0) { // in the event of a non-submission...
                 foreach($gradesgiven as $key => $grade) {
-                    $gradesgiven[$key] = 1; // ...replace all grades given (all zeros) with ones
+                    if($memberid != $key || $selfgrade)
+                        $gradesgiven[$key] = 1; // ...replace relevant grades given (all zeros) with ones
+                    }
                 }
                 $total = array_sum($gradesgiven);
             }
