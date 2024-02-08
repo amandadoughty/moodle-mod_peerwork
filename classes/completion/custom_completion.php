@@ -41,7 +41,8 @@ class custom_completion extends activity_custom_completion {
      * @return bool True if the user has graded their peers.
      */
     protected function check_graded_peers(): bool {
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 
         $peerwork = $DB->get_record('peerwork', ['id' => $this->cm->instance], '*', MUST_EXIST);
 
