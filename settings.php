@@ -127,7 +127,7 @@ if ($ADMIN->fulltree) {
         'peerwork/calculator',
         get_string('calculator', 'mod_peerwork'),
         get_string('calculator_help', 'mod_peerwork'),
-        0,
+        'webpa',
         $calcoptions
     ));
 
