@@ -296,7 +296,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $completionelement = $this->get_suffixed_name('completiongradedpeers');
         $mform->addElement('checkbox', $completionelement, get_string('completiongradedpeers', 'mod_peerwork'),
             get_string('completiongradedpeers_desc', 'mod_peerwork'));
-        $mform->addHelpButton('completiongradedpeers', 'completiongradedpeers', 'mod_peerwork');
+        $mform->addHelpButton($completionelement, 'completiongradedpeers', 'mod_peerwork');
 
         return [$completionelement];
     }
