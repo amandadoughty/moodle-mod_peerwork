@@ -293,11 +293,12 @@ class mod_peerwork_mod_form extends moodleform_mod {
     public function add_completion_rules() {
         $mform =& $this->_form;
 
-        $mform->addElement('checkbox', 'completiongradedpeers', get_string('completiongradedpeers', 'mod_peerwork'),
+        $completionelement = $this->get_suffixed_name('completiongradedpeers');
+        $mform->addElement('checkbox', $completionelement, get_string('completiongradedpeers', 'mod_peerwork'),
             get_string('completiongradedpeers_desc', 'mod_peerwork'));
         $mform->addHelpButton('completiongradedpeers', 'completiongradedpeers', 'mod_peerwork');
 
-        return ['completiongradedpeers'];
+        return [$completionelement];
     }
 
     /**
@@ -307,7 +308,18 @@ class mod_peerwork_mod_form extends moodleform_mod {
      * @return bool
      */
     public function completion_rule_enabled($data) {
-        return !empty($data['completiongradedpeers']);
+        return !empty($data[$this->get_suffixed_name('completiongradedpeers')]);
+    }
+
+    /**
+     * Supports the suffixed fieldnames for editdefaultcompletion.
+     *
+     * @see https://moodledev.io/docs/4.3/devupdate#append-a-suffix-to-the-completion-rules
+     * @param string $fieldname
+     * @return string
+     */
+    protected function get_suffixed_name(string $fieldname): string {
+        return $fieldname . $this->get_suffix();
     }
 
     /**
