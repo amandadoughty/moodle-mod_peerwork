@@ -319,7 +319,14 @@ class mod_peerwork_mod_form extends moodleform_mod {
      * @return string
      */
     protected function get_suffixed_name(string $fieldname): string {
-        return $fieldname . $this->get_suffix();
+        global $CFG;
+
+        // Changes for Moodle 4.3 - MDL-78516.
+        if ($CFG->branch < 403) {
+            return $fieldname;
+        } else {
+            return $fieldname . $this->get_suffix();
+        }
     }
 
     /**
