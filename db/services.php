@@ -27,15 +27,15 @@ defined('MOODLE_INTERNAL') || die();
 
 $functions = [
     'mod_peerwork_unlock_grader' => [
-        'classname' => 'mod_peerwork\external',
-        'methodname' => 'unlock_grader',
+        'classname' => mod_peerwork\external\unlock_graders::class,
+        'methodname' => 'execute',
         'description' => 'Unlock a student\'s editing status.',
         'type' => 'write',
         'ajax' => true,
     ],
     'mod_peerwork_unlock_submission' => [
-        'classname' => 'mod_peerwork\external',
-        'methodname' => 'unlock_submission',
+        'classname' => mod_peerwork\external\unlock_submission::class,
+        'methodname' => 'execute',
         'description' => 'Unlock a submission allowing students to change it.',
         'type' => 'write',
         'ajax' => true,
