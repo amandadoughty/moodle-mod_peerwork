@@ -38,6 +38,11 @@ require_once('locallib.php');
  * @return mixed true if the feature is supported, null if unknown
  */
 function peerwork_supports($feature) {
+    // Adding support for FEATURE_MOD_PURPOSE (MDL-71457) and providing backward compatibility (pre-v4.0).
+    // Credit to mod-zoom plugin.
+    if (defined('FEATURE_MOD_PURPOSE') && $feature === FEATURE_MOD_PURPOSE) {
+        return MOD_PURPOSE_ASSESSMENT;
+    } 
     switch ($feature) {
         case FEATURE_GROUPS:
             return true;
