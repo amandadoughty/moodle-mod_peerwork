@@ -35,13 +35,13 @@ Feature: Disable a calculator which has been used in peerwork
       | calculator | webpa | peerwork |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment           | Test peerwork name        |
       | Description               | Test peerwork description |
       | Criteria 1 description    | Criteria 1                |
       | Criteria 1 scoring type   | Default competence scale  |
       | Peer assessment weighting | 0                         |
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment           | Another test peerwork name        |
       | Description               | Another test peerwork description |
       | Criteria 1 description    | Criteria 1                        |

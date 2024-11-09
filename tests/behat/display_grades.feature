@@ -38,7 +38,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are hidden and justification is disabled.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Hidden from students      |
@@ -69,7 +69,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are hidden and justification is hidden.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Hidden from students      |
@@ -104,7 +104,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are hidden and justification is anonymous.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Hidden from students      |
@@ -140,7 +140,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are hidden and justification is visible.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Hidden from students      |
@@ -177,7 +177,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are anonymous and justification is disabled.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible anonymous         |
@@ -211,7 +211,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are anonymous and justification is hidden.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible anonymous         |
@@ -247,7 +247,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are anonymous and justification is anonymous.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible anonymous         |
@@ -284,7 +284,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are anonymous and justification is visible.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible anonymous         |
@@ -320,7 +320,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are visible and justification is disabled.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible with usernames    |
@@ -351,7 +351,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are visible and justification is hidden.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible with usernames    |
@@ -386,7 +386,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are visible and justification is anonymous.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible with usernames    |
@@ -422,7 +422,7 @@ Feature: View the peer grades and justification of a submission
   Scenario: Student views grades when grades are visible and justification is visible.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
       | Peer grades visibility  | Visible with usernames    |

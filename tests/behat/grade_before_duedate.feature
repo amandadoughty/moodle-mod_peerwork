@@ -35,7 +35,7 @@ Feature: Grade a submission before the due date has passed
       | calculator | webpa | peerwork |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1" and I fill the form with:
+    And I add a "peerwork" activity to course "Course 1" section "1" and I fill the form with:
       | Peer assessment           | Test peerwork name        |
       | Description               | Test peerwork description |
       | Peer grades visibility    | Hidden from students      |
@@ -97,4 +97,3 @@ Feature: Grade a submission before the due date has passed
     And I follow "Peer Assessment"
     When I click on "Edit grade for group: Group 1" "link"
     Then I should not see "The due date has not passed. If you grade now then students will no longer be able to edit submissions."
-
