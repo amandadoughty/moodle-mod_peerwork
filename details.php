@@ -168,7 +168,8 @@ if (peerwork_was_submission_graded_from_status($status)) {
         $grade->locked = (empty($grade->locked)) ? 0 : $grade->locked;
 
         if ($grade->overridden || $grade->locked) {
-            $localgrades[$member->id]->revisedgrade = $grade->str_grade;
+            //$localgrades[$member->id]->revisedgrade = $grade->str_grade;    // Why is this the string value, not the actual value?
+            $localgrades[$member->id]->revisedgrade = $grade->grade;    // Why is this the string value, not the actual value?
         }
 
         // Check if the grade has been adjusted due to peer grade overrides.
