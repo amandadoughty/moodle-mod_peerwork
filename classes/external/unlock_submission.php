@@ -45,8 +45,8 @@ class unlock_submission extends \external_api {
     /**
      * Unlock a grader.
      *
-     * @param int $peerworkid The peerwork ID.
-     * @param int $graderid The grader ID.
+     * @param int $submissionid The submission ID.
+     *
      * @return bool
      */
     public static function execute($submissionid) {
