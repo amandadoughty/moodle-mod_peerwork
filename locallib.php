@@ -1674,7 +1674,7 @@ function add_plugin_settings(MoodleQuickForm $mform, $peerwork, $selected) {
  *
  * @param MoodleQuickForm $mform The form to add the configuration settings to.
  * This form is modified directly (not returned).
- * @param fieldset|null Existing $peerwork record if updating or null if adding new.
+ * @param fieldset|null $peerwork Existing record if updating or null if adding new.
  * @return void
  */
 function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
