@@ -36,7 +36,7 @@ Feature: Group availability
   Scenario: Teachers can unlock submissions
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a "Peer Assessment" to section "1"
+    And I add a "peerwork" activity to course "Course 1" section "1"
     And I set the following fields to these values:
       | Peer assessment         | Test peerwork name        |
       | Description             | Test peerwork description |
