@@ -93,7 +93,7 @@ Feature: Edit the grade of a submission
   Scenario: Cannot view the gradebook hidden grade.
     Given I am on the "Course 1" course page logged in as teacher1
     And I navigate to "Setup > Gradebook setup" in the course gradebook
-    And I set the following settings for grade item "Test peerwork name":
+    And I set the following settings for grade item "Test peerwork name" of type "gradeitem" on "grader" page:
       | Hidden | 1 |
     And I log out
     And I am on the "Test peerwork name" "peerwork activity" page logged in as student1
