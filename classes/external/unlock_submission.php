@@ -19,6 +19,7 @@
  *
  * @package   mod_peerwork
  * @author    Amanda Doughty <amanda.doughty@synergy-learning.com>
+ * @copyright  2020 Amanda Doughty
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,6 +36,14 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 
+/**
+ * Unlock submission
+ *
+ * @package   mod_peerwork
+ * @author    Amanda Doughty <amanda.doughty@synergy-learning.com>
+ * @copyright  2020 Amanda Doughty
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class unlock_submission extends external_api {
     /**
      * External function parameters.

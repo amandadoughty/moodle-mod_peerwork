@@ -27,8 +27,6 @@ namespace mod_peerwork;
 use mod_peerwork\event\submission_graded;
 use mod_peerwork_details_form;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Group grader.
  *

@@ -23,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Peerwork data generator class.
  *
@@ -42,7 +40,7 @@ class mod_peerwork_generator extends testing_module_generator {
      * @param array|null $options Some options.
      * @return object The instance.
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         $record = (object)(array)$record;
         return parent::create_instance($record, (array)$options);
     }

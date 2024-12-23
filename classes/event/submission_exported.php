@@ -28,8 +28,6 @@ use coding_exception;
 use core\event\base;
 use moodle_url;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The submission_exported event class.
  *

@@ -77,7 +77,7 @@ function peerwork_supports($feature) {
  * @param mod_peerwork_mod_form $mform The form.
  * @return int The id of the newly inserted peerwork record
  */
-function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform = null) {
+function peerwork_add_instance(stdClass $peerwork, ?mod_peerwork_mod_form $mform = null) {
     global $DB;
 
     $peerwork->timecreated = time();
@@ -113,7 +113,7 @@ function peerwork_add_instance(stdClass $peerwork, mod_peerwork_mod_form $mform 
  * @param mod_peerwork_mod_form $mform The form.
  * @return boolean Success/Fail
  */
-function peerwork_update_instance(stdClass $peerwork, mod_peerwork_mod_form $mform = null) {
+function peerwork_update_instance(stdClass $peerwork, ?mod_peerwork_mod_form $mform = null) {
     global $DB;
 
     $prevlockediting = $DB->get_field('peerwork', 'lockediting', ['id' => $peerwork->instance], IGNORE_MISSING);
@@ -475,7 +475,7 @@ function peerwork_extend_navigation(navigation_node $navref, stdClass $course, s
  * @param settings_navigation $settingsnav The navigation.
  * @param navigation_node $peerworknode The navigation.
  */
-function peerwork_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $peerworknode = null) {
+function peerwork_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $peerworknode = null) {
 }
 
 /**

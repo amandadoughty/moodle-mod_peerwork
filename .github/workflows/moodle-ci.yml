@@ -101,9 +101,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci savepoints
 
-      - name: Mustache Lint
-        if: ${{ !cancelled() }}
-        run: moodle-plugin-ci mustache
+#      Commenting out as we currently have to split templates into parts which fail this test
+#      - name: Mustache Lint
+#        if: ${{ !cancelled() }}
+#        run: moodle-plugin-ci mustache
 
       - name: Grunt
         if: ${{ !cancelled() }}

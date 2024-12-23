@@ -21,21 +21,15 @@
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers \mod_peerwork\privacy\provider
  */
 
-namespace mod_peerwork;
-
-defined('MOODLE_INTERNAL') || die();
-
-use advanced_testcase;
-use context_module;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
-use grade_scale;
 use mod_peerwork\privacy\provider;
 
 /**
@@ -46,7 +40,7 @@ use mod_peerwork\privacy\provider;
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class privacy_provider_test extends advanced_testcase {
+final class provider_test extends advanced_testcase {
 
     /**
      * This method is called before each test.
@@ -56,6 +50,8 @@ class privacy_provider_test extends advanced_testcase {
     }
 
     /**
+     * Test get_metadata()
+     *
      * @return void
      */
     public function test_get_metadata(): void {
@@ -64,6 +60,8 @@ class privacy_provider_test extends advanced_testcase {
     }
 
     /**
+     * Test get_contexts_for_userid()
+     *)
      * @return void
      */
     public function test_get_contexts_for_userid(): void {
@@ -153,7 +151,12 @@ class privacy_provider_test extends advanced_testcase {
         $this->assertContains((string)$p3ctx->id, $ctxu4);
     }
 
-    public function test_get_users_in_context() {
+    /**
+     * Tests get_users_in_context()
+     *
+     * @return void
+     */
+    public function test_get_users_in_context(): void {
         $dg = $this->getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
@@ -255,6 +258,8 @@ class privacy_provider_test extends advanced_testcase {
     }
 
     /**
+     * Tests test_delete_data_for_all_users_in_context()
+     *
      * @return void
      */
     public function test_delete_data_for_all_users_in_context(): void {
@@ -374,6 +379,8 @@ class privacy_provider_test extends advanced_testcase {
     }
 
     /**
+     * Tests test_delete_data_for_user()
+     *
      * @return void
      */
     public function test_delete_data_for_user(): void {
@@ -494,6 +501,8 @@ class privacy_provider_test extends advanced_testcase {
     }
 
     /**
+     * Tests test_delete_data_for_users()
+     *
      * @return void
      */
     public function test_delete_data_for_users(): void {
@@ -614,6 +623,8 @@ class privacy_provider_test extends advanced_testcase {
     }
 
     /**
+     * Tests test_export_data_for_user()
+     *
      * @return void
      */
     public function test_export_data_for_user(): void {

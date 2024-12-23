@@ -28,8 +28,6 @@ namespace peerworkcalculator_webpa;
 use mod_peerwork\pa_result;
 use mod_peerwork\peerworkcalculator_plugin;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * WebPA calculator.
  *

@@ -29,8 +29,6 @@ use admin_settingpage;
 use core\plugininfo\base;
 use part_of_admin_tree;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Base Calculator.
  *
@@ -96,7 +94,7 @@ class peerworkcalculator extends base {
             return;
         }
 
-        if (!$hassiteconfig or !file_exists($this->full_path('settings.php'))) {
+        if (!$hassiteconfig || !file_exists($this->full_path('settings.php'))) {
             return;
         }
 

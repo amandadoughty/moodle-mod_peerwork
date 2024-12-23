@@ -26,8 +26,6 @@
 use core\event\base;
 use mod_peerwork\event\gradebookupdate_failed;
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Event observer.
  *

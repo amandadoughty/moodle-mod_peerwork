@@ -29,8 +29,6 @@ use core\task\scheduled_task;
 use core_user;
 use moodle_url;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Notify students task.
  *

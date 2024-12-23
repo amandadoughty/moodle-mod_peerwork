@@ -27,8 +27,6 @@ namespace mod_peerwork;
 
 use MoodleQuickForm;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Calculator.
  *

@@ -28,8 +28,6 @@ namespace peerworkcalculator_webpa;
 use basic_testcase;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * WebPA testcase.
  *
@@ -38,8 +36,9 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers \peerworkcalculator_webpa\calculator
  */
-class calculator_test extends basic_testcase {
+final class calculator_test extends basic_testcase {
 
     /**
      * Test the WebPA result with no weighting or penalties.

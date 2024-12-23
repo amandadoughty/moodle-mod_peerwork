@@ -26,8 +26,6 @@ namespace peerworkcalculator_webpa\privacy;
 
 use core_privacy\local\metadata\null_provider;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Privacy Subsystem for peerworkcalculator_webpa implementing null_provider.
  *

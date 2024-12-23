@@ -26,8 +26,6 @@
 namespace mod_peerwork\output;
 use renderable;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Summary.
  *

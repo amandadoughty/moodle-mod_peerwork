@@ -28,8 +28,6 @@ use coding_exception;
 use core\event\base;
 use moodle_url;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The mod_peerwork submission _files_uploaded event class.
  *

@@ -24,8 +24,8 @@
 
 use mod_peerwork\event\course_module_instance_list_viewed;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once(dirname(__FILE__) . '/lib.php');
+require_once(dirname(__FILE__, 3) . '/config.php');
+require_once(__DIR__ . '/lib.php');
 
 $id = required_param('id', PARAM_INT);
 
@@ -78,7 +78,7 @@ foreach ($peerworks as $peerwork) {
             format_string($peerwork->name, true));
     }
 
-    if ($course->format == 'weeks' or $course->format == 'topics') {
+    if ($course->format == 'weeks' || $course->format == 'topics') {
         $table->data[] = [$peerwork->section, $link];
     } else {
         $table->data[] = [$link];

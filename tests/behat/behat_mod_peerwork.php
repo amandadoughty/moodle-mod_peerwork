@@ -63,8 +63,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Sets the justification for the specified peer in the specified criteria.
      *
-     * @When /^I give "(?P<peer_string>[^"]*)" justification "(?P<justification_string>[^"]*)" for criteria
-     *     "(?P<criteria_string>[^"]*)"$/
+     * @When /^I give "(?P<peer_string>[^"]*)" justification "(?P<justification_string>[^"]*)" for criteria "(?P<criteria_string>[^"]*)"$/
      *
      * @param string $peer
      * @param string $justification
@@ -100,8 +99,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Overrides the grade for the specified peer in the specified criteria.
      *
-     * @When /^I override "(?P<peer_string>[^"]*)" grade for criteria "(?P<criteria_string>[^"]*)" with "(?P<grade_string>[^"]*)"
-     *     "(?P<comment_string>[^"]*)"$/
+     * @When /^I override "(?P<peer_string>[^"]*)" grade for criteria "(?P<criteria_string>[^"]*)" with "(?P<grade_string>[^"]*)" "(?P<comment_string>[^"]*)"$/
      *
      * @param string $peer
      * @param string $criteria

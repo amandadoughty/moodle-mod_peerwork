@@ -123,8 +123,8 @@ class provider implements
         ];
         $defaultsql = "SELECT ctx.id
                          FROM {course_modules} cm
-                         JOIN {modules} m 
-                           ON cm.module = m.id 
+                         JOIN {modules} m
+                           ON cm.module = m.id
                           AND m.name = :modulename
                          JOIN {context} ctx
                            ON cm.id = ctx.instanceid

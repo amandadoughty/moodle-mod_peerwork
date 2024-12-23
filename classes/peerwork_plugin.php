@@ -28,8 +28,6 @@ namespace mod_peerwork;
 use MoodleQuickForm;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Abstract class for peerwork_plugin (calculator).
  *
@@ -45,9 +43,9 @@ abstract class peerwork_plugin {
     private $type = '';
     /** @var string $error error message */
     private $error = '';
-    /** @var boolean|null $enabledcache Cached lookup of the is_enabled function */
+    /** @var bool|null $enabledcache Cached lookup of the is_enabled function */
     private $enabledcache = null;
-    /** @var boolean|null $enabledcache Cached lookup of the is_visible function */
+    /** @var bool|null $enabledcache Cached lookup of the is_visible function */
     private $visiblecache = null;
 
     /**
@@ -405,6 +403,6 @@ abstract class peerwork_plugin {
      * @since Moodle 3.2
      */
     public function get_config_for_external() {
-        return array();
+        return [];
     }
 }
