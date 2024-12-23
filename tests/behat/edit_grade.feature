@@ -91,8 +91,8 @@ Feature: Edit the grade of a submission
 
   @javascript
   Scenario: Cannot view the gradebook hidden grade.
-    Given I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "View > Grader report" in the course gradebook
+    Given I am on the "Course 1" "grades > Grader report > View" page logged in as "teacher1"
+    And I turn editing mode on
     And I set the following settings for grade item "Test peerwork name" of type "gradeitem" on "grader" page:
       | Hidden | 1 |
     And I log out
