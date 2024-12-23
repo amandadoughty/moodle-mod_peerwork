@@ -117,7 +117,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         if (isset($data['mygrade'])) {
             $row = new html_table_row();
             $cell1 = new html_table_cell(get_string('myfinalgrade', 'mod_peerwork'));
-            $cell2 = new html_table_cell(format_float($data['mygrade'], 2));
+            $cell2 = new html_table_cell($data['mygrade']);
             $row->cells = array($cell1, $cell2);
             $t->data[] = $row;
         }
@@ -299,4 +299,3 @@ class mod_peerwork_renderer extends plugin_renderer_base {
         return html_writer::table($t);
     }
 }
-
