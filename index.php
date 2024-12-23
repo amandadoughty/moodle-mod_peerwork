@@ -22,64 +22,66 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
+use mod_peerwork\event\course_module_instance_list_viewed;
+
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');
 
 $id = required_param('id', PARAM_INT);
 
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
 require_course_login($course);
 
 $coursecontext = context_course::instance($course->id);
 
-$params = array(
-    'context' => $coursecontext
-);
+$params = [
+    'context' => $coursecontext,
+];
 
-$event = \mod_peerwork\event\course_module_instance_list_viewed::create($params);
+$event = course_module_instance_list_viewed::create($params);
 $event->trigger();
 
-$PAGE->set_url('/mod/peerwork/index.php', array('id' => $id));
+$PAGE->set_url('/mod/peerwork/index.php', ['id' => $id]);
 $PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($coursecontext);
 
 echo $OUTPUT->header();
 
-if (! $peerworks = get_all_instances_in_course('peerwork', $course)) {
-    notice(get_string('nopeerworks', 'peerwork'), new moodle_url('/course/view.php', array('id' => $course->id)));
+if (!$peerworks = get_all_instances_in_course('peerwork', $course)) {
+    notice(get_string('nopeerworks', 'peerwork'), new moodle_url('/course/view.php', ['id' => $course->id]));
 }
 
 $table = new html_table();
 
 if ($course->format == 'weeks') {
-    $table->head  = array(get_string('week'), get_string('name'));
-    $table->align = array('center', 'left');
+    $table->head = [get_string('week'), get_string('name')];
+    $table->align = ['center', 'left'];
 } else if ($course->format == 'topics') {
-    $table->head  = array(get_string('topic'), get_string('name'));
-    $table->align = array('center', 'left', 'left', 'left');
+    $table->head = [get_string('topic'), get_string('name')];
+    $table->align = ['center', 'left', 'left', 'left'];
 } else {
-    $table->head  = array(get_string('name'));
-    $table->align = array('left', 'left', 'left');
+    $table->head = [get_string('name')];
+    $table->align = ['left', 'left', 'left'];
 }
 
 foreach ($peerworks as $peerwork) {
     if (!$peerwork->visible) {
         $link = html_writer::link(
-            new moodle_url('/mod/peerwork/view.php', array('id' => $peerwork->coursemodule)),
+            new moodle_url('/mod/peerwork/view.php', ['id' => $peerwork->coursemodule]),
             format_string($peerwork->name, true),
-            array('class' => 'dimmed'));
+            ['class' => 'dimmed']);
     } else {
         $link = html_writer::link(
-            new moodle_url('/mod/peerwork/view.php', array('id' => $peerwork->coursemodule)),
+            new moodle_url('/mod/peerwork/view.php', ['id' => $peerwork->coursemodule]),
             format_string($peerwork->name, true));
     }
 
     if ($course->format == 'weeks' or $course->format == 'topics') {
-        $table->data[] = array($peerwork->section, $link);
+        $table->data[] = [$peerwork->section, $link];
     } else {
-        $table->data[] = array($link);
+        $table->data[] = [$link];
     }
 }
 

@@ -31,7 +31,7 @@ $observers = [
      */
     [
         'eventname' => '\core\event\group_member_added',
-        'callback'  => 'mod_peerwork_observer::group_member_added',
+        'callback' => 'mod_peerwork_observer::group_member_added',
     ],
 
     /*
@@ -39,7 +39,7 @@ $observers = [
      */
     [
         'eventname' => '\core\event\group_member_removed',
-        'callback'  => 'mod_peerwork_observer::group_member_removed',
+        'callback' => 'mod_peerwork_observer::group_member_removed',
     ],
 
 ];

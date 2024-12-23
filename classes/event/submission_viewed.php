@@ -21,7 +21,11 @@
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_peerwork\event;
+
+use core\event\base;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -32,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2015 Amanda Doughty
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  **/
-class submission_viewed extends \core\event\base {
+class submission_viewed extends base {
 
     /**
      * Init method.
@@ -66,9 +70,9 @@ class submission_viewed extends \core\event\base {
     /**
      * Returns relevant URL.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
+        return new moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 }

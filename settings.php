@@ -22,10 +22,12 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_peerwork\plugininfo\peerworkcalculator;
+
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/mod/peerwork/adminlib.php');
-require_once( __DIR__ . '/locallib.php');
+require_once(__DIR__ . '/locallib.php');
 
 $ADMIN->add(
     'modsettings',
@@ -173,7 +175,7 @@ if ($ADMIN->fulltree) {
         0,
         [
             0 => get_string('justificationtype0', 'mod_peerwork'),
-            1 => get_string('justificationtype1', 'mod_peerwork')
+            1 => get_string('justificationtype1', 'mod_peerwork'),
         ]
     );
     $setting->set_locked_flag_options(admin_setting_flag::ENABLED, false);
@@ -285,6 +287,6 @@ $ADMIN->add('modpeerworkfolder', new admin_category('peerworkcalculatorplugins',
 $ADMIN->add('peerworkcalculatorplugins', new peerwork_admin_page_manage_peerwork_plugins('peerworkcalculator'));
 
 foreach (core_plugin_manager::instance()->get_plugins_of_type('peerworkcalculator') as $plugin) {
-    /** @var \mod_peerwork\plugininfo\peerworkcalculator $plugin */
+    /** @var peerworkcalculator $plugin */
     $plugin->load_settings($ADMIN, 'modpeerworkfolder', $hassiteconfig);
 }

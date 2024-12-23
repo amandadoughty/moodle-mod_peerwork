@@ -23,7 +23,7 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot.'/mod/peerwork/adminlib.php');
+require_once($CFG->dirroot . '/mod/peerwork/adminlib.php');
 
 $subtype = required_param('subtype', PARAM_PLUGIN);
 $action = optional_param('action', null, PARAM_PLUGIN);

@@ -53,9 +53,9 @@ class restore_peerwork_activity_task extends restore_activity_task {
      * Define the contents to decode.
      */
     public static function define_decode_contents() {
-        $contents = array();
+        $contents = [];
 
-        $contents[] = new restore_decode_content('peerwork', array('intro'), 'peerwork');
+        $contents[] = new restore_decode_content('peerwork', ['intro'], 'peerwork');
 
         return $contents;
     }
@@ -66,7 +66,7 @@ class restore_peerwork_activity_task extends restore_activity_task {
      * @return restore_decode_rule[] The rules.
      */
     public static function define_decode_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_decode_rule('PEERWORKVIEWBYID', '/mod/peerwork/view.php?id=$1', 'course_module');
         $rules[] = new restore_decode_rule('PEERWORKINDEX', '/mod/peerwork/index.php?id=$1', 'course');

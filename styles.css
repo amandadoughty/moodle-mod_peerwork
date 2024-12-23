@@ -2,48 +2,60 @@
     display: inline-block;
     margin-right: 4px;
 }
+
 #mod-peerwork-summary-table .singlebutton input {
     width: 70px;
 }
+
 #mod-peerwork-summary-table .inplace-grading {
     width: 100px;
     max-width: 100px;
 }
+
 #mod-peerwork-summary-table .inplace-grading input {
     max-width: 100%;
 }
+
 #mod-peerwork-summary-table .inplace-grading .inplaceeditable.inplaceeditingon {
     display: block;
 }
+
 #mod-peerwork-summary-table .inplace-grading .inplaceeditable.inplaceeditingon .editinstructions {
     left: auto;
     right: 0;
 }
+
 #mod-peerwork-summary-table .submitted-past-due-date {
     color: red;
 }
+
 #mod-peerwork-summary-table.crit td {
     vertical-align: top;
     padding-top: 5px;
     line-height: 1.5rem;
 }
+
 #mod-peerwork-grader-table .grading-summary-totals td:first-child {
     font-weight: bold;
 }
+
 #mod-peerwork-grader-table .grading-summary-totals td {
     padding-top: 8px;
     padding-bottom: 8px;
 }
+
 #mod-peerwork-grader-table td,
 #mod-peerwork-summary-table td {
     padding: 0 20px;
     vertical-align: middle;
 }
+
 #mod-peerwork-grader-table th,
 #mod-peerwork-summary-table th {
     padding: 10px 20px;
     text-align: left;
 }
+
 #id_mod_peerwork_peers table caption {
     font-size: 1rem;
     font-weight: inherit;
@@ -51,46 +63,58 @@
     text-align: left;
     caption-side: top;
 }
+
 .mod_peerwork_criteriarating {
     overflow-x: auto;
     padding-bottom: 1em;
 }
+
 .mod_peerwork_criteriaheader {
     font-size: large;
     border-top: 1px solid #efefef;
     padding-top: 1em;
 }
+
 .mod_peerwork_criteria:first-child .mod_peerwork_criteriaheader {
     border-top: none;
     padding-top: 0;
 }
+
 .mod_peerwork_criteriaerror {
     margin-bottom: 1em;
     display: none;
 }
+
 .mod_peerwork_criteria.has-error .mod_peerwork_criteriaerror {
     display: block;
 }
+
 .mod_peerwork_peer {
     margin: 1em 0;
     position: relative;
 }
+
 .mod_peerwork_scaleheaders {
     font-weight: bold;
 }
+
 .mod_peerwork_scaleheaders > div {
     display: none;
 }
+
 .mod_peerwork_rating {
     margin-left: 1.5rem;
 }
+
 .mod_peerwork_justif .form-group {
     margin-bottom: 0;
 }
+
 .mod_peerwork_justif .col-md-9 {
     max-width: 100%;
 
 }
+
 #id_justificationshdr .caption {
     font-size: 24px;
     font-weight: bold;
@@ -101,19 +125,24 @@
     padding-bottom: .75rem;
     color: #868e96;
 }
+
 #memberdropdown {
     display: inline-block;
 }
+
 .mod_peerwork_peername {
     font-weight: bold;
 }
+
 #mod_peerwork_peergrades {
     width: 100%;
 }
+
 #mod_peerwork_peergrades th {
     padding: 10px 20px;
     text-align: left;
 }
+
 #mod_peerwork_peergrades td {
     padding: 0 20px;
     vertical-align: middle;
@@ -124,48 +153,61 @@
     .mod_peerwork_rating label > span {
         display: none;
     }
+
     .mod_peerwork_justif .col-md-3 {
         display: none;
     }
+
     .mod_peerwork_scaleheaders > div {
         display: inline-block;
     }
+
     .mod_peerwork_scaleheaders,
     .mod_peerwork_peer,
     .mod_peerwork_ratings {
         display: flex;
     }
+
     .mod_peerwork_ratings {
         align-items: flex-end;
     }
+
     .mod_peerwork_peer {
         align-items: flex-end;
     }
+
     .mod_peerwork_scaleheaders {
         align-items: flex-end;
     }
+
     .mod_peerwork_rating {
         margin-left: 0;
     }
+
     .mod_peerwork_rating,
     .mod_peerwork_scaleheaders > div {
         text-align: center;
         flex: 0 0 100px;
     }
+
     .mod_peerwork_rating label {
         margin: 0;
         padding: 0 1em;
     }
+
     .mod_peerwork_rating input {
         margin: 0;
     }
+
     .mod_peerwork_justif {
         flex: 1 0 100px;
     }
+
     /* overriding pesky bootstrap classes on form element */
     .mod_peerwork_justif .col-md-3 {
         flex: 0 0 0;
     }
+
     .mod_peerwork_justif .col-md-9 {
         flex: 0 0 100%;
     }

@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use context;
 use context_module;
+use core_privacy\local\request\core_userlist_provider;
 use grade_scale;
 use moodle_recordset;
 use core_privacy\local\metadata\collection;
@@ -53,7 +54,7 @@ require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\plugin\provider,
-    \core_privacy\local\request\core_userlist_provider  {
+    core_userlist_provider {
 
     /**
      * Returns metadata.
@@ -61,7 +62,7 @@ class provider implements
      * @param collection $collection The initialised collection to add items to.
      * @return collection A listing of user data stored through this system.
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
 
         $collection->add_database_table('peerwork_submission', [
             'groupid' => 'privacy:metadata:submission:groupid',
@@ -93,7 +94,7 @@ class provider implements
         $collection->add_database_table('peerwork_justification', [
             'gradedby' => 'privacy:metadata:justification:gradedby',
             'gradefor' => 'privacy:metadata:justification:gradefor',
-            'justification' => 'privacy:metadata:justification:justification'
+            'justification' => 'privacy:metadata:justification:justification',
         ], 'privacy:metadata:justification');
 
         $collection->add_database_table('peerwork_grades', [
@@ -114,11 +115,11 @@ class provider implements
      * @param int $userid The user to search.
      * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         $contextlist = new contextlist();
         $defaultparams = [
             'modulename' => 'peerwork',
-            'contextlevel' => CONTEXT_MODULE
+            'contextlevel' => CONTEXT_MODULE,
         ];
         $defaultsql = "SELECT ctx.id
                          FROM {course_modules} cm
@@ -219,7 +220,7 @@ class provider implements
             writer::with_context($context)->export_data([], $data);
         }
 
-        list($insql, $inparams) = $DB->get_in_or_equal($peerworkids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($peerworkids, SQL_PARAMS_NAMED);
 
         // Fetch the record for the overall grade.
         $sql = "SELECT g.id, g.prelimgrade, g.grade, g.revisedgrade, s.grade AS groupgrade, s.timegraded, s.timecreated,
@@ -236,7 +237,7 @@ class provider implements
             $path = [get_string('privacy:path:grade', 'mod_peerwork')];
             writer::with_context($context)->export_area_files($path, 'mod_peerwork', 'submission', $record->groupid);
             writer::with_context($context)->export_area_files($path, 'mod_peerwork', 'feedback_files', $record->groupid);
-            writer::with_context($context)->export_data($path, (object) [
+            writer::with_context($context)->export_data($path, (object)[
                 'group_grade' => $record->groupgrade,
                 'group_feedback' => format_text($record->feedbacktext, $record->feedbackformat, ['context' => $context]),
                 'group_submission_created_on' => $record->timecreated ? transform::datetime($record->timecreated) : '-',
@@ -262,7 +263,7 @@ class provider implements
                 $context = context_module::instance($peerworkidstocmids[$record->peerworkid]);
                 $path = [get_string('privacy:path:submission', 'mod_peerwork')];
                 writer::with_context($context)->export_area_files($path, 'mod_peerwork', 'submission', $record->groupid);
-                $carry[] = (object) [
+                $carry[] = (object)[
                     'submitted_or_updated_by_you' => transform::yesno($record->userid == $userid),
                     'graded_by_you' => transform::yesno($record->gradedby == $userid),
                     'grade_released_by_you' => transform::yesno($record->releasedby == $userid),
@@ -276,8 +277,8 @@ class provider implements
             function($peerworkid, $data) use ($peerworkidstocmids) {
                 $context = context_module::instance($peerworkidstocmids[$peerworkid]);
                 $path = [get_string('privacy:path:submission', 'mod_peerwork')];
-                writer::with_context($context)->export_data($path, (object) [
-                    'submissions' => $data
+                writer::with_context($context)->export_data($path, (object)[
+                    'submissions' => $data,
                 ]);
             }
         );
@@ -339,7 +340,7 @@ class provider implements
                 // is not advisable.
                 $showjustification = $record->pw_justification != MOD_PEERWORK_JUSTIFICATION_HIDDEN;
 
-                $carry[] = (object) [
+                $carry[] = (object)[
                     'peer_graded_is_you' => transform::yesno($record->gradefor == $userid),
                     'peer_grading_is_you' => transform::yesno($record->gradedby == $userid),
                     'peer_override_is_you' => transform::yesno($record->overriddenby == $userid),
@@ -351,14 +352,14 @@ class provider implements
                     'time_graded' => transform::datetime($record->timecreated),
                     'time_grade_updated' => transform::datetime($record->timemodified),
                     'time_grade_overridden' => transform::datetime($record->timeoverridden),
-                    'criterion' => format_text($record->c_desc, $record->c_descformat, ['context' => $context])
+                    'criterion' => format_text($record->c_desc, $record->c_descformat, ['context' => $context]),
                 ];
                 return $carry;
             },
             function($peerworkid, $data) use ($peerworkidstocmids) {
                 $context = context_module::instance($peerworkidstocmids[$peerworkid]);
-                writer::with_context($context)->export_data([get_string('privacy:path:peergrades', 'mod_peerwork')], (object) [
-                    'grades' => $data
+                writer::with_context($context)->export_data([get_string('privacy:path:peergrades', 'mod_peerwork')], (object)[
+                    'grades' => $data,
                 ]);
             }
         );
@@ -405,7 +406,7 @@ class provider implements
         }
 
         // Delete all the things that do not affect the well functioning of the plugin.
-        list($insql, $inparams) = $DB->get_in_or_equal($peerworkids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($peerworkids, SQL_PARAMS_NAMED);
 
         // Delete the records of the teacher grade received.
         $sql = "peerworkid $insql AND userid = :userid";
@@ -451,8 +452,8 @@ class provider implements
 
         // Delete all the things that do not affect the well functioning of the plugin.
         $id = $cm->instance;
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
-        list($insql2, $inparams2) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql2, $inparams2] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         // Delete the records of the teacher grade received.
         $sql = "peerworkid = :id AND userid $insql";
@@ -485,7 +486,7 @@ class provider implements
         if (empty($cmids)) {
             return [];
         }
-        list($insql, $inparams) = $DB->get_in_or_equal($cmids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($cmids, SQL_PARAMS_NAMED);
         $sql = "
             SELECT c.id, cm.id AS cmid
               FROM {peerwork} c
@@ -526,7 +527,7 @@ class provider implements
      * @return void
      */
     protected static function recordset_loop_and_export(moodle_recordset $recordset, $splitkey, $initial,
-            callable $reducer, callable $export) {
+        callable $reducer, callable $export) {
 
         $data = $initial;
         $lastid = null;

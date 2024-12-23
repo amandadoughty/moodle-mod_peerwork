@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
-require_once( __DIR__ . '/locallib.php');
-require_once($CFG->libdir . '/gradelib.php' );
+require_once(__DIR__ . '/locallib.php');
+require_once($CFG->libdir . '/gradelib.php');
 
 /**
  * Module instance settings form.
@@ -66,7 +66,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('peerworkname', 'peerwork'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('peerworkname', 'peerwork'), ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -87,11 +87,11 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // or adding more fieldsets ('header' elements) if needed for better logic.
         $mform->addElement('header', 'peerworkfieldset', get_string('peerworkfieldset', 'peerwork'));
 
-        $mform->addElement('date_time_selector', 'fromdate', get_string('fromdate', 'peerwork'), array('optional' => true));
+        $mform->addElement('date_time_selector', 'fromdate', get_string('fromdate', 'peerwork'), ['optional' => true]);
         $mform->setDefault('fromdate', time());
         $mform->addHelpButton('fromdate', 'fromdate', 'peerwork');
 
-        $mform->addElement('date_time_selector', 'duedate', get_string('duedate', 'peerwork'), array('optional' => true));
+        $mform->addElement('date_time_selector', 'duedate', get_string('duedate', 'peerwork'), ['optional' => true]);
         $mform->setDefault('duedate', time() + DAYSECS);
         $mform->addHelpButton('duedate', 'duedate', 'peerwork');
 
@@ -213,7 +213,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         $options = [
             MOD_PEERWORK_JUSTIFICATION_SUMMARY => get_string('justificationtype0', 'mod_peerwork'),
-            MOD_PEERWORK_JUSTIFICATION_CRITERIA => get_string('justificationtype1', 'mod_peerwork')
+            MOD_PEERWORK_JUSTIFICATION_CRITERIA => get_string('justificationtype1', 'mod_peerwork'),
         ];
         $mform->addElement('select', 'justificationtype', get_string('justificationtype', 'mod_peerwork'), $options);
         $mform->addHelpButton('justificationtype', 'justificationtype', 'peerwork');
@@ -233,21 +233,21 @@ class mod_peerwork_mod_form extends moodleform_mod {
         // Preparing repeated element.
         $elements = [];
         $repeatopts = [];
-        $initialrepeat = count($criteria) ? count($criteria) : (int) get_config('peerwork', 'numcrit');
-        $repeatsteps = max(1, (int) get_config('peerwork', 'addmorecriteriastep'));
+        $initialrepeat = count($criteria) ? count($criteria) : (int)get_config('peerwork', 'numcrit');
+        $repeatsteps = max(1, (int)get_config('peerwork', 'addmorecriteriastep'));
 
         // Editor.
         $editor = $mform->createElement('editor', 'critdesc', get_string('assessmentcriteria:description', 'mod_peerwork'),
             ['rows' => 4]);
         $repeatopts['critdesc'] = [
-            'helpbutton' => ['assessmentcriteria:description:help', 'mod_peerwork']
+            'helpbutton' => ['assessmentcriteria:description:help', 'mod_peerwork'],
         ];
 
         // Scale.
         $scale = $mform->createElement('select', 'critscale',
             get_string('assessmentcriteria:scoretype', 'mod_peerwork'), get_scales_menu($COURSE->id));
         $repeatopts['critscale'] = [
-            'helpbutton' => ['assessmentcriteria:scoretype:help', 'mod_peerwork']
+            'helpbutton' => ['assessmentcriteria:scoretype:help', 'mod_peerwork'],
         ];
 
         // Repeat stuff.
@@ -255,7 +255,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
             'assessmentcriteria_add', $repeatsteps, get_string('addmorecriteria', 'mod_peerwork'), true);
 
         // If this is an 'add' form use site defaults.
-        if ($this->current  && !$this->current->coursemodule) {
+        if ($this->current && !$this->current->coursemodule) {
             $config = get_config('peerwork');
             // Add the default values.
             for ($i = 0; $i < $repeatels; $i++) {
@@ -272,12 +272,12 @@ class mod_peerwork_mod_form extends moodleform_mod {
                     }
 
                     $mform->setDefault(
-                            'critdesc[' . $i . ']',
-                            [
-                                'text' => $text,
-                                'format' => FORMAT_HTML
-                            ]
-                        );
+                        'critdesc[' . $i . ']',
+                        [
+                            'text' => $text,
+                            'format' => FORMAT_HTML,
+                        ]
+                    );
 
                     $mform->getElement('critscale[' . $i . ']')->setSelected($selected);
                 }
@@ -343,7 +343,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
         foreach ($crits as $i => $crit) {
             $defaultvalues['critdesc'][$i] = [
                 'text' => $crit->description,
-                'format' => $crit->descriptionformat
+                'format' => $crit->descriptionformat,
             ];
 
             // Scales are saved as negative integers.
@@ -445,7 +445,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         // We can only change the values while completion is 'unlocked'.
         if (!empty($data->completionunlocked)) {
-            $data->completiongradedpeers = (int) !empty($data->completiongradedpeers);
+            $data->completiongradedpeers = (int)!empty($data->completiongradedpeers);
         }
 
         $data->assessmentcriteria = $this->normalise_criteria_from_data($data);
@@ -460,7 +460,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
      * @return object
      */
     protected function normalise_criteria_from_data($data) {
-        $data = (object) $data;
+        $data = (object)$data;
         $count = 0;
         $assessmentcriteria = [];
 
@@ -469,7 +469,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
                 continue;
             }
             $grade = isset($data->critscale[$i]) ? -abs($data->critscale[$i]) : null;// Scales are saved as negative integers.
-            $assessmentcriteria[$i] = (object) [
+            $assessmentcriteria[$i] = (object)[
                 'description' => $value['text'],
                 'descriptionformat' => $value['format'],
                 'grade' => $grade,

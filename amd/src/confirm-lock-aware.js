@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/str', 'core/notification'], function($, Str, Notification) {
+define(['jquery', 'core/str', 'core/notification'], function ($, Str, Notification) {
 
     const strings = [
         {key: 'areyousure', component: 'core'},

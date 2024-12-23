@@ -1,5 +1,6 @@
 r3.11.0
 -------
+
 - Refactored activity to used own setting for grouping instead of Common module settings.
 - Refactored submission grade to allow float values
 - Added grading before due date warning #59 (for group summary screen)
@@ -10,14 +11,15 @@ r3.11.0
 - AMOS string fix #3 provided by https://github.com/izendegi.
 - Table prefix fix #1 provided by https://github.com/izendegi.
 
-
 r2.3.2
 ------
+
 - Removed deprecated string grade/core
 - Removed deprecated function user_picture::fields()
 
 r2.3.1
 ------
+
 - Added grading before due date warning #59
 - Improved display of criteria scales #60
 
@@ -44,7 +46,7 @@ r2.1.0
 
 - Added individual peer grade override
 - Added site setting:
-	Justification - disabled, hidden, visible anonymous, visible with usernames
+  Justification - disabled, hidden, visible anonymous, visible with usernames
 - Added suite of Behat tests
 
 r2.0.0
@@ -57,21 +59,21 @@ r1.1.0
 ------
 
 - Added site settings:
-	Default number of criteria - 1-5
-	Default text for 5 criteria
-	Default scale for 5 criteria
-	Justification type - per peer or per criteria
+  Default number of criteria - 1-5
+  Default text for 5 criteria
+  Default scale for 5 criteria
+  Justification type - per peer or per criteria
 - Added activity setting:
-	Justification type - per peer or per criteria
+  Justification type - per peer or per criteria
 - Some activity settings no longer editable after a student has submitted:
-	Peer grades visibility
-	Allow students to self grade
-	Justification
-	Justification type
-	Justificaton max length
-	Criteria
-	Criteria scale
-	Add criteria
+  Peer grades visibility
+  Allow students to self grade
+  Justification
+  Justification type
+  Justificaton max length
+  Criteria
+  Criteria scale
+  Add criteria
 - Style changes to improve responsiveness
 
 r1.0.0

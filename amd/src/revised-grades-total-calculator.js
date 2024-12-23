@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery'], function ($) {
 
     /**
      * Revised grades total calculator.
@@ -35,7 +35,7 @@ define(['jquery'], function($) {
 
         var getRevisedTotal = () => {
             let total = null;
-            fieldNodes.each(function(i, field) {
+            fieldNodes.each(function (i, field) {
                 var node = $(field);
                 var value = parseFloat(node.val().replace(',', '.')); // Minor handling of formatted values.
                 if (!value || isNaN(value)) {
@@ -55,7 +55,7 @@ define(['jquery'], function($) {
             }
         };
 
-        fieldNodes.on('change', function() {
+        fieldNodes.on('change', function () {
             updateTotal();
         });
 

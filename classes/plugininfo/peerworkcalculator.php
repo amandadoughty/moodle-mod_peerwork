@@ -22,9 +22,12 @@
  * @author 2020 Amanda Doughty
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_peerwork\plugininfo;
 
+use admin_settingpage;
 use core\plugininfo\base;
+use part_of_admin_tree;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -58,7 +61,7 @@ class peerworkcalculator extends base {
             'peerwork_plugin_config',
             [
                 'plugin' => $this->name,
-                'subtype' => 'peerworkcalculator'
+                'subtype' => 'peerworkcalculator',
             ]
         );
 
@@ -80,11 +83,11 @@ class peerworkcalculator extends base {
      * This function usually includes settings.php file in plugins folder.
      * Alternatively it can create a link to some settings page (instance of admin_externalpage)
      *
-     * @param \part_of_admin_tree $adminroot
+     * @param part_of_admin_tree $adminroot
      * @param string $parentnodename
      * @param bool $hassiteconfig whether the current user has moodle/site:config capability
      */
-    public function load_settings(\part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig) {
+    public function load_settings(part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig) {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE; // In case settings.php wants to refer to them.
         $ADMIN = $adminroot; // May be used in settings.php.
         $plugininfo = $this; // Also can be used inside settings.php.
@@ -99,7 +102,7 @@ class peerworkcalculator extends base {
 
         $section = $this->get_settings_section_name();
 
-        $settings = new \admin_settingpage($section, $this->displayname, 'moodle/site:config', $this->is_enabled() === false);
+        $settings = new admin_settingpage($section, $this->displayname, 'moodle/site:config', $this->is_enabled() === false);
 
         if ($adminroot->fulltree) {
             $shortsubtype = substr($this->type, strlen('peerwork'));

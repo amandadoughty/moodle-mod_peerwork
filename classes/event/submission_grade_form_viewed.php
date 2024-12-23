@@ -21,8 +21,14 @@
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_peerwork\event;
+use coding_exception;
+use core\event\base;
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
+
 /**
  * The submission_grade_form_viewed event class.
  *
@@ -36,7 +42,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2015 Amanda Doughty
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  **/
-class submission_grade_form_viewed extends \core\event\base {
+class submission_grade_form_viewed extends base {
 
     /**
      * Init method.
@@ -72,28 +78,28 @@ class submission_grade_form_viewed extends \core\event\base {
     /**
      * Returns relevant URL.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url(
+        return new moodle_url(
             '/mod/peerwork/details.php',
-            array(
+            [
                 'id' => $this->contextinstanceid,
-                'groupid' => $this->other['groupid']
-                )
-            );
+                'groupid' => $this->other['groupid'],
+            ]
+        );
     }
 
     /**
      * Custom validation.
      *
-     * @throws \coding_exception
      * @return void
+     * @throws coding_exception
      */
     protected function validate_data() {
         parent::validate_data();
         if (!isset($this->other['groupid'])) {
-            throw new \coding_exception('The \'groupid\' value must be set in other.');
+            throw new coding_exception('The \'groupid\' value must be set in other.');
         }
     }
 }

@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core_user\fields;
+use mod_peerwork\event\submissions_exported;
+
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
@@ -30,7 +33,7 @@ require_once($CFG->libdir . '/csvlib.class.php');
 $id = required_param('id', PARAM_INT);
 $groupid = optional_param('groupid', 0, PARAM_INT);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id, 'peerwork');
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'peerwork');
 $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, true, $cm);
@@ -51,9 +54,9 @@ if (empty($groupids)) {
 
 $context = $cm->context;
 $params = [
-    'context' => $context
+    'context' => $context,
 ];
-$event = \mod_peerwork\event\submissions_exported::create($params);
+$event = submissions_exported::create($params);
 $event->trigger();
 
 $headers = [
@@ -87,12 +90,12 @@ $csvexport->add_data($headers);
 $ingroupparams = [];
 $ingroupsql = ' = 0';
 if (!empty($groupids)) {
-    list($ingroupsql, $ingroupparams) = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
+    [$ingroupsql, $ingroupparams] = $DB->get_in_or_equal($groupids, SQL_PARAMS_NAMED);
 }
 
-$ufieldsapi = \core_user\fields::for_userpic()->including('email', 'username', 'idnumber');
+$ufieldsapi = fields::for_userpic()->including('email', 'username', 'idnumber');
 $stufields = $ufieldsapi->get_sql('u', false, 'user_', 'user_id', false)->selects;
-$ufieldsapi = \core_user\fields::for_userpic();
+$ufieldsapi = fields::for_userpic();
 $graderfields = $ufieldsapi->get_sql('ug', false, 'grader_', 'grader_id', false)->selects;
 $releaserfields = $ufieldsapi->get_sql('ur', false, 'reluser_', 'reluser_id', false)->selects;
 

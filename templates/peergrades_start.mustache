@@ -65,31 +65,29 @@
         ]
     }
 }}
-            <div class="mod_peerwork_peer row" data-peerid="{{ data-peerid }}">
-                <div class="mod_peerwork_peername col-md-3">
-                    {{ namedisplay }}
-                </div>
-                <div class="mod_peerwork_ratings col-md-9">
-                    {{# scaleitems }}
-                    <div class="mod_peerwork_rating">
-                        <label for="id_{{ attrs.name }}">                       
-                            <input 
-                                type="radio"
-                                name="{{ attrs.name }}"
-                                value="{{ attrs.value }}"
-                                {{# attrs.checked }} 
-                                    checked="checked"
-                                {{/ attrs.checked }}
-                                {{# attrs.disabled }}
-                                    disabled="disabled"
-                                {{/ attrs.disabled }}>
-                            <span aria-hidden="true">{{ label }}</span>
-                            <span class="sr-only">
-                                {{ srlabel }}
-                            </span>&nbsp;
-                        </label>
-                    </div>
-                    {{/ scaleitems }}
-                    <div class="mod_peerwork_justif">
-
-                    
+<div class="mod_peerwork_peer row" data-peerid="{{ data-peerid }}">
+    <div class="mod_peerwork_peername col-md-3">
+        {{ namedisplay }}
+    </div>
+    <div class="mod_peerwork_ratings col-md-9">
+        {{# scaleitems }}
+            <div class="mod_peerwork_rating">
+                <label for="id_{{ attrs.name }}">
+                    <input
+                            type="radio"
+                            name="{{ attrs.name }}"
+                            value="{{ attrs.value }}"
+                        {{# attrs.checked }}
+                            checked="checked"
+                        {{/ attrs.checked }}
+                        {{# attrs.disabled }}
+                            disabled="disabled"
+                        {{/ attrs.disabled }}>
+                    <span aria-hidden="true">{{ label }}</span>
+                    <span class="sr-only">
+                        {{ srlabel }}
+                    </span>&nbsp;
+                </label>
+            </div>
+        {{/ scaleitems }}
+        <div class="mod_peerwork_justif">

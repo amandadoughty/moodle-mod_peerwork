@@ -24,6 +24,10 @@
 
 namespace mod_peerwork\event;
 
+use coding_exception;
+use core\event\base;
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -40,7 +44,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class submission_files_uploaded extends \core\event\base {
+class submission_files_uploaded extends base {
 
     /**
      * Init method.
@@ -65,10 +69,10 @@ class submission_files_uploaded extends \core\event\base {
     /**
      * Returns relevant URL.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
+        return new moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 
     /**
@@ -86,13 +90,13 @@ class submission_files_uploaded extends \core\event\base {
     /**
      * Custom validation.
      *
-     * @throws \coding_exception
      * @return void
+     * @throws coding_exception
      */
     protected function validate_data() {
         parent::validate_data();
         if (!isset($this->other['filelist'])) {
-            throw new \coding_exception('The \'filelist\' value must be set in other.');
+            throw new coding_exception('The \'filelist\' value must be set in other.');
         }
     }
 }

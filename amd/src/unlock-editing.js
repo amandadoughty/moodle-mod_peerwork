@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/str', 'core/notification'], function($, Ajax, Str, Notification) {
+define(['jquery', 'core/ajax', 'core/str', 'core/notification'], function ($, Ajax, Str, Notification) {
 
     const strings = [
         {key: 'areyousure', component: 'core'},
@@ -56,7 +56,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification'], function($, Aja
                         args: {submissionid: submissionId}
                     }])[0].then(() => {
                         node.remove();
-                        return;
+
                     }).catch((e) => {
                         node.show();
                         return Notification.exception(e);
@@ -87,7 +87,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/notification'], function($, Aja
                             args: {peerworkid: peerworkId, graderid: graderId}
                         }])[0].then(() => {
                             nodes.remove();
-                            return;
+
                         }).catch((e) => {
                             nodes.show();
                             return Notification.exception(e);

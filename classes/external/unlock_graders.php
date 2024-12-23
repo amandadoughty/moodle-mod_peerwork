@@ -24,22 +24,27 @@
 
 namespace mod_peerwork\external;
 
+use context_module;
+use external_api;
+use external_function_parameters;
+use external_value;
+
 defined('MOODLE_INTERNAL') || die;
 
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
 
-class unlock_graders extends \external_api {
+class unlock_graders extends external_api {
     /**
      * External function parameters.
      *
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function execute_parameters() {
-        return new \external_function_parameters([
-            'peerworkid' => new \external_value(PARAM_INT),
-            'graderid' => new \external_value(PARAM_INT),
+        return new external_function_parameters([
+            'peerworkid' => new external_value(PARAM_INT),
+            'graderid' => new external_value(PARAM_INT),
         ]);
     }
 
@@ -57,7 +62,7 @@ class unlock_graders extends \external_api {
         $graderid = $params['graderid'];
 
         $cm = get_coursemodule_from_instance('peerwork', $peerworkid, 0, false, MUST_EXIST);
-        $context = \context_module::instance($cm->id);
+        $context = context_module::instance($cm->id);
         self::validate_context($context);
         require_capability('mod/peerwork:grade', $context);
 
@@ -69,9 +74,9 @@ class unlock_graders extends \external_api {
     /**
      * External function returns.
      *
-     * @return \external_value
+     * @return external_value
      */
     public static function execute_returns() {
-        return new \external_value(PARAM_BOOL);
+        return new external_value(PARAM_BOOL);
     }
 }

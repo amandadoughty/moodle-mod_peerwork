@@ -30,6 +30,7 @@ require_once(__DIR__ . '/../../../../lib/tests/behat/behat_general.php');
 require_once(__DIR__ . '/../../../../lib/tests/behat/behat_forms.php');
 
 use Behat\Mink\Exception\ExpectationException as ExpectationException;
+use Moodle\BehatExtension\Driver\MoodleSelenium2Driver;
 
 /**
  * Peerwork activity definitions.
@@ -50,7 +51,7 @@ class behat_mod_peerwork extends behat_base {
      * @param string $criteria
      */
     public function i_give_grade_for_criteria($peer, $grade, $criteria) {
-        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
+        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '" . $criteria . "')]");
         $criterionid = $node->getParent()->getAttribute('data-criterionid');
         $studentid = $this->get_student_id($peer);
         $fieldlocator = "grade_idx_{$criterionid}[{$studentid}]";
@@ -62,14 +63,15 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Sets the justification for the specified peer in the specified criteria.
      *
-     * @When /^I give "(?P<peer_string>[^"]*)" justification "(?P<justification_string>[^"]*)" for criteria "(?P<criteria_string>[^"]*)"$/
+     * @When /^I give "(?P<peer_string>[^"]*)" justification "(?P<justification_string>[^"]*)" for criteria
+     *     "(?P<criteria_string>[^"]*)"$/
      *
      * @param string $peer
      * @param string $justification
      * @param string $criteria
      */
     public function i_give_justification_for_criteria($peer, $justification, $criteria) {
-        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
+        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '" . $criteria . "')]");
         $criterionid = $node->getParent()->getAttribute('data-criterionid');
         $studentid = $this->get_student_id($peer);
         $fieldlocator = "justification_{$criterionid}[{$studentid}]";
@@ -98,7 +100,8 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Overrides the grade for the specified peer in the specified criteria.
      *
-     * @When /^I override "(?P<peer_string>[^"]*)" grade for criteria "(?P<criteria_string>[^"]*)" with "(?P<grade_string>[^"]*)" "(?P<comment_string>[^"]*)"$/
+     * @When /^I override "(?P<peer_string>[^"]*)" grade for criteria "(?P<criteria_string>[^"]*)" with "(?P<grade_string>[^"]*)"
+     *     "(?P<comment_string>[^"]*)"$/
      *
      * @param string $peer
      * @param string $criteria
@@ -144,7 +147,7 @@ class behat_mod_peerwork extends behat_base {
      * @param string $peer
      */
     public function rating_should_be_disabled($criteria, $peer) {
-        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
+        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '" . $criteria . "')]");
         $criterionid = $node->getParent()->getAttribute('data-criterionid');
         $studentid = $this->get_student_id($peer);
         $fieldlocator = "grade_idx_{$criterionid}[{$studentid}]";
@@ -161,7 +164,7 @@ class behat_mod_peerwork extends behat_base {
      * @param string $peer
      */
     public function rating_should_be_enabled($criteria, $peer) {
-        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
+        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '" . $criteria . "')]");
         $criterionid = $node->getParent()->getAttribute('data-criterionid');
         $studentid = $this->get_student_id($peer);
         $fieldlocator = "grade_idx_{$criterionid}[{$studentid}]";
@@ -178,7 +181,7 @@ class behat_mod_peerwork extends behat_base {
      * @param string $peer
      */
     public function criteria_justification_should_be_disabled($criteria, $peer) {
-        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '"  . $criteria . "')]");
+        $node = $this->find('xpath', "//div[contains(@class,'mod_peerwork_criteriaheader') and contains(., '" . $criteria . "')]");
         $criterionid = $node->getParent()->getAttribute('data-criterionid');
         $studentid = $this->get_student_id($peer);
         $fieldlocator = "justification_{$criterionid}[{$studentid}]";
@@ -337,7 +340,7 @@ class behat_mod_peerwork extends behat_base {
 
         // This is needed by some drivers to ensure relevant event is triggred and button is enabled.
         $driver = $this->getSession()->getDriver();
-        if ($driver instanceof \Moodle\BehatExtension\Driver\MoodleSelenium2Driver) {
+        if ($driver instanceof MoodleSelenium2Driver) {
             $script = "Syn.trigger('change', {}, {{ELEMENT}})";
             $driver->triggerSynScript($select->getXpath(), $script);
         }

@@ -22,7 +22,11 @@
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_peerwork;
+use mod_peerwork\event\submission_graded;
+use mod_peerwork_details_form;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -103,7 +107,7 @@ class group_grader {
         // Save the feedback files.
         if ($this->feedbackdraftitemid) {
             file_save_draft_area_files($this->feedbackdraftitemid, $this->context->id, 'mod_peerwork', 'feedback_files',
-                $this->groupid, \mod_peerwork_details_form::$fileoptions);
+                $this->groupid, mod_peerwork_details_form::$fileoptions);
             unset($this->feedbackdraftitemid);
         }
 
@@ -113,16 +117,16 @@ class group_grader {
         peerwork_update_local_grades($this->peerwork, $group, $this->submission, array_keys($members), $this->revisedgrades);
 
         // Finally, trigger the event.
-        $params = array(
+        $params = [
             'objectid' => $submission->id,
             'context' => $this->context,
             'other' => [
                 'groupid' => $group->id,
                 'groupname' => $group->name,
-                'grade' => $submission->grade
-            ]
-        );
-        $event = \mod_peerwork\event\submission_graded::create($params);
+                'grade' => $submission->grade,
+            ],
+        ];
+        $event = submission_graded::create($params);
         $event->add_record_snapshot('peerwork_submission', $submission);
         $event->trigger();
     }
@@ -147,9 +151,9 @@ class group_grader {
     protected function get_submission_record() {
         $record = $this->submission;
         if (!$record) {
-            $record = (object) [
+            $record = (object)[
                 'peerworkid' => $this->peerwork->id,
-                'groupid' => $this->groupid
+                'groupid' => $this->groupid,
             ];
         }
         return $record;
@@ -186,10 +190,10 @@ class group_grader {
                 $paweighting = $this->peerwork->paweighting;
             }
         }
-        $paweighting = min(100, max(0, (int) $paweighting));
+        $paweighting = min(100, max(0, (int)$paweighting));
 
         $record = $this->get_submission_record();
-        $record->grade = min(100, max(0, (float) $grade));
+        $record->grade = min(100, max(0, (float)$grade));
         $record->paweighting = $paweighting;
         $record->gradedby = $USER->id;
         $record->timegraded = time();

@@ -22,6 +22,9 @@
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_peerwork\event\grades_released;
+
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 require_once(__DIR__ . '/lib.php');
@@ -29,7 +32,7 @@ require_once(__DIR__ . '/lib.php');
 $id = required_param('id', PARAM_INT);
 $groupid = required_param('groupid', PARAM_INT);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id, 'peerwork');
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'peerwork');
 $context = context_module::instance($cm->id);
 
 require_login($course, false, $cm);
@@ -44,7 +47,7 @@ if ($groupid > 0) {
     $sql = 'peerworkid = :peerworkid AND groupid = :groupid AND COALESCE(timegraded) > 0 AND released = 0';
     $submissions = $DB->get_records_select('peerwork_submission', $sql, [
         'peerworkid' => $peerwork->id,
-        'groupid' => $groupid
+        'groupid' => $groupid,
     ]);
 } else {
     $sql = 'peerworkid = :peerworkid AND COALESCE(timegraded) > 0 AND released = 0';
@@ -63,10 +66,10 @@ foreach ($submissions as $submission) {
         'objectid' => $submission->id,
         'context' => $context,
         'other' => [
-            'groupid' => $submission->groupid
-        ]
+            'groupid' => $submission->groupid,
+        ],
     ];
-    $event = \mod_peerwork\event\grades_released::create($params);
+    $event = grades_released::create($params);
     $event->add_record_snapshot('peerwork_submission', $submission);
     $event->trigger();
 }

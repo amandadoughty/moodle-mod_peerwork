@@ -44,45 +44,45 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $includeuserinfo = $userinfo && $includegroups; // We need groups to restore the data properly.
 
         // Define each element separated.
-        $peerwork = new backup_nested_element('peerwork', array('id'), array(
+        $peerwork = new backup_nested_element('peerwork', ['id'], [
             'name', 'intro', 'introformat', 'timecreated',
             'timemodified', 'selfgrading', 'duedate', 'maxfiles',
             'fromdate', 'allowlatesubmissions', 'peergradesvisibility',
             'justification', 'justificationtype', 'justificationmaxlength',
             'paweighting', 'noncompletionpenalty', 'completiongradedpeers', 'displaypeergradestotals',
-            'lockediting', 'calculator', 'pwgroupingid'));
+            'lockediting', 'calculator', 'pwgroupingid']);
 
         $criteria = new backup_nested_element('criteria');
         $criterion = new backup_nested_element('criterion', ['id'], [
             'description', 'descriptionformat', 'grade', 'weight', 'sortorder']);
 
         $peers = new backup_nested_element('peers');
-        $peer = new backup_nested_element('peer', array('id'), array(
+        $peer = new backup_nested_element('peer', ['id'], [
             'criteriaid', 'grade', 'groupid', 'gradedby', 'gradefor',
-            'feedback', 'locked', 'timecreated', 'timemodified', 'peergrade', 'overriddenby', 'comments', 'timeoverridden'));
+            'feedback', 'locked', 'timecreated', 'timemodified', 'peergrade', 'overriddenby', 'comments', 'timeoverridden']);
 
         $justifications = new backup_nested_element('justifications');
         $justification = new backup_nested_element('justification', ['id'], [
             'groupid', 'gradedby', 'gradefor', 'criteriaid', 'justification']);
 
         $submissions = new backup_nested_element('submissions');
-        $submission = new backup_nested_element('submission', array('id'), array(
+        $submission = new backup_nested_element('submission', ['id'], [
             'userid', 'timecreated', 'timemodified', 'groupid',
             'grade', 'feedbacktext', 'feedbackformat', 'timegraded',
-            'gradedby', 'released', 'releasedby', 'releasednotified', 'paweighting', 'locked'));
+            'gradedby', 'released', 'releasedby', 'releasednotified', 'paweighting', 'locked']);
 
         $grades = new backup_nested_element('grades');
         $grade = new backup_nested_element('grade', ['id'], [
-            'submissionid', 'userid', 'score', 'prelimgrade', 'grade', 'revisedgrade'
+            'submissionid', 'userid', 'score', 'prelimgrade', 'grade', 'revisedgrade',
         ]);
 
         $pluginconfigs = new backup_nested_element('plugin_configs');
 
-        $pluginconfig = new backup_nested_element('plugin_config', array('id'),
-                                                   array('plugin',
-                                                         'subtype',
-                                                         'name',
-                                                         'value'));
+        $pluginconfig = new backup_nested_element('plugin_config', ['id'],
+            ['plugin',
+                'subtype',
+                'name',
+                'value']);
 
         // Build the tree.
         $peerwork->add_child($criteria);
@@ -104,16 +104,16 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         $pluginconfigs->add_child($pluginconfig);
 
         // Define sources.
-        $peerwork->set_source_table('peerwork', array('id' => backup::VAR_ACTIVITYID));
+        $peerwork->set_source_table('peerwork', ['id' => backup::VAR_ACTIVITYID]);
         $criterion->set_source_table('peerwork_criteria', ['peerworkid' => backup::VAR_PARENTID]);
         $pluginconfig->set_source_table('peerwork_plugin_config',
-                                        array('peerwork' => backup::VAR_PARENTID));
+            ['peerwork' => backup::VAR_PARENTID]);
 
         // All the rest of elements only happen if we are including user info.
         if ($includeuserinfo) {
             $peer->set_source_table('peerwork_peers', ['peerwork' => backup::VAR_PARENTID]);
             $justification->set_source_table('peerwork_justification', ['peerworkid' => backup::VAR_PARENTID]);
-            $submission->set_source_table('peerwork_submission', array('peerworkid' => '../../id'));
+            $submission->set_source_table('peerwork_submission', ['peerworkid' => '../../id']);
             $grade->set_source_table('peerwork_grades', ['peerworkid' => backup::VAR_PARENTID]);
         }
 

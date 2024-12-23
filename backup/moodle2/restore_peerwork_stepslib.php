@@ -38,13 +38,13 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
      */
     protected function define_structure() {
 
-        $paths = array();
+        $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('peerwork', '/activity/peerwork');
         $paths[] = new restore_path_element('peerwork_criterion', '/activity/peerwork/criteria/criterion');
         $paths[] = new restore_path_element('peerwork_plugin_config',
-                                            '/activity/peerwork/plugin_configs/plugin_config');
+            '/activity/peerwork/plugin_configs/plugin_config');
 
         if ($userinfo) {
             $paths[] = new restore_path_element('peerwork_peer', '/activity/peerwork/peers/peer');
@@ -90,7 +90,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
     protected function process_peerwork_criterion($data) {
         global $DB;
 
-        $data = (object) $data;
+        $data = (object)$data;
         $oldid = $data->id;
 
         $data->peerworkid = $this->get_new_parentid('peerwork');
@@ -102,6 +102,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
     /**
      * Process a plugin-config restore
+     *
      * @param stdClass $data The data in object form
      * @return void
      */
@@ -124,7 +125,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
     protected function process_peerwork_grade($data) {
         global $DB;
 
-        $data = (object) $data;
+        $data = (object)$data;
 
         $data->peerworkid = $this->get_new_parentid('peerwork');
         $data->submissionid = $this->get_mappingid('peerwork_submission', $data->submissionid);
@@ -141,7 +142,7 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
     protected function process_peerwork_justification($data) {
         global $DB;
 
-        $data = (object) $data;
+        $data = (object)$data;
 
         $data->peerworkid = $this->get_new_parentid('peerwork');
         $data->groupid = $this->get_mappingid('group', $data->groupid);
@@ -190,10 +191,10 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
     protected function process_peerwork_submission($data) {
         global $DB;
 
-        $data = (object) $data;
+        $data = (object)$data;
         $oldid = $data->id;
 
-        $this->set_mapping('group_map', $data->groupid,  $this->get_mappingid('group', $data->groupid), true);
+        $this->set_mapping('group_map', $data->groupid, $this->get_mappingid('group', $data->groupid), true);
 
         $data->peerworkid = $this->get_new_parentid('peerwork');
         $data->userid = $this->get_mappingid('user', $data->userid);

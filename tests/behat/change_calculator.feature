@@ -1,8 +1,8 @@
 @cul @mod @mod_peerwork @mod_peerwork_change_calculator
 Feature: Change the calculator setting
-    In order to test changing the calculator
-    As a teacher
-    I need to edit the activity before and after grades are released
+  In order to test changing the calculator
+  As a teacher
+  I need to edit the activity before and after grades are released
 
   Background:
     Given the following "courses" exist:

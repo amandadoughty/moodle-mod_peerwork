@@ -24,6 +24,8 @@
  */
 
 namespace mod_peerwork\output;
+use renderable;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -34,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class peerwork_summary implements \renderable {
+class peerwork_summary implements renderable {
 
     /** @var object The group. */
     public $group;

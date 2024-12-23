@@ -22,16 +22,20 @@
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_peerwork;
 
 defined('MOODLE_INTERNAL') || die();
 
+use advanced_testcase;
+use context_module;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
+use grade_scale;
 use mod_peerwork\privacy\provider;
 
 /**
@@ -42,7 +46,7 @@ use mod_peerwork\privacy\provider;
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class privacy_provider_test extends \advanced_testcase {
+class privacy_provider_test extends advanced_testcase {
 
     /**
      * This method is called before each test.
@@ -75,15 +79,15 @@ class privacy_provider_test extends \advanced_testcase {
         $u3 = $dg->create_user();
         $u4 = $dg->create_user();
 
-        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
-        $p2 = $dg->create_module('peerwork', (object) ['course' => $c1]);
-        $p3 = $dg->create_module('peerwork', (object) ['course' => $c1]);
+        $p1 = $dg->create_module('peerwork', (object)['course' => $c1]);
+        $p2 = $dg->create_module('peerwork', (object)['course' => $c1]);
+        $p3 = $dg->create_module('peerwork', (object)['course' => $c1]);
         $p1id = $p1->id;
         $p2id = $p2->id;
         $p3id = $p3->id;
-        $p1ctx = \context_module::instance($p1->cmid);
-        $p2ctx = \context_module::instance($p2->cmid);
-        $p3ctx = \context_module::instance($p3->cmid);
+        $p1ctx = context_module::instance($p1->cmid);
+        $p2ctx = context_module::instance($p2->cmid);
+        $p3ctx = context_module::instance($p3->cmid);
 
         // Validate all empty.
         $this->assertEmpty(provider::get_contexts_for_userid($u1->id)->get_contextids());
@@ -163,15 +167,15 @@ class privacy_provider_test extends \advanced_testcase {
         $u4 = $dg->create_user();
         $u5 = $dg->create_user();
 
-        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
-        $p2 = $dg->create_module('peerwork', (object) ['course' => $c1]);
-        $p3 = $dg->create_module('peerwork', (object) ['course' => $c1]);
+        $p1 = $dg->create_module('peerwork', (object)['course' => $c1]);
+        $p2 = $dg->create_module('peerwork', (object)['course' => $c1]);
+        $p3 = $dg->create_module('peerwork', (object)['course' => $c1]);
         $p1id = $p1->id;
         $p2id = $p2->id;
         $p3id = $p3->id;
-        $p1ctx = \context_module::instance($p1->cmid);
-        $p2ctx = \context_module::instance($p2->cmid);
-        $p3ctx = \context_module::instance($p3->cmid);
+        $p1ctx = context_module::instance($p1->cmid);
+        $p2ctx = context_module::instance($p2->cmid);
+        $p3ctx = context_module::instance($p3->cmid);
 
         // Validate all empty.
         $userlist = new userlist($p1ctx, 'mod_peerwork');
@@ -268,8 +272,8 @@ class privacy_provider_test extends \advanced_testcase {
         $u3 = $dg->create_user();
         $u4 = $dg->create_user();
 
-        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
-        $p2 = $dg->create_module('peerwork', (object) ['course' => $c2]);
+        $p1 = $dg->create_module('peerwork', (object)['course' => $c1]);
+        $p2 = $dg->create_module('peerwork', (object)['course' => $c2]);
 
         // Create the same set of data in two modules.
         foreach ([$p1, $p2] as $p) {
@@ -322,7 +326,7 @@ class privacy_provider_test extends \advanced_testcase {
             $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
         }
 
-        provider::delete_data_for_all_users_in_context(\context_module::instance($p1->cmid));
+        provider::delete_data_for_all_users_in_context(context_module::instance($p1->cmid));
 
         // Confirm deletion.
         $p = $p1;
@@ -387,8 +391,8 @@ class privacy_provider_test extends \advanced_testcase {
         $u3 = $dg->create_user();
         $u4 = $dg->create_user();
 
-        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
-        $p2 = $dg->create_module('peerwork', (object) ['course' => $c2]);
+        $p1 = $dg->create_module('peerwork', (object)['course' => $c1]);
+        $p2 = $dg->create_module('peerwork', (object)['course' => $c2]);
 
         // Create the same set of data in two modules.
         foreach ([$p1, $p2] as $p) {
@@ -442,7 +446,7 @@ class privacy_provider_test extends \advanced_testcase {
         }
 
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [
-            \context_module::instance($p1->cmid)->id
+            context_module::instance($p1->cmid)->id,
         ]);
         provider::delete_data_for_user($contextlist);
 
@@ -507,8 +511,8 @@ class privacy_provider_test extends \advanced_testcase {
         $u3 = $dg->create_user();
         $u4 = $dg->create_user();
 
-        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
-        $p2 = $dg->create_module('peerwork', (object) ['course' => $c2]);
+        $p1 = $dg->create_module('peerwork', (object)['course' => $c1]);
+        $p2 = $dg->create_module('peerwork', (object)['course' => $c2]);
 
         // Create the same set of data in two modules.
         foreach ([$p1, $p2] as $p) {
@@ -565,7 +569,7 @@ class privacy_provider_test extends \advanced_testcase {
             $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
         }
 
-        $contextlist = new approved_userlist(\context_module::instance($p1->cmid), 'mod_peerwork', [$u1->id, $u2->id]);
+        $contextlist = new approved_userlist(context_module::instance($p1->cmid), 'mod_peerwork', [$u1->id, $u2->id]);
         provider::delete_data_for_users($contextlist);
 
         // Confirm deletion, and not deletion.
@@ -628,30 +632,30 @@ class privacy_provider_test extends \advanced_testcase {
         $u3 = $dg->create_user();
         $u9 = $dg->create_user();
 
-        $p1 = $dg->create_module('peerwork', (object) ['course' => $c1]);
+        $p1 = $dg->create_module('peerwork', (object)['course' => $c1]);
 
         $sub = $pg->create_submission(['peerworkid' => $p1->id, 'groupid' => $g1->id, 'userid' => $u1->id,
-                'gradedby' => $u9->id, 'releasedby' => $u9->id, 'timegraded' => 123456789,
-                'released' => 223456789, 'timecreated' => 88872733, 'timemodified' => 188872733,
-                'feedbacktext' => 'You rock', 'feedbackformat' => FORMAT_PLAIN, 'grade' => 88]);
+            'gradedby' => $u9->id, 'releasedby' => $u9->id, 'timegraded' => 123456789,
+            'released' => 223456789, 'timecreated' => 88872733, 'timemodified' => 188872733,
+            'feedbacktext' => 'You rock', 'feedbackformat' => FORMAT_PLAIN, 'grade' => 88]);
         $sub2 = $pg->create_submission(['peerworkid' => $p1->id, 'groupid' => $g2->id, 'userid' => $u3->id,
-                'gradedby' => $u9->id, 'timegraded' => 111111, 'timecreated' => 222222, 'timemodified' => 333333,
-                'feedbacktext' => 'You rule', 'feedbackformat' => FORMAT_PLAIN, 'grade' => 77]);
+            'gradedby' => $u9->id, 'timegraded' => 111111, 'timecreated' => 222222, 'timemodified' => 333333,
+            'feedbacktext' => 'You rule', 'feedbackformat' => FORMAT_PLAIN, 'grade' => 77]);
         $crit1 = $pg->create_criterion(['peerworkid' => $p1->id, 'scale' => $scale1, 'description' => 'X?']);
         $crit2 = $pg->create_criterion(['peerworkid' => $p1->id, 'scale' => $scale2, 'description' => 'Y?']);
 
         $g1 = $pg->create_peer_grade([
-                'peerworkid' => $p1->id,
-                'criteriaid' => $crit1->id,
-                'groupid' => $g1->id,
-                'gradefor' => $u1->id,
-                'gradedby' => $u2->id,
-                'grade' => 1,
-                'timecreated' => 1234986,
-                'peergrade' => 2,
-                'overriddenby' => $u9->id,
-                'comments' => 'some words',
-                'timeoverridden' => 1234986
+            'peerworkid' => $p1->id,
+            'criteriaid' => $crit1->id,
+            'groupid' => $g1->id,
+            'gradefor' => $u1->id,
+            'gradedby' => $u2->id,
+            'grade' => 1,
+            'timecreated' => 1234986,
+            'peergrade' => 2,
+            'overriddenby' => $u9->id,
+            'comments' => 'some words',
+            'timeoverridden' => 1234986,
         ]);
         $g2 = $pg->create_peer_grade(['peerworkid' => $p1->id, 'criteriaid' => $crit1->id, 'groupid' => $g1->id,
             'gradefor' => $u2->id, 'gradedby' => $u1->id, 'grade' => 4, 'timecreated' => 2234986]);
@@ -670,7 +674,7 @@ class privacy_provider_test extends \advanced_testcase {
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u2->id, 'submissionid' => $sub->id, 'grade' => 12.30]);
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u3->id, 'submissionid' => $sub2->id, 'grade' => 13.37]);
 
-        $ctx = \context_module::instance($p1->cmid);
+        $ctx = context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
@@ -698,9 +702,9 @@ class privacy_provider_test extends \advanced_testcase {
         $this->assertEquals(transform::datetime($sub->timegraded), $submission->graded_on);
         $this->assertEquals(transform::datetime($sub->released), $submission->released_on);
 
-        $sc1 = \grade_scale::fetch(['id' => $scale1->id]);
+        $sc1 = grade_scale::fetch(['id' => $scale1->id]);
         $sc1->load_items();
-        $sc2 = \grade_scale::fetch(['id' => $scale2->id]);
+        $sc2 = grade_scale::fetch(['id' => $scale2->id]);
         $sc2->load_items();
 
         // The order matters.
@@ -759,7 +763,7 @@ class privacy_provider_test extends \advanced_testcase {
         $p1->justification = MOD_PEERWORK_JUSTIFICATION_HIDDEN;
         $DB->update_record('peerwork', $p1);
 
-        $ctx = \context_module::instance($p1->cmid);
+        $ctx = context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
@@ -777,7 +781,7 @@ class privacy_provider_test extends \advanced_testcase {
 
         // Now test again with the teacher.
         writer::reset();
-        $ctx = \context_module::instance($p1->cmid);
+        $ctx = context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u9, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 

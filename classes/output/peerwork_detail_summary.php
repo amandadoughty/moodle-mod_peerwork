@@ -27,6 +27,9 @@ namespace mod_peerwork\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use html_writer;
+use moodle_url;
+use pix_icon;
 use renderer_base;
 use renderable;
 use templatable;
@@ -139,7 +142,7 @@ class peerwork_detail_summary implements templatable, renderable {
 
                 if ($canunlock && in_array($member->id, $lockedgraders)) {
                     $label .= $output->action_icon('#',
-                        new \pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'),
+                        new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'),
                         null,
                         [
                             'data-peerworkid' => $peerwork->id,
@@ -151,7 +154,7 @@ class peerwork_detail_summary implements templatable, renderable {
                 }
 
                 $gradedby = ['name' => $label];
-                $url = new \moodle_url('/mod/peerwork/override.php', [
+                $url = new moodle_url('/mod/peerwork/override.php', [
                     'id' => $cmid,
                     'pid' => $peerwork->id,
                     'gid' => $groupid,
@@ -164,7 +167,7 @@ class peerwork_detail_summary implements templatable, renderable {
                     'groupid' => $groupid,
                     'gradedby' => $member->id,
                     'name' => fullname($member),
-                    'href' => $url->out()
+                    'href' => $url->out(),
                 ];
 
                 foreach ($members as $peer) {
@@ -175,7 +178,7 @@ class peerwork_detail_summary implements templatable, renderable {
                     ) {
                         $gradedby['gradefor'][] = [
                             'name' => fullname($peer),
-                            'grade' => '-'
+                            'grade' => '-',
                         ];
                     } else {
                         $feedbacktext = '';
@@ -208,9 +211,9 @@ class peerwork_detail_summary implements templatable, renderable {
                             $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
                             $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
                             $attributes = ['title' => $title, 'aria-hidden' => true];
-                            $pixicon = new \pix_icon('docs', '', 'moodle', $attributes);
+                            $pixicon = new pix_icon('docs', '', 'moodle', $attributes);
                             $override = $output->render($pixicon);
-                            $override .= \html_writer::tag('span', $title, ['class' => 'sr-only']);
+                            $override .= html_writer::tag('span', $title, ['class' => 'sr-only']);
                         }
 
                         if (
@@ -226,22 +229,22 @@ class peerwork_detail_summary implements templatable, renderable {
                                 $feedbacktext = $feedbackrendered["$member->id-$critid-$peer->id"];
                             } else {
                                 $feedbacktext = print_collapsible_region(
+                                    $justifications[$member->id][$critid][$peer->id]->justification,
+                                    'peerwork-feedback',
+                                    'peerwork-feedback-' .
+                                    $member->id .
+                                    '-' .
+                                    $critid .
+                                    '-' .
+                                    $peer->id,
+                                    shorten_text(
                                         $justifications[$member->id][$critid][$peer->id]->justification,
-                                        'peerwork-feedback',
-                                        'peerwork-feedback-' .
-                                        $member->id .
-                                        '-' .
-                                        $critid .
-                                        '-' .
-                                        $peer->id,
-                                        shorten_text(
-                                            $justifications[$member->id][$critid][$peer->id]->justification,
-                                            20
-                                        ),
-                                        '',
-                                        true,
-                                        true
-                                    );
+                                        20
+                                    ),
+                                    '',
+                                    true,
+                                    true
+                                );
 
                                 $feedbackrendered["$member->id-$critid-$peer->id"] = $feedbacktext;
                             }
@@ -249,17 +252,17 @@ class peerwork_detail_summary implements templatable, renderable {
 
                         $gradedby['gradefor'][] = [
                             'name' => fullname($peer),
-                            'grade' => $grade . $override . $feedbacktext
+                            'grade' => $grade . $override . $feedbacktext,
                         ];
                     }
 
                     $feedbacktext = '';
 
                     if (!isset($grades->grades[$critid]) || !isset($grades->grades[$critid][$peer->id])
-                            || !isset($grades->grades[$critid][$peer->id][$member->id])) {
+                        || !isset($grades->grades[$critid][$peer->id][$member->id])) {
                         $gradefor['gradedby'][] = [
                             'name' => $label,
-                            'grade' => '-'
+                            'grade' => '-',
                         ];
                     } else {
                         $feedbacktext = '';
@@ -290,9 +293,9 @@ class peerwork_detail_summary implements templatable, renderable {
                                 $title = get_string('gradeoverridden', 'mod_peerwork', $peergrade);
                                 $title .= ' ' . get_string('comment', 'mod_peerwork') . $comments;
                                 $attributes = ['title' => $title, 'aria-hidden' => true];
-                                $pixicon = new \pix_icon('docs', '', 'moodle', $attributes);
+                                $pixicon = new pix_icon('docs', '', 'moodle', $attributes);
                                 $override = $output->render($pixicon);
-                                $override .= \html_writer::tag('span', $title, ['class' => 'sr-only']);
+                                $override .= html_writer::tag('span', $title, ['class' => 'sr-only']);
                             }
                         }
 
@@ -309,22 +312,22 @@ class peerwork_detail_summary implements templatable, renderable {
                                 $feedbacktext = $feedbackrendered["$peer->id-$critid-$member->id"];
                             } else {
                                 $feedbacktext = print_collapsible_region(
+                                    $justifications[$peer->id][$critid][$member->id]->justification,
+                                    'peerwork-feedback',
+                                    'peerwork-feedback-' .
+                                    $peer->id .
+                                    '-' .
+                                    $critid .
+                                    '-' .
+                                    $member->id,
+                                    shorten_text(
                                         $justifications[$peer->id][$critid][$member->id]->justification,
-                                        'peerwork-feedback',
-                                        'peerwork-feedback-' .
-                                        $peer->id .
-                                        '-' .
-                                        $critid .
-                                        '-' .
-                                        $member->id,
-                                        shorten_text(
-                                            $justifications[$peer->id][$critid][$member->id]->justification,
-                                            20
-                                        ),
-                                        '',
-                                        true,
-                                        true
-                                    );
+                                        20
+                                    ),
+                                    '',
+                                    true,
+                                    true
+                                );
 
                                 $feedbackrendered["$peer->id-$critid-$member->id"] = $feedbacktext;
                             }
@@ -332,7 +335,7 @@ class peerwork_detail_summary implements templatable, renderable {
 
                         $gradefor['gradedby'][] = [
                             'name' => fullname($peer),
-                            'grade' => $grade . $override . $feedbacktext
+                            'grade' => $grade . $override . $feedbacktext,
                         ];
                     }
                 }

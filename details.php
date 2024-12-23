@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\output\notification;
+use mod_peerwork\event\submission_grade_form_viewed;
+
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/peerwork/lib.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
@@ -31,13 +34,13 @@ require_once($CFG->dirroot . '/lib/gradelib.php');
 $id = required_param('id', PARAM_INT);
 $groupid = required_param('groupid', PARAM_INT);
 
-$cm             = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
-$course         = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$peerwork       = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
-$submission     = $DB->get_record('peerwork_submission', array('peerworkid' => $peerwork->id, 'groupid' => $groupid));
-$members        = groups_get_members($groupid);
-$group          = $DB->get_record('groups', array('id' => $groupid), '*', MUST_EXIST);
-$status         = peerwork_get_status($peerwork, $group);
+$cm = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
+$submission = $DB->get_record('peerwork_submission', ['peerworkid' => $peerwork->id, 'groupid' => $groupid]);
+$members = groups_get_members($groupid);
+$group = $DB->get_record('groups', ['id' => $groupid], '*', MUST_EXIST);
+$status = peerwork_get_status($peerwork, $group);
 
 // Print the standard page header and check access rights.
 require_login($course, true, $cm);
@@ -74,7 +77,7 @@ $draftitemid = file_get_submitted_draft_itemid('feedback_files');
 file_prepare_draft_area($draftitemid, $context->id, 'mod_peerwork', 'feedback_files', $group->id, $fileoptions);
 $data = [
     'paweighting' => $peerwork->paweighting,
-    'feedback_files' => $draftitemid
+    'feedback_files' => $draftitemid,
 ];
 
 // Load the submission data.
@@ -83,7 +86,7 @@ if ($submission && peerwork_was_submission_graded_from_status($status)) {
     $data['paweighting'] = $submission->paweighting;
     $data['feedback'] = [
         'text' => $submission->feedbacktext ?? '',
-        'format' => $submission->feedbackformat ?? FORMAT_HTML
+        'format' => $submission->feedbackformat ?? FORMAT_HTML,
     ];
 }
 
@@ -104,19 +107,18 @@ $mform = new mod_peerwork_details_form($PAGE->url->out(false), [
     'submission' => $submission,
     'members' => $members,
     'canunlock' => $canunlock,
-    'duedatenotpassed' => $duedatenotpassed
+    'duedatenotpassed' => $duedatenotpassed,
 ]);
 $data['groupname'] = $group->name;
 $data['status'] = $status->text;
 $submissionfiles = peerwork_submission_files($context, $group);
 $data['submission'] = empty($submissionfiles) ? get_string('nothingsubmitted', 'peerwork') : implode('<br/>', $submissionfiles);
 
-
 // Get the peer grades awarded so far, then for each criteria
 // output a HTML tabulation of the peers and the grades awarded and received.
 // TODO instead of HTML fragment can we build this with form elments?
 $grades = peerwork_get_peer_grades($peerwork, $group, $members, false);
-$pac = new mod_peerwork_criteria( $peerwork->id );
+$pac = new mod_peerwork_criteria($peerwork->id);
 $data['peergradesawarded'] = '';
 // Is there per criteria justification enabled?
 $justenabled = $peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED;
@@ -187,12 +189,12 @@ if (peerwork_was_submission_graded_from_status($status)) {
             'overriddenweightedgrade' => $overriddenweightedgrade,
             'revisedgrade' => $localgrades[$member->id]->revisedgrade ?? null,
             'overridden' => $grade->overridden,
-            'locked' => $grade->locked
+            'locked' => $grade->locked,
         ];
     }
 } else if ($duedatenotpassed) {
-        $duedatehtml = html_writer::tag('div', get_string('duedatenotpassed', 'mod_peerwork'), ['class' => 'alert alert-danger']);
-        $data['duedatenotpassed'] = $duedatehtml;
+    $duedatehtml = html_writer::tag('div', get_string('duedatenotpassed', 'mod_peerwork'), ['class' => 'alert alert-danger']);
+    $data['duedatenotpassed'] = $duedatehtml;
 }
 
 $mform->set_data($data);
@@ -211,8 +213,8 @@ if ($mform->is_cancelled()) {
         $grader->set_feedback($data->feedback['text'], $data->feedback['format'], $draftitemid);
         $grader->commit();
 
-        redirect(new moodle_url('details.php', array('id' => $id, 'groupid' => $groupid)),
-            get_string('gradesandfeedbacksaved', 'mod_peerwork'), null, \core\output\notification::NOTIFY_SUCCESS);
+        redirect(new moodle_url('details.php', ['id' => $id, 'groupid' => $groupid]),
+            get_string('gradesandfeedbacksaved', 'mod_peerwork'), null, notification::NOTIFY_SUCCESS);
     }
 
     // Redirect to home page because there were no changes.
@@ -222,12 +224,12 @@ if ($mform->is_cancelled()) {
 //
 // Form should now be setup to display, so do the output.
 //
-$params = array(
+$params = [
     'objectid' => $cm->id,
     'context' => $context,
-    'other' => array('groupid' => $group->id)
-);
-$event = \mod_peerwork\event\submission_grade_form_viewed::create($params);
+    'other' => ['groupid' => $group->id],
+];
+$event = submission_grade_form_viewed::create($params);
 $event->trigger();
 
 echo $OUTPUT->header();

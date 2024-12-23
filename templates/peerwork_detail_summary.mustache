@@ -59,48 +59,46 @@
 }}
 
 {{# criteria }}
-<table class="{{ attributes.class }}">
-    <caption>{{{ caption }}}</caption>
-    <thead>
-    <tr>
-        <th></th>
-        {{# peergradefor }}
-        <th>{{ name }}</th>
-        {{/ peergradefor }}
-    </tr>
-    </thead>
-    <tbody>
-        {{# peergradedby }}
+    <table class="{{ attributes.class }}">
+        <caption>{{{ caption }}}</caption>
+        <thead>
         <tr>
-            <td>{{{ name }}}</td>
-            {{# gradefor }}
-            <td>{{{ grade }}}</td>
-            {{/ gradefor }}
+            <th></th>
+            {{# peergradefor }}
+                <th>{{ name }}</th>
+            {{/ peergradefor }}
         </tr>
+        </thead>
+        <tbody>
+        {{# peergradedby }}
+            <tr>
+                <td>{{{ name }}}</td>
+                {{# gradefor }}
+                    <td>{{{ grade }}}</td>
+                {{/ gradefor }}
+            </tr>
         {{/ peergradedby }}
-    </tbody>
-</table>
+        </tbody>
+    </table>
 {{/ criteria }}
 <br>
 {{# overridepeergrades }}
-<strong>{{# str }} overridepeergradesby, mod_peerwork {{/ str }}</strong>
-<div id="memberdropdown" class="dropdown justify-content-center py-3">
-    <a class="dropdown-toggle nav-link" id="drop-down-{{ uniqid }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{# str }} select, core {{/ str }}" href="#">
-        {{# str }} select, core {{/ str }}
-    </a>
-    <div class="dropdown-menu mt-0" aria-labelledby="drop-down-{{ uniqid }}">
-        {{# memberdropdown }}
-        <a
-            class="dropdown-item"
-            href="{{{ href }}}"
-            title="{{{ name }}}"
-        >
-            {{{ name }}}
+    <strong>{{# str }} overridepeergradesby, mod_peerwork {{/ str }}</strong>
+    <div id="memberdropdown" class="dropdown justify-content-center py-3">
+        <a class="dropdown-toggle nav-link" id="drop-down-{{ uniqid }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{# str }} select, core {{/ str }}"
+           href="#">
+            {{# str }} select, core {{/ str }}
         </a>
-        {{/ memberdropdown }}
+        <div class="dropdown-menu mt-0" aria-labelledby="drop-down-{{ uniqid }}">
+            {{# memberdropdown }}
+                <a
+                        class="dropdown-item"
+                        href="{{{ href }}}"
+                        title="{{{ name }}}"
+                >
+                    {{{ name }}}
+                </a>
+            {{/ memberdropdown }}
+        </div>
     </div>
-</div>
 {{/ overridepeergrades }}
-
-
-

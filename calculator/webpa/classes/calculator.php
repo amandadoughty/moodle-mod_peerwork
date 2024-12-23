@@ -22,7 +22,11 @@
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace peerworkcalculator_webpa;
+
+use mod_peerwork\pa_result;
+use mod_peerwork\peerworkcalculator_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -34,10 +38,11 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class calculator extends \mod_peerwork\peerworkcalculator_plugin {
+class calculator extends peerworkcalculator_plugin {
 
     /**
      * Get the name of the webPA calculator plugin
+     *
      * @return string
      */
     public function get_name() {
@@ -90,7 +95,7 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
      * @param int $noncompletionpenalty The penalty to be applied.
      * @param int $paweighting The weighting to be applied.
      * @param bool $selfgrade If self grading is enabled.
-     * @return \mod_peerwork\pa_result.
+     * @return pa_result.
      */
     public function calculate($grades, $groupmark, $noncompletionpenalty = 0, $paweighting = 1, $selfgrade = false) {
         $memberids = array_keys($grades);
@@ -180,9 +185,9 @@ class calculator extends \mod_peerwork\peerworkcalculator_plugin {
                 $carry[$memberid] = $grade;
                 return $carry;
             },
-        []);
+            []);
 
-        return new \mod_peerwork\pa_result($fracscores, $webpascores, $prelimgrades, $grades, $noncompletionpenalties);
+        return new pa_result($fracscores, $webpascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
 
     /**

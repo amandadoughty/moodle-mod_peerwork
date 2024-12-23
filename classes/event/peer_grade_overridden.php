@@ -24,6 +24,10 @@
 
 namespace mod_peerwork\event;
 
+use coding_exception;
+use core\event\base;
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -43,7 +47,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class peer_grade_overridden extends \core\event\base {
+class peer_grade_overridden extends base {
 
     /**
      * Init method.
@@ -68,10 +72,10 @@ class peer_grade_overridden extends \core\event\base {
     /**
      * Returns relevant URL.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/peerwork/overridegrades.php', ['id' => $this->contextinstanceid]);
+        return new moodle_url('/mod/peerwork/overridegrades.php', ['id' => $this->contextinstanceid]);
     }
 
     /**
@@ -88,25 +92,25 @@ class peer_grade_overridden extends \core\event\base {
     /**
      * Custom validation.
      *
-     * @throws \coding_exception
      * @return void
+     * @throws coding_exception
      */
     protected function validate_data() {
         parent::validate_data();
         if (!$this->relateduserid) {
-            throw new \coding_exception('The \'relateduserid\' value must be set.');
+            throw new coding_exception('The \'relateduserid\' value must be set.');
         }
         if (!isset($this->other['gradefor'])) {
-            throw new \coding_exception('The \'gradefor\' value must be set in other.');
+            throw new coding_exception('The \'gradefor\' value must be set in other.');
         }
         if (!array_key_exists('peergrade', $this->other)) {
             $this->other['peergrade'] = '-';
         }
         if (!isset($this->other['grade'])) {
-            throw new \coding_exception('The \'grade\' value must be set in other.');
+            throw new coding_exception('The \'grade\' value must be set in other.');
         }
         if (!isset($this->other['comments'])) {
-            throw new \coding_exception('The \'comments\' value must be set in other.');
+            throw new coding_exception('The \'comments\' value must be set in other.');
         }
     }
 }

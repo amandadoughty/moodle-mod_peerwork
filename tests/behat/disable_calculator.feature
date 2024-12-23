@@ -1,8 +1,8 @@
 @cul @mod @mod_peerwork @mod_peerwork_disable_calculator
 Feature: Disable a calculator which has been used in peerwork
-    In order to test disabling the calculator
-    As a teacher
-    I need to edit the activity before and after submissions are graded
+  In order to test disabling the calculator
+  As a teacher
+  I need to edit the activity before and after submissions are graded
 
   Background:
     Given the following "courses" exist:

@@ -146,10 +146,10 @@ class mod_peerwork_override_form extends moodleform {
                     get_string('gradeoverride', 'mod_peerwork'),
                     $scaleitems
                 );
-                $mform->setType('gradeoverride_'  . $uniqueid, PARAM_INT);
+                $mform->setType('gradeoverride_' . $uniqueid, PARAM_INT);
 
                 $selected = $overiddengrade ? $overiddengrade : $grade;
-                $mform->getElement('gradeoverride_'  . $uniqueid)->setSelected($selected);
+                $mform->getElement('gradeoverride_' . $uniqueid)->setSelected($selected);
 
                 $mform->addElement(
                     'textarea',
@@ -188,7 +188,7 @@ class mod_peerwork_override_form extends moodleform {
 
                 if (isset($data['overridden_' . $uniqueid][$peer->id]) && $data['overridden_' . $uniqueid][$peer->id]) {
                     if (!$data['comments_' . $uniqueid][$peer->id]) {
-                        $errors['comments_' . $uniqueid. '[' . $peer->id . ']'] = $errortxt;
+                        $errors['comments_' . $uniqueid . '[' . $peer->id . ']'] = $errortxt;
                     }
                 }
             }
@@ -210,7 +210,7 @@ class mod_peerwork_override_form extends moodleform {
         }
 
         // Group the grades and data.
-        $data = (array) $data;
+        $data = (array)$data;
         $data['overridden'] = [];
 
         foreach ($data as $key => $value) {
@@ -233,7 +233,7 @@ class mod_peerwork_override_form extends moodleform {
             }
         }
 
-        return (object) $data;
+        return (object)$data;
     }
 
     /**

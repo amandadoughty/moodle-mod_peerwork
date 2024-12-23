@@ -22,7 +22,12 @@
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_peerwork\event;
+
+use coding_exception;
+use core\event\base;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -40,7 +45,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class grades_released extends \core\event\base {
+class grades_released extends base {
 
     /**
      * Init method.
@@ -65,10 +70,10 @@ class grades_released extends \core\event\base {
     /**
      * Returns relevant URL.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
+        return new moodle_url('/mod/peerwork/view.php', ['id' => $this->contextinstanceid]);
     }
 
     /**
@@ -85,13 +90,13 @@ class grades_released extends \core\event\base {
     /**
      * Custom validation.
      *
-     * @throws \coding_exception
      * @return void
+     * @throws coding_exception
      */
     protected function validate_data() {
         parent::validate_data();
         if (!isset($this->other['groupid'])) {
-            throw new \coding_exception('The \'groupid\' value must be set in other.');
+            throw new coding_exception('The \'groupid\' value must be set in other.');
         }
     }
 }

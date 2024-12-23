@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$messageproviders = array(
+$messageproviders = [
 
     // Grade released.
     'grade_released' => [
@@ -34,4 +34,4 @@ $messageproviders = array(
         ],
     ],
 
-);
+];

@@ -22,12 +22,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_peerwork\event\submissions_downloaded;
+
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/lib/grouplib.php');
 require_once($CFG->libdir . '/filestorage/zip_archive.php');
 
 $id = required_param('id', PARAM_INT);
-list($course, $cm) = get_course_and_cm_from_cmid($id, 'peerwork');
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'peerwork');
 $context = context_module::instance($cm->id);
 
 require_login($course, true, $cm);
@@ -57,13 +59,13 @@ foreach ($allgroups as $group) {
     }
 }
 
-$zipper   = get_file_packer('application/zip');
+$zipper = get_file_packer('application/zip');
 $filename = shorten_filename(clean_filename($peerwork->name . "-" . date("Ymd")) . ".zip");
 $temppath = tempnam($CFG->tempdir . '/', 'peerwork_');
 
 if ($zipper->archive_to_pathname($groupfiles, $temppath)) {
     $params = ['context' => $context];
-    $event = \mod_peerwork\event\submissions_downloaded::create($params);
+    $event = submissions_downloaded::create($params);
     $event->trigger();
     // Send file and delete after sending.
     send_temp_file($temppath, $filename);

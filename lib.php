@@ -33,16 +33,16 @@ require_once('locallib.php');
 /**
  * Returns the information on whether the module supports a feature
  *
- * @see plugin_supports() in lib/moodlelib.php
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed true if the feature is supported, null if unknown
+ * @see plugin_supports() in lib/moodlelib.php
  */
 function peerwork_supports($feature) {
     // Adding support for FEATURE_MOD_PURPOSE (MDL-71457) and providing backward compatibility (pre-v4.0).
     // Credit to mod-zoom plugin.
     if (defined('FEATURE_MOD_PURPOSE') && $feature === FEATURE_MOD_PURPOSE) {
         return MOD_PURPOSE_ASSESSMENT;
-    } 
+    }
     switch ($feature) {
         case FEATURE_GROUPS:
             return true;
@@ -261,7 +261,7 @@ function peerwork_cron() {
  * @return array
  */
 function peerwork_get_extra_capabilities() {
-    return array();
+    return [];
 }
 
 /**
@@ -288,7 +288,7 @@ function peerwork_grade_item_update(stdClass $peerwork, $grades = null) {
     global $CFG;
     require_once($CFG->libdir . '/gradelib.php');
 
-    $item = array();
+    $item = [];
     $item['itemname'] = clean_param($peerwork->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
     $item['grademax'] = 100;
@@ -356,14 +356,11 @@ function peerwork_update_grades(stdClass $peerwork, $userid = 0, $nullifnone = t
  * @return array of [(string)filearea] => (string)description
  */
 function peerwork_get_file_areas($course, $cm, $context) {
-    return array();
+    return [];
 }
 
 /**
  * File browsing support for peerwork file areas
- *
- * @package mod_peerwork
- * @category files
  *
  * @param file_browser $browser
  * @param array $areas
@@ -375,6 +372,9 @@ function peerwork_get_file_areas($course, $cm, $context) {
  * @param string $filepath
  * @param string $filename
  * @return file_info instance or null if not found
+ * @package mod_peerwork
+ * @category files
+ *
  */
 function peerwork_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
     return null;
@@ -383,9 +383,6 @@ function peerwork_get_file_info($browser, $areas, $course, $cm, $context, $filea
 /**
  * Serves the files from the peerwork file areas
  *
- * @package mod_peerwork
- * @category files
- *
  * @param stdClass $course the course object
  * @param stdClass $cm the course module object
  * @param stdClass $context the peerwork's context
@@ -393,8 +390,11 @@ function peerwork_get_file_info($browser, $areas, $course, $cm, $context, $filea
  * @param array $args extra arguments (itemid, path)
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
+ * @category files
+ *
+ * @package mod_peerwork
  */
-function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
+function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
     global $DB, $USER;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -409,7 +409,7 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
         return false;
     }
 
-    $peerwork = $DB->get_record('peerwork', array('id' => $cm->instance), '*', MUST_EXIST);
+    $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
     $groupingid = $peerwork->pwgroupingid;
     $itemid = (int)array_shift($args);
     $mygroup = peerwork_get_mygroup($course->id, $USER->id, $groupingid, false);
@@ -492,8 +492,8 @@ function mod_peerwork_inplace_editable($rawitemtype, $itemid, $newvalue) {
     $peerworkid = 0;
     $itemtype = $rawitemtype;
     if (strpos($rawitemtype, '_') > 0) {
-        list($itemtype, $peerworkid) = explode('_', $itemtype, 2);
-        $peerworkid = (int) $peerworkid;
+        [$itemtype, $peerworkid] = explode('_', $itemtype, 2);
+        $peerworkid = (int)$peerworkid;
     }
 
     $value = null;
@@ -505,7 +505,7 @@ function mod_peerwork_inplace_editable($rawitemtype, $itemid, $newvalue) {
             $peerwork = $DB->get_record('peerwork', ['id' => $peerworkid], '*', MUST_EXIST);
 
             // We must validate context, permissions, login, etc.
-            list($course, $cm) = get_course_and_cm_from_instance($peerworkid, 'peerwork');
+            [$course, $cm] = get_course_and_cm_from_instance($peerworkid, 'peerwork');
             $context = context_module::instance($cm->id);
             $PAGE->set_context($context);
             require_login($course, false, $cm);
@@ -577,10 +577,10 @@ function mod_peerwork_get_completion_active_rule_descriptions($cm) {
 function peerwork_get_coursemodule_info($coursemodule) {
     global $DB;
 
-    $dbparams = array('id'=>$coursemodule->instance);
+    $dbparams = ['id' => $coursemodule->instance];
     $fields = 'id, name, intro, introformat, completiongradedpeers,
         duedate, fromdate';
-    if (! $peerwork = $DB->get_record('peerwork', $dbparams, $fields)) {
+    if (!$peerwork = $DB->get_record('peerwork', $dbparams, $fields)) {
         return false;
     }
 

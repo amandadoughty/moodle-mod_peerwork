@@ -24,6 +24,9 @@
 
 namespace mod_peerwork\event;
 
+use core\event\base;
+use moodle_url;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -34,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class assessable_submitted extends \core\event\base {
+class assessable_submitted extends base {
 
     /**
      * Init method.
@@ -58,12 +61,12 @@ class assessable_submitted extends \core\event\base {
     /**
      * Returns relevant URL.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url(
+        return new moodle_url(
             '/mod/peerwork/view.php',
-            array('id' => $this->contextinstanceid));
+            ['id' => $this->contextinstanceid]);
     }
 
     /**

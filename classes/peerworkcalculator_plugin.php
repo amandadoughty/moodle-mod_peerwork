@@ -25,6 +25,8 @@
 
 namespace mod_peerwork;
 
+use MoodleQuickForm;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -38,6 +40,7 @@ defined('MOODLE_INTERNAL') || die();
 class peerworkcalculator_plugin extends peerwork_plugin {
     /**
      * Get the name of the simple calculator plugin
+     *
      * @return string
      */
     public function get_name() {
@@ -153,9 +156,9 @@ class peerworkcalculator_plugin extends peerwork_plugin {
                 $carry[$memberid] = $grade;
                 return $carry;
             },
-        []);
+            []);
 
-        return new \mod_peerwork\pa_result($sumscores, $pascores, $prelimgrades, $grades, $noncompletionpenalties);
+        return new pa_result($sumscores, $pascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
 
     /**
@@ -194,7 +197,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
      * @param MoodleQuickForm $mform The form to add the elements to
      * @return $array
      */
-    public function get_settings(\MoodleQuickForm $mform) {
+    public function get_settings(MoodleQuickForm $mform) {
         if ($this->usespaweighting()) {
             if (!$this->peerwork) {
                 $paw = get_config('peerwork', 'paweighting');
