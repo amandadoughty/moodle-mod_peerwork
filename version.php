@@ -29,7 +29,7 @@ $plugin->requires  = 2022041900;      // Moodle 4.0.0.
 $plugin->component = 'mod_peerwork';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = '4.0.0';
+$plugin->supported = [400, 401];
 $plugin->dependencies = array(
     'peerworkcalculator_webpa' => 2020052200,
 );
-
