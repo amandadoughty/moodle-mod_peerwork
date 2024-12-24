@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function ($) {
+define(['jquery'], function($) {
     /**
      * Update calculator settings.
      *
@@ -36,7 +36,7 @@ define(['jquery'], function ($) {
 
             if (updatebut && formatselect) {
                 updatebut.css('display', 'none');
-                formatselect.on('change', function () {
+                formatselect.on('change', function() {
                     $('form.mform').attr('action', action + '#' + ancestor.attr('id'));
                     updatebut.trigger('click');
                 });

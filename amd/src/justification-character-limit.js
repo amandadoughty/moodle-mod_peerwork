@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/str', 'core/notification'], function ($, Str, Notification) {
+define(['jquery', 'core/str', 'core/notification'], function($, Str, Notification) {
 
     const WRAPPER_CLASS = 'justification-character-limit-wrapper';
     const WRAPPER_SELECTOR = '.justification-character-limit-wrapper';
@@ -65,14 +65,14 @@ define(['jquery', 'core/str', 'core/notification'], function ($, Str, Notificati
             const textareaNodes = $(selector);
 
             // Append the place where we'll compute the character limit.
-            textareaNodes.each(function (i, n) {
+            textareaNodes.each(function(i, n) {
                 var node = $(n);
                 node.after(`<div class="${WRAPPER_CLASS}"><small class="${TEXT_CLASS}"></small></div>`);
                 updateCharacterLimit(n, limit);
             });
 
             // Add the change listener.
-            textareaNodes.on('keyup', function (e) {
+            textareaNodes.on('keyup', function(e) {
                 updateCharacterLimit(e.target, limit);
             });
 

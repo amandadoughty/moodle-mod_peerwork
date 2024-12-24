@@ -44,7 +44,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Sets the grade for the specified peer in the specified criteria.
      *
-     * @When /^I give "(?P<peer_string>[^"]*)" grade "(?P<grade_string>[^"]*)" for criteria "(?P<criteria_string>[^"]*)"$/
+     * @When /^I give "(?P<peer>[^"]*)" grade "(?P<grade>[^"]*)" for criteria "(?P<criteria>[^"]*)"$/
      *
      * @param string $peer
      * @param string $grade
@@ -63,7 +63,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Sets the justification for the specified peer in the specified criteria.
      *
-     * @When /^I give "(?P<peer_string>[^"]*)" justification "(?P<justification_string>[^"]*)" for criteria "(?P<criteria_string>[^"]*)"$/
+     * @When /^I give "(?P<peer>[^"]*)" justification "(?P<justification>[^"]*)" for criteria "(?P<criteria>[^"]*)"$/
      *
      * @param string $peer
      * @param string $justification
@@ -82,7 +82,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Enables overrde of the grade for the specified peer in the specified criteria.
      *
-     * @When /^I enable overriden "(?P<peer_string>[^"]*)" grade for criteria "(?P<criteria_string>[^"]*)"$/
+     * @When /^I enable overriden "(?P<peer>[^"]*)" grade for criteria "(?P<criteria>[^"]*)"$/
      *
      * @param string $peer
      * @param string $criteria
@@ -99,7 +99,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Overrides the grade for the specified peer in the specified criteria.
      *
-     * @When /^I override "(?P<peer_string>[^"]*)" grade for criteria "(?P<criteria_string>[^"]*)" with "(?P<grade_string>[^"]*)" "(?P<comment_string>[^"]*)"$/
+     * @When /^I override "(?P<peer>[^"]*)" grade for criteria "(?P<criteria>[^"]*)" with "(?P<grade>[^"]*)" "(?P<comment>[^"]*)"$/
      *
      * @param string $peer
      * @param string $criteria
@@ -123,7 +123,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Sets the revised grade for a student.
      *
-     * @When /^I give "(?P<peer_string>[^"]*)" revised grade "(?P<grade_string>[^"]*)"$/
+     * @When /^I give "(?P<peer>[^"]*)" revised grade "(?P<grade>[^"]*)"$/
      *
      * @param string $peer
      * @param string $grade
@@ -139,7 +139,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Checks that a peer grade field is disabled.
      *
-     * @When /^"(?P<criteria_string>[^"]*)" "(?P<peer_string>[^"]*)" rating should be disabled$/
+     * @When /^"(?P<criteria>[^"]*)" "(?P<peer>[^"]*)" rating should be disabled$/
      *
      * @param string $criteria
      * @param string $peer
@@ -156,7 +156,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Checks that a peer grade field is enabled.
      *
-     * @When /^"(?P<criteria_string>[^"]*)" "(?P<peer_string>[^"]*)" rating should be enabled$/
+     * @When /^"(?P<criteria>[^"]*)" "(?P<peer>[^"]*)" rating should be enabled$/
      *
      * @param string $criteria
      * @param string $peer
@@ -173,7 +173,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Checks that a criteria justification field is disabled.
      *
-     * @When /^criteria "(?P<criteria_string>[^"]*)" "(?P<peer_string>[^"]*)" justification should be disabled$/
+     * @When /^criteria "(?P<criteria>[^"]*)" "(?P<peer>[^"]*)" justification should be disabled$/
      *
      * @param string $criteria
      * @param string $peer
@@ -190,7 +190,7 @@ class behat_mod_peerwork extends behat_base {
     /**
      * Checks that a peer justification field is disabled.
      *
-     * @When /^peer "(?P<peer_string>[^"]*)" justification should be disabled$/
+     * @When /^peer "(?P<peer>[^"]*)" justification should be disabled$/
      *
      * @param string $peer
      */
@@ -315,7 +315,7 @@ class behat_mod_peerwork extends behat_base {
      * You should be in the groups page when running this step.
      * The user should be specified like "Firstname Lastname".
      *
-     * @Given /^I remove "(?P<user_fullname_string>(?:[^"]|\\")*)" user from "(?P<group_name_string>(?:[^"]|\\")*)" group members$/
+     * @Given /^I remove "(?P<user_fullname>(?:[^"]|\\")*)" user from "(?P<group_name>(?:[^"]|\\")*)" group members$/
      *
      * @param string $userfullname
      * @param string $groupname
@@ -345,7 +345,7 @@ class behat_mod_peerwork extends behat_base {
         $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
 
         // Here we don't need to wait for the AJAX response.
-        $this->find_button(get_string('adduserstogroup', 'group'))->click();
+        $this->find_button(get('adduserstogroup', 'group'))->click();
 
         // Wait for add/remove members page to be loaded.
         $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
@@ -358,12 +358,12 @@ class behat_mod_peerwork extends behat_base {
         $select->selectOption($fulloption);
 
         // Click add button.
-        $this->find_button(get_string('remove'))->click();
+        $this->find_button(get('remove'))->click();
 
         // Wait for the page to load.
         $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
 
         // Returning to the main groups page.
-        $this->find_button(get_string('backtogroups', 'group'))->click();
+        $this->find_button(get('backtogroups', 'group'))->click();
     }
 }

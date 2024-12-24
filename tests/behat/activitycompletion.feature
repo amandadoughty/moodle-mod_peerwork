@@ -1,5 +1,5 @@
 @cul @mod @mod_peerwork @mod_peerwork_submission
-Feature: Assignment submissions
+Feature: Assignment completion
 
   Background:
     Given the following "courses" exist:

@@ -21,8 +21,9 @@
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \mod_peerwork\privacy\provider
  */
+
+namespace mod_peerwork\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
@@ -30,7 +31,6 @@ use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
-use mod_peerwork\privacy\provider;
 
 /**
  * Privacy provider testcase.
@@ -39,13 +39,15 @@ use mod_peerwork\privacy\provider;
  * @copyright  2019 Coventry University
  * @author     Frédéric Massart <fred@branchup.tech>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers \mod_peerwork\privacy\provider
  */
-final class provider_test extends advanced_testcase {
+final class provider_test extends \advanced_testcase {
 
     /**
      * This method is called before each test.
      */
     protected function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest(true);
     }
 
@@ -61,11 +63,11 @@ final class provider_test extends advanced_testcase {
 
     /**
      * Test get_contexts_for_userid()
-     *)
+     *
      * @return void
      */
     public function test_get_contexts_for_userid(): void {
-        $dg = $this->getDataGenerator();
+        $dg = self::getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
         $c1 = $dg->create_course();
@@ -83,9 +85,9 @@ final class provider_test extends advanced_testcase {
         $p1id = $p1->id;
         $p2id = $p2->id;
         $p3id = $p3->id;
-        $p1ctx = context_module::instance($p1->cmid);
-        $p2ctx = context_module::instance($p2->cmid);
-        $p3ctx = context_module::instance($p3->cmid);
+        $p1ctx = \context_module::instance($p1->cmid);
+        $p2ctx = \context_module::instance($p2->cmid);
+        $p3ctx = \context_module::instance($p3->cmid);
 
         // Validate all empty.
         $this->assertEmpty(provider::get_contexts_for_userid($u1->id)->get_contextids());
@@ -157,7 +159,7 @@ final class provider_test extends advanced_testcase {
      * @return void
      */
     public function test_get_users_in_context(): void {
-        $dg = $this->getDataGenerator();
+        $dg = self::getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
         $c1 = $dg->create_course();
@@ -176,9 +178,9 @@ final class provider_test extends advanced_testcase {
         $p1id = $p1->id;
         $p2id = $p2->id;
         $p3id = $p3->id;
-        $p1ctx = context_module::instance($p1->cmid);
-        $p2ctx = context_module::instance($p2->cmid);
-        $p3ctx = context_module::instance($p3->cmid);
+        $p1ctx = \context_module::instance($p1->cmid);
+        $p2ctx = \context_module::instance($p2->cmid);
+        $p3ctx = \context_module::instance($p3->cmid);
 
         // Validate all empty.
         $userlist = new userlist($p1ctx, 'mod_peerwork');
@@ -264,7 +266,7 @@ final class provider_test extends advanced_testcase {
      */
     public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
-        $dg = $this->getDataGenerator();
+        $dg = self::getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
         $c1 = $dg->create_course();
@@ -331,7 +333,7 @@ final class provider_test extends advanced_testcase {
             $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
         }
 
-        provider::delete_data_for_all_users_in_context(context_module::instance($p1->cmid));
+        provider::delete_data_for_all_users_in_context(\context_module::instance($p1->cmid));
 
         // Confirm deletion.
         $p = $p1;
@@ -385,7 +387,7 @@ final class provider_test extends advanced_testcase {
      */
     public function test_delete_data_for_user(): void {
         global $DB;
-        $dg = $this->getDataGenerator();
+        $dg = self::getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
         $c1 = $dg->create_course();
@@ -453,7 +455,7 @@ final class provider_test extends advanced_testcase {
         }
 
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [
-            context_module::instance($p1->cmid)->id,
+            \context_module::instance($p1->cmid)->id,
         ]);
         provider::delete_data_for_user($contextlist);
 
@@ -507,7 +509,7 @@ final class provider_test extends advanced_testcase {
      */
     public function test_delete_data_for_users(): void {
         global $DB;
-        $dg = $this->getDataGenerator();
+        $dg = self::getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
         $c1 = $dg->create_course();
@@ -578,7 +580,7 @@ final class provider_test extends advanced_testcase {
             $this->assertTrue($DB->record_exists('peerwork_grades', ['peerworkid' => $p->id, 'userid' => $u4->id]));
         }
 
-        $contextlist = new approved_userlist(context_module::instance($p1->cmid), 'mod_peerwork', [$u1->id, $u2->id]);
+        $contextlist = new approved_userlist(\context_module::instance($p1->cmid), 'mod_peerwork', [$u1->id, $u2->id]);
         provider::delete_data_for_users($contextlist);
 
         // Confirm deletion, and not deletion.
@@ -629,7 +631,7 @@ final class provider_test extends advanced_testcase {
      */
     public function test_export_data_for_user(): void {
         global $DB;
-        $dg = $this->getDataGenerator();
+        $dg = self::getDataGenerator();
         $pg = $dg->get_plugin_generator('mod_peerwork');
 
         $c1 = $dg->create_course();
@@ -685,7 +687,7 @@ final class provider_test extends advanced_testcase {
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u2->id, 'submissionid' => $sub->id, 'grade' => 12.30]);
         $pg->create_grade(['peerworkid' => $p1->id, 'userid' => $u3->id, 'submissionid' => $sub2->id, 'grade' => 13.37]);
 
-        $ctx = context_module::instance($p1->cmid);
+        $ctx = \context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
@@ -713,9 +715,9 @@ final class provider_test extends advanced_testcase {
         $this->assertEquals(transform::datetime($sub->timegraded), $submission->graded_on);
         $this->assertEquals(transform::datetime($sub->released), $submission->released_on);
 
-        $sc1 = grade_scale::fetch(['id' => $scale1->id]);
+        $sc1 = \grade_scale::fetch(['id' => $scale1->id]);
         $sc1->load_items();
-        $sc2 = grade_scale::fetch(['id' => $scale2->id]);
+        $sc2 = \grade_scale::fetch(['id' => $scale2->id]);
         $sc2->load_items();
 
         // The order matters.
@@ -774,7 +776,7 @@ final class provider_test extends advanced_testcase {
         $p1->justification = MOD_PEERWORK_JUSTIFICATION_HIDDEN;
         $DB->update_record('peerwork', $p1);
 
-        $ctx = context_module::instance($p1->cmid);
+        $ctx = \context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u1, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
@@ -792,7 +794,7 @@ final class provider_test extends advanced_testcase {
 
         // Now test again with the teacher.
         writer::reset();
-        $ctx = context_module::instance($p1->cmid);
+        $ctx = \context_module::instance($p1->cmid);
         $contextlist = new approved_contextlist($u9, 'mod_peerwork', [$ctx->id]);
         provider::export_user_data($contextlist);
 
