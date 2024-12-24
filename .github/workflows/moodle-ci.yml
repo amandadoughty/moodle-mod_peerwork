@@ -40,9 +40,6 @@ jobs:
           - php: '8.2'
             moodle-branch: 'MOODLE_403_STABLE'
             database: 'mariadb'
-          - php: '8.1'
-            moodle-branch: 'MOODLE_402_STABLE'
-            database: 'pgsql'
 
     steps:
       - name: Check out repository code
@@ -73,6 +70,7 @@ jobs:
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+          MUSTACHE_EXCLUDE_NAMES: 'peergrade_start.mustache,peergrade_end.mustache'
           # Uncomment this to run Behat tests using the Moodle App.
           # MOODLE_APP: 'true'
 
@@ -101,10 +99,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci savepoints
 
-#      Commenting out as we currently have to split templates into parts which fail this test
-#      - name: Mustache Lint
-#        if: ${{ !cancelled() }}
-#        run: moodle-plugin-ci mustache
+      - name: Mustache Lint
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci mustache
 
       - name: Grunt
         if: ${{ !cancelled() }}
