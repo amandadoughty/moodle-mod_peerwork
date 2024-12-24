@@ -345,7 +345,7 @@ class behat_mod_peerwork extends behat_base {
         $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
 
         // Here we don't need to wait for the AJAX response.
-        $this->find_button(get('adduserstogroup', 'group'))->click();
+        $this->find_button(get_string('adduserstogroup', 'group'))->click();
 
         // Wait for add/remove members page to be loaded.
         $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
@@ -358,12 +358,12 @@ class behat_mod_peerwork extends behat_base {
         $select->selectOption($fulloption);
 
         // Click add button.
-        $this->find_button(get('remove'))->click();
+        $this->find_button(get_string('remove'))->click();
 
         // Wait for the page to load.
         $this->getSession()->wait(self::get_timeout() * 1000, self::PAGE_READY_JS);
 
         // Returning to the main groups page.
-        $this->find_button(get('backtogroups', 'group'))->click();
+        $this->find_button(get_string('backtogroups', 'group'))->click();
     }
 }
