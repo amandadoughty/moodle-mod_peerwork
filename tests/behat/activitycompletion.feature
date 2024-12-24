@@ -57,15 +57,15 @@ Feature: Assignment completion
   @javascript
   Scenario: Students who grades every peer is shown as completed
     When I am on "Course 1" course homepage
-    And "Done" "button" should exist in the "Test peerwork name" "activity"
+    And "Done: Grade peers in group" "text" should exist in the "Test peerwork name" "activity"
     And I log out
 
   @javascript
   Scenario: Students who has not graded every peer is not shown as completed
     And I log in as "student2"
     When I am on "Course 1" course homepage
-    And "Done" "button" should not exist in the "Test peerwork name" "activity"
-    And "To do" "button" should exist in the "Test peerwork name" "activity"
+    And "Done: Grade peers in group" "text" should not exist in the "Test peerwork name" "activity"
+    And "To do: Grade peers in group" "text" should exist in the "Test peerwork name" "activity"
     And I log out
 
   @javascript
