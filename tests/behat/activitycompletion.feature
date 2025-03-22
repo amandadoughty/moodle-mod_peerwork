@@ -55,24 +55,37 @@ Feature: Assignment completion
     And I press "Save changes"
 
   @javascript
-  Scenario: Students who grades every peer is shown as completed
+  Scenario: Students who grades every peer is shown as completed on the course page
     When I am on "Course 1" course homepage
-    And "Done" "button" should exist in the "Test peerwork name" "activity"
+    Then "Done" "button" should exist in the "Test peerwork name" "activity"
     And I log out
 
   @javascript
-  Scenario: Students who has not graded every peer is not shown as completed
-    And I log in as "student2"
-    When I am on "Course 1" course homepage
-    And "Done" "button" should not exist in the "Test peerwork name" "activity"
+  Scenario: Students who grades every peer is shown as completed on the activity page
+    When I am on the "Test peerwork name" "peerwork activity" page logged in as student1
+    Then "Done: Grade peers in group" "text" should exist
+    And I log out
+
+  @javascript
+  Scenario: Students who has not graded every peer is not shown as completed on the course page
+    When I log in as "student2"
+    And I am on "Course 1" course homepage
+    Then "Done" "button" should not exist in the "Test peerwork name" "activity"
     And "To do" "button" should exist in the "Test peerwork name" "activity"
     And I log out
 
   @javascript
+  Scenario: Students who has not graded every peer is not shown as completed on the activity page
+    When I am on the "Test peerwork name" "peerwork activity" page logged in as student2
+    Then "Done: Grade peers in group" "text" should not exist
+    And "To do: Grade peers in group" "text" should exist
+    And I log out
+
+  @javascript
   Scenario: Student completions must display correctly in completion report
-    Given I log in as "teacher1"
+    When I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Reports" in current page administration
     And I click on "Activity completion" "link"
-    And "Student 1, Test peerwork name: Completed" "icon" should exist in the "Student 1" "table_row"
+    Then "Student 1, Test peerwork name: Completed" "icon" should exist in the "Student 1" "table_row"
     And "Student 2, Test peerwork name: Not completed" "icon" should exist in the "Student 2" "table_row"

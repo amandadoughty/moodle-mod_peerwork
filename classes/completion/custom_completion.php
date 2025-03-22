@@ -59,8 +59,8 @@ class custom_completion extends activity_custom_completion {
             $peers = peerwork_get_peers($course, $peerwork, $peerwork->pwgroupingid, $groupid, $this->userid);
             $gradedcount = $DB->count_records_select(
                 'peerwork_peers',
-                'peerwork = ?',
-                [$peerwork->id],
+                'peerwork = ? AND gradedby = ?',
+                [$peerwork->id, $this->userid],
                 'COUNT(DISTINCT gradefor)'
             );
             return count($peers) <= $gradedcount;
