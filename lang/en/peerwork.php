@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 
-
+$string['nopeers'] = 'There are no peers to grade!';
 
 
 
