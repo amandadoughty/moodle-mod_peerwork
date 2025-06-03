@@ -185,7 +185,7 @@ class mod_peerwork_submissions_form extends moodleform {
                 return ['header' => $item];
             }, $scaleitems);
             if (empty($peers)) {
-                $criteriondata['criterion']['peers']= [];
+                $criteriondata['criterion']['peers'] = [];
                 $data['criteria'][] = $criteriondata;
             } else {
                 foreach ($peers as $peer) {
