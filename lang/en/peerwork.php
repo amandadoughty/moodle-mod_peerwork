@@ -24,20 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 $string['activitydate:closed'] = 'Closed: ';
 $string['activitydate:closes'] = 'Due: ';
 $string['activitydate:opened'] = 'Opened: ';
@@ -239,6 +225,7 @@ $string['noncompletionpenalty_help'] = 'If a student has not submitted any marks
 $string['none'] = 'None. ';
 $string['nonegiven'] = 'None given';
 $string['nonereceived'] = 'None received';
+$string['nopeers'] = 'There are no peers to grade!';
 $string['nopeergrades'] = '# peer grades';
 $string['noteditablebecause'] = 'Not editable because: {$a}';
 $string['noteoverdueby'] = '(over due by {$a})';

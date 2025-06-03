@@ -184,42 +184,46 @@ class mod_peerwork_submissions_form extends moodleform {
             $criteriondata['criterion']['scaleitems'] = array_map(function($item) {
                 return ['header' => $item];
             }, $scaleitems);
+            if (empty($peers)) {
+                $criteriondata['criterion']['peers'] = [];
+                $data['criteria'][] = $criteriondata;
+            } else {
+                foreach ($peers as $peer) {
+                    $uniqueid = 'grade_idx_' . $criterion->id . '[' . $peer->id . ']';
+                    $currentvalue = $mform->exportValue($uniqueid);
+                    $fullname = fullname($peer);
+                    $critpeerdata = [];
 
-            foreach ($peers as $peer) {
-                $uniqueid = 'grade_idx_' . $criterion->id . '[' . $peer->id . ']';
-                $currentvalue = $mform->exportValue($uniqueid);
-                $fullname = fullname($peer);
-                $critpeerdata = [];
+                    $critpeerdata['data-peerid'] = $peer->id;
+                    $critpeerdata['namedisplay'] =
+                        $peer->id == $USER->id ? get_string('peernameisyou', 'mod_peerwork', $fullname) : $fullname;
 
-                $critpeerdata['data-peerid'] = $peer->id;
-                $critpeerdata['namedisplay'] =
-                    $peer->id == $USER->id ? get_string('peernameisyou', 'mod_peerwork', $fullname) : $fullname;
+                    foreach ($scaleitems as $key => $item) {
+                        $srlabel = get_string('ratingnforuser', 'mod_peerwork', [
+                            'rating' => $item,
+                            'user' => $fullname,
+                        ]);
+                        $attrs = [
+                            'name' => $uniqueid,
+                            'value' => $key,
+                            'title' => $srlabel,
+                        ];
 
-                foreach ($scaleitems as $key => $item) {
-                    $srlabel = get_string('ratingnforuser', 'mod_peerwork', [
-                        'rating' => $item,
-                        'user' => $fullname,
-                    ]);
-                    $attrs = [
-                        'name' => $uniqueid,
-                        'value' => $key,
-                        'title' => $srlabel,
-                    ];
+                        if ($currentvalue == $key) {
+                            $attrs['checked'] = 'checked';
+                        }
 
-                    if ($currentvalue == $key) {
-                        $attrs['checked'] = 'checked';
+                        if ($this->is_peer_locked($peer->id)) {
+                            $attrs['disabled'] = 'disabled';
+                        }
+
+                        $critpeerdata['scaleitems'][] = ['srlabel' => $srlabel, 'attrs' => $attrs, 'label' => $item];
                     }
 
-                    if ($this->is_peer_locked($peer->id)) {
-                        $attrs['disabled'] = 'disabled';
-                    }
-
-                    $critpeerdata['scaleitems'][] = ['srlabel' => $srlabel, 'attrs' => $attrs, 'label' => $item];
+                    $criteriondata['criterion']['peers'][] = $critpeerdata;
                 }
-
-                $criteriondata['criterion']['peers'][] = $critpeerdata;
+                $data['criteria'][] = $criteriondata;
             }
-            $data['criteria'][] = $criteriondata;
         }
 
         $renderer = $PAGE->get_renderer('mod_peerwork');
@@ -229,35 +233,39 @@ class mod_peerwork_submissions_form extends moodleform {
         foreach ($data['criteria'] as $criterion) {
             $html = $renderer->render_from_template('mod_peerwork/criterion_start', $criterion);
             $mform->addElement('html', $html);
-
-            foreach ($criterion['criterion']['peers'] as $peer) {
-                $html = $renderer->render_from_template('mod_peerwork/peergrades_start', $peer);
+            if (empty($criterion['criterion']['peers'])) {
+                $html = $renderer->render_from_template('mod_peerwork/peergrades_nopeers', []);
                 $mform->addElement('html', $html);
+            } else {
+                foreach ($criterion['criterion']['peers'] as $peer) {
+                    $html = $renderer->render_from_template('mod_peerwork/peergrades_start', $peer);
+                    $mform->addElement('html', $html);
 
-                // If the justification is enabled and the type is per criteria.
-                if ($justifcriteria) {
-                    // Don't set the maxlength property because it does not work well with UTF-8 characters.
-                    $textareaattrs = [
-                        'rows' => 2,
-                        'style' => 'width: 100%',
-                        'placeholder' => get_string('justification', 'mod_peerwork'),
-                    ];
+                    // If the justification is enabled and the type is per criteria.
+                    if ($justifcriteria) {
+                        // Don't set the maxlength property because it does not work well with UTF-8 characters.
+                        $textareaattrs = [
+                            'rows' => 2,
+                            'style' => 'width: 100%',
+                            'placeholder' => get_string('justification', 'mod_peerwork'),
+                        ];
 
-                    $textarea = $mform->addElement(
-                        'textarea',
-                        'justification_' . $criterion['criterion']['id'] . '[' . $peer['data-peerid'] . ']',
-                        get_string('justification', 'mod_peerwork'),
-                        $textareaattrs
-                    );
-                    $textarea->setHiddenLabel(true);
+                        $textarea = $mform->addElement(
+                            'textarea',
+                            'justification_' . $criterion['criterion']['id'] . '[' . $peer['data-peerid'] . ']',
+                            get_string('justification', 'mod_peerwork'),
+                            $textareaattrs
+                        );
+                        $textarea->setHiddenLabel(true);
 
-                    if ($this->is_peer_locked($peer['data-peerid'])) {
-                        $mform->hardFreeze('justification_' . $criterion['criterion']['id'] . '[' . $peer['data-peerid'] . ']');
+                        if ($this->is_peer_locked($peer['data-peerid'])) {
+                            $mform->hardFreeze('justification_' . $criterion['criterion']['id'] . '[' . $peer['data-peerid'] . ']');
+                        }
                     }
-                }
 
-                $html = $renderer->render_from_template('mod_peerwork/peergrades_end', []);
-                $mform->addElement('html', $html);
+                    $html = $renderer->render_from_template('mod_peerwork/peergrades_end', []);
+                    $mform->addElement('html', $html);
+                }
             }
 
             $html = $renderer->render_from_template('mod_peerwork/criterion_end', []);
