@@ -104,6 +104,7 @@ if (has_capability('mod/peerwork:grade', $context)) {
         get_string('grade', 'mod_peerwork'),
         '',
     ];
+    $t->responsive = false;
 
     foreach ($allgroups as $group) {
         $members = groups_get_members($group->id);
