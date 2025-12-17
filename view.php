@@ -189,6 +189,11 @@ if (has_capability('mod/peerwork:grade', $context)) {
     echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),
         get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');
 
+    // ============ Nouveau bouton ajouté =================  
+    echo $OUTPUT->single_button(new moodle_url('export_matrix.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),
+        get_string("exportmatrix", 'mod_peerwork'), 'get');
+    // ========== Fin du Nouveau bouton ajouté ============  
+
     if ($anynongraded) {
         $clearbutton = new single_button(
             new moodle_url('clearsubmissions.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),

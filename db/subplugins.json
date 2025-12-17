@@ -1,4 +1,7 @@
 {
+  "subplugintypes": {
+    "peerworkcalculator": "calculator"
+  },
   "plugintypes": {
     "peerworkcalculator": "mod\/peerwork\/calculator"
   }
