@@ -29,15 +29,15 @@ define(['jquery'], function($) {
      */
     function calculatorChooser(formid) {
         if (formid) {
-            var updatebut = $('#' + formid + ' #id_updatecalculator');
-            var formatselect = $('#' + formid + ' #id_calculator');
+            var form = $('#' + formid);
+            var updatebut = form.find('#id_updatecalculator');
+            var formatselect = form.find('#id_calculator');
             var ancestor = updatebut.closest('fieldset');
-            var action = $('form.mform').attr('action');
 
-            if (updatebut && formatselect) {
+            if (updatebut.length && formatselect.length) {
                 updatebut.css('display', 'none');
                 formatselect.on('change', function() {
-                    $('form.mform').attr('action', action + '#' + ancestor.attr('id'));
+                    form.attr('action', 'modedit.php#' + ancestor.attr('id'));
                     updatebut.trigger('click');
                 });
             }
