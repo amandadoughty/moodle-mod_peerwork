@@ -182,7 +182,8 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
 
     if ($submission->timecreated != $submission->timemodified) {
         $modified = get_string(
-            'lasteditedon', 'mod_peerwork',
+            'lasteditedon',
+            'mod_peerwork',
             [
                 'date' => userdate($submission->timecreated),
             ]
@@ -194,7 +195,8 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
         $status->code = PEERWORK_STATUS_SUBMITTED;
         $status->text =
             get_string(
-                'firstsubmittedbyon', 'mod_peerwork',
+                'firstsubmittedbyon',
+                'mod_peerwork',
                 [
                     'name' => fullname($user),
                     'date' => userdate($submission->timecreated),
@@ -202,30 +204,32 @@ function peerwork_get_status($peerwork, $group, $submission = null) {
             ) . $modified .
             ' ' .
             get_string(
-                'duedatepassedago', 'mod_peerwork',
+                'duedatepassedago',
+                'mod_peerwork',
                 format_time(time() - $peerwork->duedate)
             );
         $latepeers = mod_peerwork_get_late_peers($peerwork, $submission);
 
         if (!empty($latepeers)) {
-            $status->text .= ' ' . html_writer::tag('span', get_string('thesestudentspastduedate', 'mod_peerwork', implode(', ',
-                    array_map(function($peer) {
+            $status->text .= ' ' . html_writer::tag('span', get_string('thesestudentspastduedate', 'mod_peerwork', implode(
+                ', ',
+                array_map(function ($peer) {
                         return get_string('studentondate', 'mod_peerwork', [
                             'fullname' => fullname($peer),
                             'date' => userdate($peer->timegraded, get_string('strftimedatetimeshort', 'core_langconfig')),
                         ]);
-                    }, $latepeers)
-                )), ['class' => 'submitted-past-due-date']);
+                }, $latepeers)
+            )), ['class' => 'submitted-past-due-date']);
         }
 
         return $status;
-
     } else {
         $user = $DB->get_record('user', ['id' => $submission->userid]);
         $status->code = PEERWORK_STATUS_SUBMITTED;
         $status->text =
             get_string(
-                'firstsubmittedbyon', 'mod_peerwork',
+                'firstsubmittedbyon',
+                'mod_peerwork',
                 [
                     'name' => fullname($user),
                     'date' => userdate($submission->timecreated),
@@ -276,7 +280,7 @@ function peerwork_has_released_grades($cm) {
 function peerwork_get_justifications($peerworkid, $groupid) {
     global $DB;
     $justifications = $DB->get_records('peerwork_justification', ['peerworkid' => $peerworkid, 'groupid' => $groupid]);
-    return array_reduce($justifications, function($carry, $row) {
+    return array_reduce($justifications, function ($carry, $row) {
         if (!isset($carry[$row->gradedby])) {
             $carry[$row->gradedby][$row->criteriaid] = [];
         }
@@ -300,7 +304,7 @@ function peerwork_get_justifications_received($peerworkid, $groupid, $userid) {
         'groupid' => $groupid,
         'gradefor' => $userid,
     ]);
-    return array_reduce($justifications, function($carry, $row) {
+    return array_reduce($justifications, function ($carry, $row) {
         $carry[$row->criteriaid][$row->gradedby] = $row;
         return $carry;
     }, []);
@@ -321,7 +325,7 @@ function peerwork_get_peer_grades_received($peerworkid, $groupid, $userid) {
         'groupid' => $groupid,
         'gradefor' => $userid,
     ]);
-    return array_reduce($peergrades, function($carry, $row) {
+    return array_reduce($peergrades, function ($carry, $row) {
         if (!isset($carry[$row->criteriaid])) {
             $carry[$row->criteriaid] = [];
         }
@@ -379,7 +383,8 @@ function peerwork_can_student_view_grade_and_feedback_from_status($status, $grad
 
     $hidden = false;
 
-    if ($gradinginfo &&
+    if (
+        $gradinginfo &&
         isset($gradinginfo->items[0]->grades[$USER->id]) &&
         $gradinginfo->items[0]->grades[$USER->id]->hidden
     ) {
@@ -609,7 +614,7 @@ function peerwork_get_pa_result($peerwork, $group, $submission = null, $beforeov
 
     foreach ($members as $member) {
         $awarded = peerwork_grades_by_user($peerwork, $member, $members, $beforeoverride);
-        $marks[$member->id] = array_filter($awarded->grade, function($grade) {
+        $marks[$member->id] = array_filter($awarded->grade, function ($grade) {
             return is_array($grade);
         });
     }
@@ -631,8 +636,14 @@ function peerwork_submission_files($context, $group) {
     $fs = get_file_storage();
     if ($files = $fs->get_area_files($context->id, 'mod_peerwork', 'submission', $group->id, 'sortorder', false)) {
         foreach ($files as $file) {
-            $fileurl = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
-                $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+            $fileurl = moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename()
+            );
 
             $allfiles[] = "<a href='$fileurl'>" . s($file->get_filename()) . '</a>';
         }
@@ -652,8 +663,14 @@ function peerwork_feedback_files($context, $group) {
     $fs = get_file_storage();
     if ($files = $fs->get_area_files($context->id, 'mod_peerwork', 'feedback_files', $group->id, 'sortorder', false)) {
         foreach ($files as $file) {
-            $fileurl = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
-                $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+            $fileurl = moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename()
+            );
 
             $allfiles[] = "<a href='$fileurl'>" . $file->get_filename() . '</a>';
         }
@@ -786,11 +803,12 @@ function peerwork_outstanding($peerwork, $group) {
 
     $members = groups_get_members($group->id);
     foreach ($members as $k => $member) {
-        if ($DB->get_record('peerwork_peers', ['peerwork' => $peerwork->id, 'groupid' => $group->id,
-            'gradedby' => $member->id], 'id', IGNORE_MULTIPLE)) {
+        if (
+            $DB->get_record('peerwork_peers', ['peerwork' => $peerwork->id, 'groupid' => $group->id,
+            'gradedby' => $member->id], 'id', IGNORE_MULTIPLE)
+        ) {
             unset($members[$k]);
         }
-
     }
     return $members;
 }
@@ -851,7 +869,7 @@ function peerwork_get_local_grades($peerworkid, $submissionid) {
         'peerworkid' => $peerworkid,
         'submissionid' => $submissionid,
     ], '', '*');
-    $userids = array_map(function($record) {
+    $userids = array_map(function ($record) {
         return $record->userid;
     }, $records);
     return array_combine($userids, $records);
@@ -952,7 +970,6 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
     $criteria = $pac->get_criteria();
     foreach ($criteria as $criterion) {
         foreach ($membersgradeable as $member) {
-
             // Skipped the locked peers. This should theoretically never happen as we
             // should not be receiving data for peers that have been marked locked.
             if (in_array($member->id, $lockedpeerids)) {
@@ -1005,7 +1022,6 @@ function peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $
 
     if ($peerwork->justification != MOD_PEERWORK_JUSTIFICATION_DISABLED) {
         foreach ($membersgradeable as $member) {
-
             // Skip the locked peers.
             if (in_array($member->id, $lockedpeerids)) {
                 continue;
@@ -1223,7 +1239,6 @@ function mod_peerwork_save_submission($peerwork, $submission, $group, $context, 
 
         $event = submission_created::create($params);
         $event->trigger();
-
     } else {
         // Just update.
         $submission->timemodified = time();
@@ -1304,8 +1319,14 @@ function mod_peerwork_save_submission($peerwork, $submission, $group, $context, 
             $DB->update_record('peerwork_submission', $submission);
         }
 
-        file_save_draft_area_files($draftitemid, $context->id, 'mod_peerwork', 'submission', $group->id,
-            peerwork_get_fileoptions($peerwork));
+        file_save_draft_area_files(
+            $draftitemid,
+            $context->id,
+            'mod_peerwork',
+            'submission',
+            $group->id,
+            peerwork_get_fileoptions($peerwork)
+        );
     }
 
     return [$submission, $draftfiles];
@@ -1431,7 +1452,7 @@ function mod_peerwork_get_late_peers($peerwork, $submission) {
         'duedate' => !empty($peerwork->duedate) ? $peerwork->duedate : time() + DAYSECS * 99,
     ];
 
-    return array_reduce($DB->get_records_sql($sql, $params), function($carry, $record) {
+    return array_reduce($DB->get_records_sql($sql, $params), function ($carry, $record) {
         $carry[$record->id] = $record;
         return $carry;
     }, []);
@@ -1702,7 +1723,8 @@ function add_all_calculator_plugins(MoodleQuickForm $mform, $peerwork) {
         $gradesexistmsg = get_string('gradesexistmsg', 'peerwork');
         $gradesexisthtml = '<div class=\'alert alert-warning\'>' . $gradesexistmsg . '</div>';
         $mform->addElement('static', 'gradesexistmsg', '', $gradesexisthtml);
-        $mform->addElement('selectyesno',
+        $mform->addElement(
+            'selectyesno',
             'recalculategrades',
             get_string('recalculategrades', 'peerwork')
         );

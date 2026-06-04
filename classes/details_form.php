@@ -31,7 +31,6 @@ require_once($CFG->dirroot . '/mod/peerwork/locallib.php');
  * Creates UI elements for the tutor to enter an overall grade to a submission.
  */
 class mod_peerwork_details_form extends moodleform {
-
     /** @var bool Whether the page requirements were initialised. */
     protected $pageinitialised = false;
 
@@ -68,9 +67,11 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('header', 'mod_peerwork_peers', get_string('peersubmissionandgrades', 'mod_peerwork'));
         $submissionlabel = get_string('submission', 'peerwork');
         if ($canunlock && $submission->locked) {
-            $submissionlabel .= $OUTPUT->action_icon('#',
+            $submissionlabel .= $OUTPUT->action_icon(
+                '#',
                 new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'),
-                null, [
+                null,
+                [
                     'id' => 'unlock_submission_btn',
                     'data-submissionid' => $submission->id,
                 ]
@@ -152,8 +153,13 @@ class mod_peerwork_details_form extends moodleform {
         $mform->addElement('editor', 'feedback', get_string('feedback', 'peerwork'), ['rows' => 6]);
         $mform->setType('feedback', PARAM_CLEANHTML);
 
-        $mform->addElement('filemanager', 'feedback_files', get_string('feedbackfiles', 'peerwork'),
-            null, self::$fileoptions);
+        $mform->addElement(
+            'filemanager',
+            'feedback_files',
+            get_string('feedbackfiles', 'peerwork'),
+            null,
+            self::$fileoptions
+        );
 
         // The submission was never graded, we disable/hide some fields until the grade is provided.
         if (!$submission || empty($submission->timegraded)) {
@@ -204,7 +210,6 @@ class mod_peerwork_details_form extends moodleform {
         global $OUTPUT, $PAGE;
 
         if (array_key_exists('finalgrades', $data)) {
-
             $t = new html_table();
             $t->id = 'mod-peerwork-grader-table';
             $t->head = [
@@ -242,8 +247,12 @@ class mod_peerwork_details_form extends moodleform {
                 $row->cells[] = format_float($member['penalty'] * 100, 0) . '%';
                 $row->cells[] = $finalweightedgrade;
 
-                $revisedgradeel = $this->_form->createElement('text', 'grade_' . $member['memberid'], '',
-                    ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)]);
+                $revisedgradeel = $this->_form->createElement(
+                    'text',
+                    'grade_' . $member['memberid'],
+                    '',
+                    ['maxlength' => 15, 'size' => 10, 'value' => format_float($revisedgrade ?? null, 5)]
+                );
 
                 if ($member['overridden'] || $member['locked']) {
                     $revisedgradeel->freeze();
@@ -283,7 +292,6 @@ class mod_peerwork_details_form extends moodleform {
             $t->data[] = $row;
 
             $data['finalgrades'] = html_writer::table($t);
-
         } else {
             $data['finalgrades'] = html_writer::tag('em', get_string('notyetgraded', 'mod_peerwork'));
         }

@@ -38,7 +38,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class notify_students extends scheduled_task {
-
     /**
      * Get name.
      *
@@ -74,7 +73,6 @@ class notify_students extends scheduled_task {
         $peerworkid = null;
         $records = $DB->get_recordset_sql($sql, []);
         foreach ($records as $record) {
-
             // Acquire the cm_info object if we've changed object. We could do without this
             // and get the cmid from the query itself, but as modinfo is cached, this should
             // be fast enough.
@@ -129,7 +127,6 @@ class notify_students extends scheduled_task {
 
             // Record that we processed (maybe not all of it yet though) this submission ID.
             $submissionids[$record->submissionid] = true;
-
         }
         $records->close();
 
@@ -174,5 +171,4 @@ class notify_students extends scheduled_task {
         }
         force_current_language($lang);
     }
-
 }

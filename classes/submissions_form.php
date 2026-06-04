@@ -37,7 +37,6 @@ require_once($CFG->libdir . '/grade/grade_scale.php');
  * Each criteria is presented and for each one a space for grading peers is provided.
  */
 class mod_peerwork_submissions_form extends moodleform {
-
     /** @var object[] The criteria. */
     protected $criteria;
     /** @var array Cache of locked peers. */
@@ -82,12 +81,20 @@ class mod_peerwork_submissions_form extends moodleform {
 
             $lockableitems++;
             if (!$submissionlocked) {
-                $mform->addElement('filemanager', 'submission', get_string('assignment', 'peerwork'),
-                    null, $this->_customdata['fileoptions']);
+                $mform->addElement(
+                    'filemanager',
+                    'submission',
+                    get_string('assignment', 'peerwork'),
+                    null,
+                    $this->_customdata['fileoptions']
+                );
                 $mform->addHelpButton('submission', 'submission', 'peerwork');
             } else {
                 $lockeditems++;
-                $mform->addElement('static', '', get_string('assignment', 'mod_peerwork'),
+                $mform->addElement(
+                    'static',
+                    '',
+                    get_string('assignment', 'mod_peerwork'),
                     html_writer::tag('ul', '<li>' . implode('</li><li>', $files) . '</li>')
                 );
             }
@@ -163,8 +170,11 @@ class mod_peerwork_submissions_form extends moodleform {
         $scales = $this->get_scales($peerwork->course);
 
         if ($peerwork->justificationmaxlength) {
-            $PAGE->requires->js_call_amd('mod_peerwork/justification-character-limit', 'init',
-                ['textarea[id^=id_justification_]', $peerwork->justificationmaxlength]);
+            $PAGE->requires->js_call_amd(
+                'mod_peerwork/justification-character-limit',
+                'init',
+                ['textarea[id^=id_justification_]', $peerwork->justificationmaxlength]
+            );
         }
 
         foreach ($criteria as $criterion) {
@@ -181,7 +191,7 @@ class mod_peerwork_submissions_form extends moodleform {
 
             $scaleitems = $scale->load_items();
 
-            $criteriondata['criterion']['scaleitems'] = array_map(function($item) {
+            $criteriondata['criterion']['scaleitems'] = array_map(function ($item) {
                 return ['header' => $item];
             }, $scaleitems);
             if (empty($peers)) {
@@ -281,8 +291,7 @@ class mod_peerwork_submissions_form extends moodleform {
 
             $mform->addElement('static', '', '', get_string('justificationintro', 'mod_peerwork') .
                 html_writer::empty_tag('br') .
-                $html
-            );
+                $html);
 
             // Don't set the maxlength property because it does not work well with UTF-8 characters.
             $textareaattrs = ['rows' => 2, 'style' => 'width: 100%'];
@@ -296,8 +305,11 @@ class mod_peerwork_submissions_form extends moodleform {
             }
 
             if ($peerwork->justificationmaxlength) {
-                $PAGE->requires->js_call_amd('mod_peerwork/justification-character-limit', 'init',
-                    ['textarea[id^=id_justifications_]', $peerwork->justificationmaxlength]);
+                $PAGE->requires->js_call_amd(
+                    'mod_peerwork/justification-character-limit',
+                    'init',
+                    ['textarea[id^=id_justifications_]', $peerwork->justificationmaxlength]
+                );
             }
         }
 
@@ -459,8 +471,11 @@ class mod_peerwork_submissions_form extends moodleform {
                             $str = get_string('provideajustification', 'mod_peerwork');
                             $errors['justification_' . $id . '[' . $peer->id . ']'] = $str;
                         } else if ($peerwork->justificationmaxlength && $length > $peerwork->justificationmaxlength) {
-                            $errors['justification_' . $id . '[' . $peer->id . ']'] = get_string('err_maxlength', 'core_form',
-                                ['format' => $peerwork->justificationmaxlength]);
+                            $errors['justification_' . $id . '[' . $peer->id . ']'] = get_string(
+                                'err_maxlength',
+                                'core_form',
+                                ['format' => $peerwork->justificationmaxlength]
+                            );
                         }
                     }
                 } else if ($justificationtype == MOD_PEERWORK_JUSTIFICATION_SUMMARY) {
@@ -471,8 +486,11 @@ class mod_peerwork_submissions_form extends moodleform {
                     if (!$length) {
                         $errors['justifications[' . $peer->id . ']'] = get_string('provideajustification', 'mod_peerwork');
                     } else if ($peerwork->justificationmaxlength && $length > $peerwork->justificationmaxlength) {
-                        $errors['justifications[' . $peer->id . ']'] = get_string('err_maxlength', 'core_form',
-                            ['format' => $peerwork->justificationmaxlength]);
+                        $errors['justifications[' . $peer->id . ']'] = get_string(
+                            'err_maxlength',
+                            'core_form',
+                            ['format' => $peerwork->justificationmaxlength]
+                        );
                     }
                 }
             }
@@ -501,7 +519,6 @@ class mod_peerwork_submissions_form extends moodleform {
                     }
                 }
             }
-
         }
 
         if ($foundgradererror) {

@@ -50,7 +50,6 @@ if ($id) {
     $cm = get_coursemodule_from_id('peerwork', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
     $peerwork = $DB->get_record('peerwork', ['id' => $cm->instance], '*', MUST_EXIST);
-
 } else if ($n) {
     $peerwork = $DB->get_record('peerwork', ['id' => $n], '*', MUST_EXIST);
     $course = $DB->get_record('course', ['id' => $peerwork->course], '*', MUST_EXIST);
@@ -86,7 +85,6 @@ $event->trigger();
 
 // Teacher view.
 if (has_capability('mod/peerwork:grade', $context)) {
-
     // Output starts here.
     echo $OUTPUT->header();
 
@@ -181,14 +179,23 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     echo $OUTPUT->box_start('generalbox', null);
 
-    echo $OUTPUT->single_button(new moodle_url('export.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),
-        get_string("exportxls", 'mod_peerwork'), 'get');
+    echo $OUTPUT->single_button(
+        new moodle_url('export.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),
+        get_string("exportxls", 'mod_peerwork'),
+        'get'
+    );
 
-    echo $OUTPUT->single_button(new moodle_url('downloadallsubmissions.php', ['id' => $cm->id]),
-        get_string("downloadallsubmissions", 'mod_peerwork'), 'post');
+    echo $OUTPUT->single_button(
+        new moodle_url('downloadallsubmissions.php', ['id' => $cm->id]),
+        get_string("downloadallsubmissions", 'mod_peerwork'),
+        'post'
+    );
 
-    echo $OUTPUT->single_button(new moodle_url('release.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),
-        get_string("releaseallgradesforallgroups", 'mod_peerwork'), 'get');
+    echo $OUTPUT->single_button(
+        new moodle_url('release.php', ['id' => $cm->id, 'groupid' => 0, 'sesskey' => sesskey()]),
+        get_string("releaseallgradesforallgroups", 'mod_peerwork'),
+        'get'
+    );
 
     if ($anynongraded) {
         $clearbutton = new single_button(
@@ -237,7 +244,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
     );
 
     if (!$isopen->code || !$edit) {
-
         // If graded and grade not hidden in gradebook.
         if (peerwork_can_student_view_grade_and_feedback_from_status($status, $gradinginfo)) {
             // Get the grade from the gradebook.
@@ -274,8 +280,13 @@ if (has_capability('mod/peerwork:grade', $context)) {
         // Show mod details.
         echo $OUTPUT->heading(format_string($peerwork->name));
         echo $OUTPUT->box(format_string($peerwork->intro));
-        $summary = new mod_peerwork\output\peerwork_summary($group, $data, $membersgradeable, $peerwork,
-            $status->text . ' ' . $editabletext);
+        $summary = new mod_peerwork\output\peerwork_summary(
+            $group,
+            $data,
+            $membersgradeable,
+            $peerwork,
+            $status->text . ' ' . $editabletext
+        );
         echo $renderer->render($summary);
 
         // Submissions are allowed.
@@ -320,7 +331,6 @@ if (has_capability('mod/peerwork:grade', $context)) {
     $redirecturl = new moodle_url('view.php', ['id' => $cm->id]);
     if ($mform->is_cancelled()) {
         redirect($redirecturl);
-
     } else if (($data = $mform->get_data())) {
         peerwork_save($peerwork, $submission, $group, $course, $cm, $context, $data, $draftitemid, $membersgradeable);
         redirect(new moodle_url('view.php', ['id' => $cm->id]));
@@ -340,6 +350,5 @@ if (has_capability('mod/peerwork:grade', $context)) {
 
     $event = submission_viewed::create($params);
     $event->trigger();
-
 } // End of student output
 echo $OUTPUT->footer();

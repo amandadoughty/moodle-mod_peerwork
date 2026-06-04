@@ -36,7 +36,6 @@ require_once($CFG->libdir . '/gradelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_peerwork_mod_form extends moodleform_mod {
-
     /** @var peerwork_criteria The peerwork criteria class. */
     protected $pac;
 
@@ -57,7 +56,7 @@ class mod_peerwork_mod_form extends moodleform_mod {
 
         $this->pac = new mod_peerwork_criteria($this->current->id);
         $steps = range(0, 100, 1);
-        $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
+        $zerotohundredpcopts = array_combine($steps, array_map(function ($i) {
             return $i . '%';
         }, $steps));
         $hassubmissions = $this->has_submissions();
@@ -237,22 +236,38 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $repeatsteps = max(1, (int)get_config('peerwork', 'addmorecriteriastep'));
 
         // Editor.
-        $editor = $mform->createElement('editor', 'critdesc', get_string('assessmentcriteria:description', 'mod_peerwork'),
-            ['rows' => 4]);
+        $editor = $mform->createElement(
+            'editor',
+            'critdesc',
+            get_string('assessmentcriteria:description', 'mod_peerwork'),
+            ['rows' => 4]
+        );
         $repeatopts['critdesc'] = [
             'helpbutton' => ['assessmentcriteria:description:help', 'mod_peerwork'],
         ];
 
         // Scale.
-        $scale = $mform->createElement('select', 'critscale',
-            get_string('assessmentcriteria:scoretype', 'mod_peerwork'), get_scales_menu($COURSE->id));
+        $scale = $mform->createElement(
+            'select',
+            'critscale',
+            get_string('assessmentcriteria:scoretype', 'mod_peerwork'),
+            get_scales_menu($COURSE->id)
+        );
         $repeatopts['critscale'] = [
             'helpbutton' => ['assessmentcriteria:scoretype:help', 'mod_peerwork'],
         ];
 
         // Repeat stuff.
-        $repeatels = $this->repeat_elements([$editor, $scale], $initialrepeat, $repeatopts, 'assessmentcriteria_count',
-            'assessmentcriteria_add', $repeatsteps, get_string('addmorecriteria', 'mod_peerwork'), true);
+        $repeatels = $this->repeat_elements(
+            [$editor, $scale],
+            $initialrepeat,
+            $repeatopts,
+            'assessmentcriteria_count',
+            'assessmentcriteria_add',
+            $repeatsteps,
+            get_string('addmorecriteria', 'mod_peerwork'),
+            true
+        );
 
         // If this is an 'add' form use site defaults.
         if ($this->current && !$this->current->coursemodule) {
@@ -294,8 +309,12 @@ class mod_peerwork_mod_form extends moodleform_mod {
         $mform =& $this->_form;
 
         $completionelement = $this->get_suffixed_name('completiongradedpeers');
-        $mform->addElement('checkbox', $completionelement, get_string('completiongradedpeers', 'mod_peerwork'),
-            get_string('completiongradedpeers_desc', 'mod_peerwork'));
+        $mform->addElement(
+            'checkbox',
+            $completionelement,
+            get_string('completiongradedpeers', 'mod_peerwork'),
+            get_string('completiongradedpeers_desc', 'mod_peerwork')
+        );
         $mform->addHelpButton($completionelement, 'completiongradedpeers', 'mod_peerwork');
 
         return [$completionelement];

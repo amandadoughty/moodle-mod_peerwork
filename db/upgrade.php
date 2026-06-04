@@ -34,7 +34,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2019112800) {
-
         // Define field peergradesvisibility to be added to peerwork.
         $table = new xmldb_table('peerwork');
         $field = new xmldb_field(
@@ -58,7 +57,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019113000) {
-
         // Define field justificationmaxlength to be added to peerwork.
         $table = new xmldb_table('peerwork');
         $field = new xmldb_field(
@@ -82,7 +80,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019121900) {
-
         // Define field displaypeergradestotals to be added to peerwork.
         $table = new xmldb_table('peerwork');
         $field = new xmldb_field(
@@ -106,7 +103,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019121902) {
-
         // Define field prelimgrade to be added to peerwork_grades.
         $table = new xmldb_table('peerwork_grades');
         $field = new xmldb_field(
@@ -130,7 +126,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019122600) {
-
         // Define field releasednotified to be added to peerwork_submission.
         $table = new xmldb_table('peerwork_submission');
         $field = new xmldb_field(
@@ -154,7 +149,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020012400) {
-
         // Define field score to be added to peerwork_grades.
         $table = new xmldb_table('peerwork_grades');
         $field = new xmldb_field('score', XMLDB_TYPE_NUMBER, '10, 8', null, XMLDB_NOTNULL, null, '0', 'userid');
@@ -169,7 +163,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020030900) {
-
         // Define field timemodified to be added to peerwork_peers.
         $table = new xmldb_table('peerwork_peers');
         $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timecreated');
@@ -184,7 +177,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020030901) {
-
         // Define field lockediting to be added to peerwork.
         $table = new xmldb_table('peerwork');
         $field = new xmldb_field('lockediting', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'displaypeergradestotals');
@@ -199,7 +191,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020030902) {
-
         // Define field locked to be added to peerwork_submission.
         $table = new xmldb_table('peerwork_submission');
         $field = new xmldb_field('locked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'releasednotified');
@@ -214,7 +205,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020030903) {
-
         // Define field locked to be added to peerwork_peers.
         $table = new xmldb_table('peerwork_peers');
         $field = new xmldb_field('locked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'feedback');
@@ -229,7 +219,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020051300) {
-
         // Define field criteriaid to be added to peerwork_justification.
         $table = new xmldb_table('peerwork_justification');
         $field = new xmldb_field(
@@ -305,7 +294,8 @@ function xmldb_peerwork_upgrade($oldversion) {
         $table->add_field(
             'id',
             XMLDB_TYPE_INTEGER,
-            10, null,
+            10,
+            null,
             XMLDB_NOTNULL,
             XMLDB_SEQUENCE,
             null
@@ -372,7 +362,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020090701) {
-
         // Define field peergrade to be added to peerwork_peers.
         $table = new xmldb_table('peerwork_peers');
         $field = new xmldb_field('peergrade', XMLDB_TYPE_INTEGER, '5', null, null, null, '0', 'timemodified');
@@ -423,7 +412,6 @@ function xmldb_peerwork_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021052402) {
-
         // Allow grades with decimal places.
         $table = new xmldb_table('peerwork_submission');
         $field = new xmldb_field('grade', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null, 'userid');
@@ -431,8 +419,15 @@ function xmldb_peerwork_upgrade($oldversion) {
 
         // Add back grouping setting.
         $table = new xmldb_table('peerwork');
-        $field = new xmldb_field('pwgroupingid', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0');
+        $field = new xmldb_field(
+            'pwgroupingid',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0'
+        );
 
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);

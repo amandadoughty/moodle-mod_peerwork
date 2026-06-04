@@ -38,7 +38,6 @@ use part_of_admin_tree;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class peerworkcalculator extends base {
-
     /**
      * Should there be a way to uninstall the plugin via the administration UI.
      *

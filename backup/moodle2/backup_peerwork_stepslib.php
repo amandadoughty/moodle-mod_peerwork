@@ -30,7 +30,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_peerwork_activity_structure_step extends backup_activity_structure_step {
-
     /**
      * Define structure.
      */
@@ -76,11 +75,14 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         $pluginconfigs = new backup_nested_element('plugin_configs');
 
-        $pluginconfig = new backup_nested_element('plugin_config', ['id'],
+        $pluginconfig = new backup_nested_element(
+            'plugin_config',
+            ['id'],
             ['plugin',
                 'subtype',
                 'name',
-                'value']);
+            'value']
+        );
 
         // Build the tree.
         $peerwork->add_child($criteria);
@@ -104,8 +106,10 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
         // Define sources.
         $peerwork->set_source_table('peerwork', ['id' => backup::VAR_ACTIVITYID]);
         $criterion->set_source_table('peerwork_criteria', ['peerworkid' => backup::VAR_PARENTID]);
-        $pluginconfig->set_source_table('peerwork_plugin_config',
-            ['peerwork' => backup::VAR_PARENTID]);
+        $pluginconfig->set_source_table(
+            'peerwork_plugin_config',
+            ['peerwork' => backup::VAR_PARENTID]
+        );
 
         // All the rest of elements only happen if we are including user info.
         if ($includeuserinfo) {
@@ -145,6 +149,5 @@ class backup_peerwork_activity_structure_step extends backup_activity_structure_
 
         // Return the root element (choice), wrapped into standard activity structure.
         return $this->prepare_activity_structure($peerwork);
-
     }
 }

@@ -55,7 +55,6 @@ if ($groupid > 0) {
 }
 
 foreach ($submissions as $submission) {
-
     // Release the submission.
     $submission->released = time();
     $submission->releasedby = $USER->id;

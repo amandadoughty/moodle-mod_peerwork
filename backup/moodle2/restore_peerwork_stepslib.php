@@ -30,7 +30,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_peerwork_activity_structure_step extends restore_activity_structure_step {
-
     /**
      * Define structure.
      */
@@ -41,8 +40,10 @@ class restore_peerwork_activity_structure_step extends restore_activity_structur
 
         $paths[] = new restore_path_element('peerwork', '/activity/peerwork');
         $paths[] = new restore_path_element('peerwork_criterion', '/activity/peerwork/criteria/criterion');
-        $paths[] = new restore_path_element('peerwork_plugin_config',
-            '/activity/peerwork/plugin_configs/plugin_config');
+        $paths[] = new restore_path_element(
+            'peerwork_plugin_config',
+            '/activity/peerwork/plugin_configs/plugin_config'
+        );
 
         if ($userinfo) {
             $paths[] = new restore_path_element('peerwork_peer', '/activity/peerwork/peers/peer');

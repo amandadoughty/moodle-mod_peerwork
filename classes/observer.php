@@ -32,7 +32,6 @@ use mod_peerwork\event\gradebookupdate_failed;
  * Responds to group events emitted by the Moodle event manager.
  */
 class mod_peerwork_observer {
-
     /**
      * Event handler.
      *

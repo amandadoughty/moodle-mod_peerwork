@@ -36,7 +36,6 @@ use mod_peerwork_details_form;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class group_grader {
-
     /** @var object The peerwork instance. */
     protected $peerwork;
     /** @var context_module The context of the module. */
@@ -104,8 +103,14 @@ class group_grader {
 
         // Save the feedback files.
         if ($this->feedbackdraftitemid) {
-            file_save_draft_area_files($this->feedbackdraftitemid, $this->context->id, 'mod_peerwork', 'feedback_files',
-                $this->groupid, mod_peerwork_details_form::$fileoptions);
+            file_save_draft_area_files(
+                $this->feedbackdraftitemid,
+                $this->context->id,
+                'mod_peerwork',
+                'feedback_files',
+                $this->groupid,
+                mod_peerwork_details_form::$fileoptions
+            );
             unset($this->feedbackdraftitemid);
         }
 
@@ -221,5 +226,4 @@ class group_grader {
     public function was_graded() {
         return $this->submission && !empty($this->submission->timegraded);
     }
-
 }

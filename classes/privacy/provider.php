@@ -55,7 +55,6 @@ class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\plugin\provider,
     core_userlist_provider {
-
     /**
      * Returns metadata.
      *
@@ -258,8 +257,11 @@ class provider implements
               ORDER BY s.peerworkid";
         $params = ['userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid] + $inparams;
         $recordset = $DB->get_recordset_sql($sql, $params);
-        static::recordset_loop_and_export($recordset, 'peerworkid', [],
-            function($carry, $record) use ($user, $userid, $peerworkidstocmids) {
+        static::recordset_loop_and_export(
+            $recordset,
+            'peerworkid',
+            [],
+            function ($carry, $record) use ($user, $userid, $peerworkidstocmids) {
                 $context = context_module::instance($peerworkidstocmids[$record->peerworkid]);
                 $path = [get_string('privacy:path:submission', 'mod_peerwork')];
                 writer::with_context($context)->export_area_files($path, 'mod_peerwork', 'submission', $record->groupid);
@@ -274,7 +276,7 @@ class provider implements
                 ];
                 return $carry;
             },
-            function($peerworkid, $data) use ($peerworkidstocmids) {
+            function ($peerworkid, $data) use ($peerworkidstocmids) {
                 $context = context_module::instance($peerworkidstocmids[$peerworkid]);
                 $path = [get_string('privacy:path:submission', 'mod_peerwork')];
                 writer::with_context($context)->export_data($path, (object)[
@@ -285,7 +287,7 @@ class provider implements
 
         // Local scale cache.
         $scalecache = [];
-        $scalegetter = function($scaleid) use (&$scalecache) {
+        $scalegetter = function ($scaleid) use (&$scalecache) {
             if (!isset($scalecache[$scaleid])) {
                 $scale = grade_scale::fetch(['id' => $scaleid]);
                 $scale->load_items();
@@ -328,8 +330,11 @@ class provider implements
         $params = ['userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid] + $inparams;
         $recordset = $DB->get_recordset_sql($sql, $params);
 
-        static::recordset_loop_and_export($recordset, 'peerworkid', [],
-            function($carry, $record) use ($user, $userid, $scalegetter, $peerworkidstocmids) {
+        static::recordset_loop_and_export(
+            $recordset,
+            'peerworkid',
+            [],
+            function ($carry, $record) use ($user, $userid, $scalegetter, $peerworkidstocmids) {
                 $context = context_module::instance($peerworkidstocmids[$record->peerworkid]);
                 $scale = $record->c_grade < 0 ? $scalegetter(abs($record->c_grade)) : null;
                 $grade = $scale ? static::transform_scale_grade($scale, $record->grade) : $record->grade;
@@ -356,7 +361,7 @@ class provider implements
                 ];
                 return $carry;
             },
-            function($peerworkid, $data) use ($peerworkidstocmids) {
+            function ($peerworkid, $data) use ($peerworkidstocmids) {
                 $context = context_module::instance($peerworkidstocmids[$peerworkid]);
                 writer::with_context($context)->export_data([get_string('privacy:path:peergrades', 'mod_peerwork')], (object)[
                     'grades' => $data,
@@ -507,7 +512,7 @@ class provider implements
      * @return array In the form of [$peerworkid => $cmid].
      */
     protected static function get_peerwork_ids_to_cmids_from_contexts(array $contexts) {
-        $cmids = array_filter(array_map(function($context) {
+        $cmids = array_filter(array_map(function ($context) {
             if ($context->contextlevel != CONTEXT_MODULE) {
                 return;
             }
@@ -526,8 +531,13 @@ class provider implements
      * @param callable $export The function to export the dataset, receives the last value from $splitkey and the dataset.
      * @return void
      */
-    protected static function recordset_loop_and_export(moodle_recordset $recordset, $splitkey, $initial,
-        callable $reducer, callable $export) {
+    protected static function recordset_loop_and_export(
+        moodle_recordset $recordset,
+        $splitkey,
+        $initial,
+        callable $reducer,
+        callable $export
+    ) {
 
         $data = $initial;
         $lastid = null;

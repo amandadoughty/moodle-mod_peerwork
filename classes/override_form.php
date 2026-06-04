@@ -31,7 +31,6 @@ require_once($CFG->libdir . '/grade/grade_scale.php');
  * This form is for teachers to override the grades given by peers.
  */
 class mod_peerwork_override_form extends moodleform {
-
     /** @var object[] The criteria. */
     protected $criteria;
 

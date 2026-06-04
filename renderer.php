@@ -33,7 +33,6 @@ use mod_peerwork\output\peerwork_detail_summary;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_peerwork_renderer extends plugin_renderer_base {
-
     /**
      * Render summary for student.
      *
@@ -91,8 +90,11 @@ class mod_peerwork_renderer extends plugin_renderer_base {
             if ($peerwork->duedate > time()) {
                 $cell2 = new html_table_cell(format_time($peerwork->duedate - time()));
             } else {
-                $cell2 = new html_table_cell(get_string('noteoverdueby', 'mod_peerwork',
-                    format_time($peerwork->duedate - time())));
+                $cell2 = new html_table_cell(get_string(
+                    'noteoverdueby',
+                    'mod_peerwork',
+                    format_time($peerwork->duedate - time())
+                ));
             }
             $row->cells = [$cell1, $cell2];
             $t->data[] = $row;
@@ -148,7 +150,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                 shuffle($members);
             }
 
-            $parts = array_map(function($criteriaid, $criteria) use ($data, $displaytotals, $isanon, $members, $scales) {
+            $parts = array_map(function ($criteriaid, $criteria) use ($data, $displaytotals, $isanon, $members, $scales) {
                 $gradeinfo = $data['peergrades'][$criteriaid] ?? [];
                 $html = html_writer::start_div();
                 $html .= html_writer::div($criteria->description);
@@ -160,7 +162,7 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                     $scaleitems = $scale->load_items();
                 }
 
-                $scaleisnumeric = array_reduce($scaleitems, function($carry, $item) {
+                $scaleisnumeric = array_reduce($scaleitems, function ($carry, $item) {
                     return $carry && ctype_digit($item); // Strict evaluation of the string.
                 }, !empty($scaleitems));
 
@@ -178,14 +180,11 @@ class mod_peerwork_renderer extends plugin_renderer_base {
 
                     if (!$grade && $isanon) {
                         continue;
-
                     } else if ($grade && $scale) {
-
                         $score = 0;
                         if (!$scaleisnumeric) {
                             $scalevalue = $scaleitems[$grade->grade];
                             $score = $grade->grade + 1;
-
                         } else {
                             $score = (int)$scaleitems[$grade->grade];
                             $scalevalue = $score . ' / ' . $outof;
@@ -209,19 +208,21 @@ class mod_peerwork_renderer extends plugin_renderer_base {
                     $html .= html_writer::div(html_writer::tag('em', get_string('nonereceived', 'mod_peerwork')));
                 } else {
                     $html .= html_writer::tag('p', get_string('youwereawardedthesepeergrades', 'mod_peerwork'));
-                    $html .= html_writer::tag('ul', implode('', array_map(function($rating) {
+                    $html .= html_writer::tag('ul', implode('', array_map(function ($rating) {
                         return html_writer::tag('li', $rating);
                     }, $ratings)));
                 }
 
                 if ($displaytotals) {
-                    $html .= html_writer::tag('p', get_string('peergradetotal', 'mod_peerwork',
-                        $totalmax > 0 ? format_float($totalscore / $totalmax * 100, 2) . '%' : '-'));
+                    $html .= html_writer::tag('p', get_string(
+                        'peergradetotal',
+                        'mod_peerwork',
+                        $totalmax > 0 ? format_float($totalscore / $totalmax * 100, 2) . '%' : '-'
+                    ));
                 }
 
                 $html .= html_writer::end_div();
                 return $html;
-
             }, array_keys($data['criteria']), $data['criteria']);
 
             $cell2 = new html_table_cell(implode('<hr>', $parts));

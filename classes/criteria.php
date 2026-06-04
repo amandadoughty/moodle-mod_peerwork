@@ -32,7 +32,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_peerwork_criteria {
-
     /** @var string The table name. */
     protected static $tablename = 'peerwork_criteria';
 
@@ -100,5 +99,4 @@ class mod_peerwork_criteria {
 
         return true;
     }
-
 }

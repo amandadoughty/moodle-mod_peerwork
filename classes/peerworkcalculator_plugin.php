@@ -113,7 +113,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
                     continue;
                 }
 
-                $sum = array_reduce($gradesgiven[$memberid], function($carry, $item) {
+                $sum = array_reduce($gradesgiven[$memberid], function ($carry, $item) {
                     $carry += $item;
                     return $carry;
                 });
@@ -123,19 +123,19 @@ class peerworkcalculator_plugin extends peerwork_plugin {
         }
 
         // Initialise everyone's score at 0.
-        $pascores = array_reduce($memberids, function($carry, $memberid) {
+        $pascores = array_reduce($memberids, function ($carry, $memberid) {
             $carry[$memberid] = 0;
             return $carry;
         }, []);
 
         // Calculate the students' preliminary grade (excludes weighting and penalties).
-        $prelimgrades = array_map(function($score) use ($groupmark) {
+        $prelimgrades = array_map(function ($score) use ($groupmark) {
             // Give everyone the groupmark.
             return $groupmark;
         }, $pascores);
 
         // Calculate penalties.
-        $noncompletionpenalties = array_reduce($memberids, function($carry, $memberid) use ($grades, $noncompletionpenalty) {
+        $noncompletionpenalties = array_reduce($memberids, function ($carry, $memberid) use ($grades, $noncompletionpenalty) {
             $ispenalised = empty($grades[$memberid]);
             $carry[$memberid] = $ispenalised ? $noncompletionpenalty : 0;
             return $carry;
@@ -144,7 +144,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
         // Calculate the grades again, but with weighting and penalties.
         $grades = array_reduce(
             $memberids,
-            function($carry, $memberid) use ($noncompletionpenalties, $groupmark) {
+            function ($carry, $memberid) use ($noncompletionpenalties, $groupmark) {
                 $grade = $groupmark;
                 $penaltyamount = $noncompletionpenalties[$memberid];
                 if ($penaltyamount > 0) {
@@ -154,7 +154,8 @@ class peerworkcalculator_plugin extends peerwork_plugin {
                 $carry[$memberid] = $grade;
                 return $carry;
             },
-            []);
+            []
+        );
 
         return new pa_result($sumscores, $pascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
@@ -204,7 +205,7 @@ class peerworkcalculator_plugin extends peerwork_plugin {
             }
 
             $steps = range(0, 100, 1);
-            $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
+            $zerotohundredpcopts = array_combine($steps, array_map(function ($i) {
                 return $i . '%';
             }, $steps));
 

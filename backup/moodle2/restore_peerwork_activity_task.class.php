@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/mod/peerwork/backup/moodle2/restore_peerwork_step
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_peerwork_activity_task extends restore_activity_task {
-
     /**
      * Settings.
      */
@@ -72,7 +71,5 @@ class restore_peerwork_activity_task extends restore_activity_task {
         $rules[] = new restore_decode_rule('PEERWORKINDEX', '/mod/peerwork/index.php?id=$1', 'course');
 
         return $rules;
-
     }
-
 }

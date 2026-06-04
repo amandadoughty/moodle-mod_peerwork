@@ -32,7 +32,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_peerwork_generator extends testing_module_generator {
-
     /**
      * Create instance.
      *
@@ -194,5 +193,4 @@ class mod_peerwork_generator extends testing_module_generator {
         $id = $DB->insert_record('peerwork_justification', $record);
         return $DB->get_record('peerwork_justification', ['id' => $id]);
     }
-
 }

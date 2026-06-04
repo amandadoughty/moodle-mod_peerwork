@@ -65,8 +65,10 @@ class unlock_graders extends external_api {
      * @return bool
      */
     public static function execute($peerworkid, $graderid) {
-        $params = self::validate_parameters(self::execute_parameters(),
-            ['peerworkid' => $peerworkid, 'graderid' => $graderid]);
+        $params = self::validate_parameters(
+            self::execute_parameters(),
+            ['peerworkid' => $peerworkid, 'graderid' => $graderid]
+        );
         $peerworkid = $params['peerworkid'];
         $graderid = $params['graderid'];
 

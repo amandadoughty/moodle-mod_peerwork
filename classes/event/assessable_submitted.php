@@ -36,7 +36,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class assessable_submitted extends base {
-
     /**
      * Init method.
      *
@@ -64,7 +63,8 @@ class assessable_submitted extends base {
     public function get_url() {
         return new moodle_url(
             '/mod/peerwork/view.php',
-            ['id' => $this->contextinstanceid]);
+            ['id' => $this->contextinstanceid]
+        );
     }
 
     /**
