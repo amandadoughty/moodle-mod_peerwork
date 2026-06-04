@@ -46,9 +46,8 @@ $settings = new admin_settingpage(
 );
 
 if ($ADMIN->fulltree) {
-
     $steps = range(0, 100, 1);
-    $zerotohundredpcopts = array_combine($steps, array_map(function($i) {
+    $zerotohundredpcopts = array_combine($steps, array_map(function ($i) {
         return $i . '%';
     }, $steps));
 
@@ -282,8 +281,11 @@ $ADMIN->add('modpeerworkfolder', $settings);
 // Tell core we already added the settings structure.
 $settings = null;
 
-$ADMIN->add('modpeerworkfolder', new admin_category('peerworkcalculatorplugins',
-    new lang_string('calculatorplugins', 'peerwork'), !$module->is_enabled()));
+$ADMIN->add('modpeerworkfolder', new admin_category(
+    'peerworkcalculatorplugins',
+    new lang_string('calculatorplugins', 'peerwork'),
+    !$module->is_enabled()
+));
 $ADMIN->add('peerworkcalculatorplugins', new peerwork_admin_page_manage_peerwork_plugins('peerworkcalculator'));
 
 foreach (core_plugin_manager::instance()->get_plugins_of_type('peerworkcalculator') as $plugin) {

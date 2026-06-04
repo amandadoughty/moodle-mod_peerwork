@@ -42,7 +42,6 @@ use core_privacy\local\request\writer;
  * @covers \mod_peerwork\privacy\provider
  */
 final class provider_test extends \advanced_testcase {
-
     /**
      * This method is called before each test.
      */

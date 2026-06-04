@@ -36,7 +36,6 @@ use stdClass;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class peerwork_plugin {
-
     /** @var peerwork $peerwork the peerwork record */
     protected $peerwork;
     /** @var string $type peerwork plugin type */

@@ -43,7 +43,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class peer_grade_created extends base {
-
     /**
      * Init method.
      *

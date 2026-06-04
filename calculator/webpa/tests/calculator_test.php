@@ -39,7 +39,6 @@ use stdClass;
  * @covers \peerworkcalculator_webpa\calculator
  */
 final class calculator_test extends basic_testcase {
-
     /**
      * Test the WebPA result with no weighting or penalties.
      */
@@ -58,7 +57,7 @@ final class calculator_test extends basic_testcase {
             'claire' => 0.21,
             'david' => 0.14,
             'elaine' => 0.07,
-        ], array_map(function($a) {
+        ], array_map(function ($a) {
             return round($a, 2);  // We must round because the data we were given is rounded.
         }, $fracs));
 
@@ -189,7 +188,7 @@ final class calculator_test extends basic_testcase {
             'claire' => 0.30,
             'david' => 0.20,
             'elaine' => 0.10,
-        ], array_map(function($a) {
+        ], array_map(function ($a) {
             return round($a, 2);  // We must round because the data we were given is rounded.
         }, $fracs));
 
@@ -226,7 +225,7 @@ final class calculator_test extends basic_testcase {
             'claire' => 0.21,
             'david' => 0.14,
             'elaine' => 0.07,
-        ], array_map(function($a) {
+        ], array_map(function ($a) {
             return round($a, 2);  // We must round because the data we were given is rounded.
         }, $fracs));
 
@@ -262,7 +261,7 @@ final class calculator_test extends basic_testcase {
             'bob' => 0.31,
             'claire' => 0.23,
             'david' => 0.15,
-        ], array_map(function($a) {
+        ], array_map(function ($a) {
             return round($a, 2);  // We must round because the data we were given is rounded.
         }, $fracs));
 

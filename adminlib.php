@@ -34,7 +34,6 @@ require_once($CFG->libdir . '/adminlib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class peerwork_admin_page_manage_peerwork_plugins extends admin_externalpage {
-
     /** @var string the name of plugin subtype */
     private $subtype = '';
 
@@ -46,9 +45,11 @@ class peerwork_admin_page_manage_peerwork_plugins extends admin_externalpage {
     public function __construct($subtype) {
         $this->subtype = $subtype;
         $url = new moodle_url('/mod/peerwork/adminmanageplugins.php', ['subtype' => $subtype]);
-        parent::__construct('manage' . $subtype . 'plugins',
+        parent::__construct(
+            'manage' . $subtype . 'plugins',
             get_string('manage' . $subtype . 'plugins', 'peerwork'),
-            $url);
+            $url
+        );
     }
 
     /**
@@ -65,8 +66,12 @@ class peerwork_admin_page_manage_peerwork_plugins extends admin_externalpage {
         $found = false;
 
         foreach (core_component::get_plugin_list($this->subtype) as $name => $notused) {
-            if (strpos(core_text::strtolower(get_string('pluginname', $this->subtype . '_' . $name)),
-                    $query) !== false) {
+            if (
+                strpos(
+                    core_text::strtolower(get_string('pluginname', $this->subtype . '_' . $name)),
+                    $query
+                ) !== false
+            ) {
                 $found = true;
                 break;
             }
@@ -89,8 +94,7 @@ class peerwork_admin_page_manage_peerwork_plugins extends admin_externalpage {
  * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class peerwork_plugin_manager {
-
+class peerwork_plugin_manager { // phpcs:ignore PSR1.Classes.ClassDeclaration.MultipleClasses
     /** @var object the url of the manage submission plugin page */
     private $pageurl;
     /** @var string any error from the current action */
@@ -155,10 +159,15 @@ class peerwork_plugin_manager {
             return html_writer::link($url, get_string('uninstallplugin', 'core_admin'));
         }
 
-        return $OUTPUT->action_icon(new moodle_url($url,
-                ['action' => $action, 'plugin' => $plugin, 'sesskey' => sesskey()]),
-                new pix_icon($icon, $alt, 'moodle', ['title' => $alt]),
-                null, ['title' => $alt]) . ' ';
+        return $OUTPUT->action_icon(
+            new moodle_url(
+                $url,
+                ['action' => $action, 'plugin' => $plugin, 'sesskey' => sesskey()]
+            ),
+            new pix_icon($icon, $alt, 'moodle', ['title' => $alt]),
+            null,
+            ['title' => $alt]
+        ) . ' ';
     }
 
     /**
@@ -215,8 +224,10 @@ class peerwork_plugin_manager {
 
             $exists = file_exists($CFG->dirroot . '/mod/peerwork/' . $shortsubtype . '/' . $plugin . '/settings.php');
             if ($row[1] != '' && $exists) {
-                $row[] = html_writer::link(new moodle_url('/admin/settings.php',
-                    ['section' => $this->subtype . '_' . $plugin]), get_string('settings'));
+                $row[] = html_writer::link(new moodle_url(
+                    '/admin/settings.php',
+                    ['section' => $this->subtype . '_' . $plugin]
+                ), get_string('settings'));
             } else {
                 $row[] = '&nbsp;';
             }

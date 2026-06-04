@@ -34,7 +34,6 @@ namespace mod_peerwork;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class pa_result {
-
     /** @var array The reduced scores. */
     protected $redscores;
     /** @var array The PA scores. */

@@ -34,7 +34,6 @@ use grade_item;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_completion extends activity_custom_completion {
-
     /**
      * Check user has graded peers requirement for completion.
      *

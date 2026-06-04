@@ -63,7 +63,7 @@ Feature: Assignment completion
   @javascript
   Scenario: Students who grades every peer is shown as completed on the activity page
     When I am on the "Test peerwork name" "peerwork activity" page logged in as student1
-    Then "Done: Grade peers in group" "text" should exist
+    Then the "Grade peers in group" completion condition of "Test peerwork name" is displayed as "done"
     And I log out
 
   @javascript
@@ -77,8 +77,7 @@ Feature: Assignment completion
   @javascript
   Scenario: Students who has not graded every peer is not shown as completed on the activity page
     When I am on the "Test peerwork name" "peerwork activity" page logged in as student2
-    Then "Done: Grade peers in group" "text" should not exist
-    And "To do: Grade peers in group" "text" should exist
+    Then the "Grade peers in group" completion condition of "Test peerwork name" is displayed as "todo"
     And I log out
 
   @javascript

@@ -29,7 +29,7 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 require_once(__DIR__ . '/../../../../lib/tests/behat/behat_general.php');
 require_once(__DIR__ . '/../../../../lib/tests/behat/behat_forms.php');
 
-use Behat\Mink\Exception\ExpectationException as ExpectationException;
+use Behat\Mink\Exception\ExpectationException;
 use Moodle\BehatExtension\Driver\MoodleSelenium2Driver;
 
 /**

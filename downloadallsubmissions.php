@@ -47,7 +47,6 @@ $groupfiles = [];
 
 foreach ($allgroups as $group) {
     if ($files = $fs->get_area_files($context->id, 'mod_peerwork', 'submission', $group->id, 'sortorder', false)) {
-
         foreach ($files as $file) {
             if ($file->is_directory() && $file->get_filename() == '.') {
                 continue;

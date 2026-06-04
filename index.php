@@ -71,11 +71,13 @@ foreach ($peerworks as $peerwork) {
         $link = html_writer::link(
             new moodle_url('/mod/peerwork/view.php', ['id' => $peerwork->coursemodule]),
             format_string($peerwork->name, true),
-            ['class' => 'dimmed']);
+            ['class' => 'dimmed']
+        );
     } else {
         $link = html_writer::link(
             new moodle_url('/mod/peerwork/view.php', ['id' => $peerwork->coursemodule]),
-            format_string($peerwork->name, true));
+            format_string($peerwork->name, true)
+        );
     }
 
     if ($course->format == 'weeks' || $course->format == 'topics') {

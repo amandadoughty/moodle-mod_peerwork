@@ -35,7 +35,6 @@ use renderable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class peerwork_summary implements renderable {
-
     /** @var object The group. */
     public $group;
     /** @var object The data. */

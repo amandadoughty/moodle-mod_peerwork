@@ -41,8 +41,7 @@ use stdClass;
  * @author     Amanda Doughty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class peerwork_detail_summary implements templatable, renderable {
-
+class peerwork_detail_summary implements renderable, templatable {
     /** @var object The criterion. */
     public $criterion;
     /** @var object The grades. */
@@ -139,7 +138,8 @@ class peerwork_detail_summary implements templatable, renderable {
                 $label = fullname($member);
 
                 if ($canunlock && in_array($member->id, $lockedgraders)) {
-                    $label .= $output->action_icon('#',
+                    $label .= $output->action_icon(
+                        '#',
                         new pix_icon('t/locked', get_string('editinglocked', 'mod_peerwork'), 'core'),
                         null,
                         [
@@ -256,8 +256,10 @@ class peerwork_detail_summary implements templatable, renderable {
 
                     $feedbacktext = '';
 
-                    if (!isset($grades->grades[$critid]) || !isset($grades->grades[$critid][$peer->id])
-                        || !isset($grades->grades[$critid][$peer->id][$member->id])) {
+                    if (
+                        !isset($grades->grades[$critid]) || !isset($grades->grades[$critid][$peer->id])
+                        || !isset($grades->grades[$critid][$peer->id][$member->id])
+                    ) {
                         $gradefor['gradedby'][] = [
                             'name' => $label,
                             'grade' => '-',

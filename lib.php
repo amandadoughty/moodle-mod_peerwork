@@ -228,7 +228,6 @@ function peerwork_user_complete($course, $user, $mod, $peerwork) {
  * @return void adds items into $activities and increases $index
  */
 function peerwork_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
-
 }
 
 /**
@@ -294,8 +293,16 @@ function peerwork_grade_item_update(stdClass $peerwork, $grades = null) {
     $item['grademax'] = 100;
     $item['grademin'] = 0;
 
-    return grade_update('mod/peerwork', $peerwork->course, 'mod',
-        'peerwork', $peerwork->id, 0, $grades, $item);
+    return grade_update(
+        'mod/peerwork',
+        $peerwork->course,
+        'mod',
+        'peerwork',
+        $peerwork->id,
+        0,
+        $grades,
+        $item
+    );
 }
 
 /**
@@ -398,14 +405,12 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     global $DB, $USER;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
-
         return false;
     }
 
     require_login();
 
     if ($filearea != 'submission' && $filearea != 'feedback_files') {
-
         return false;
     }
 
@@ -418,7 +423,6 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     // or belong to the group same as $itemid.
     if (!has_capability('mod/peerwork:grade', $context)) {
         if ($itemid != $mygroup) {
-
             return false;
         }
     }
@@ -434,7 +438,6 @@ function peerwork_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
 
     $file = $fs->get_file($context->id, 'mod_peerwork', $filearea, $itemid, $filepath, $filename);
     if (!$file) {
-
         return false;
     }
 
@@ -543,8 +546,10 @@ function mod_peerwork_inplace_editable($rawitemtype, $itemid, $newvalue) {
  */
 function mod_peerwork_get_completion_active_rule_descriptions($cm) {
     // Values will be present in cm_info, and we assume these are up to date.
-    if (empty($cm->customdata['customcompletionrules'])
-        || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+    if (
+        empty($cm->customdata['customcompletionrules'])
+        || $cm->completion != COMPLETION_TRACKING_AUTOMATIC
+    ) {
         return [];
     }
 

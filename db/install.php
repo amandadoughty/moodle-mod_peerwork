@@ -36,5 +36,4 @@ function xmldb_peerwork_install() {
  * @see upgrade_plugins_modules()
  */
 function xmldb_peerwork_install_recovery() {
-
 }

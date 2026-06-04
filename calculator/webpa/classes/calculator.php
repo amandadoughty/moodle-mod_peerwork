@@ -37,7 +37,6 @@ use mod_peerwork\peerworkcalculator_plugin;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class calculator extends peerworkcalculator_plugin {
-
     /**
      * Get the name of the webPA calculator plugin
      *
@@ -109,7 +108,7 @@ class calculator extends peerworkcalculator_plugin {
                 }
 
                 if (isset($gradesgiven[$memberid])) {
-                    $sum = array_reduce($gradesgiven[$memberid], function($carry, $item) {
+                    $sum = array_reduce($gradesgiven[$memberid], function ($carry, $item) {
                         $carry += $item;
                         return $carry;
                     });
@@ -124,7 +123,7 @@ class calculator extends peerworkcalculator_plugin {
             $gradesgiven = $totalscores[$memberid];
             $total = array_sum($gradesgiven);
 
-            $fracscores[$memberid] = array_reduce(array_keys($gradesgiven), function($carry, $peerid) use ($total, $gradesgiven) {
+            $fracscores[$memberid] = array_reduce(array_keys($gradesgiven), function ($carry, $peerid) use ($total, $gradesgiven) {
                 $grade = $gradesgiven[$peerid];
                 $carry[$peerid] = $total > 0 ? $grade / $total : 0;
                 return $carry;
@@ -134,7 +133,7 @@ class calculator extends peerworkcalculator_plugin {
         }
 
         // Initialise everyone's score at 0.
-        $webpascores = array_reduce($memberids, function($carry, $memberid) {
+        $webpascores = array_reduce($memberids, function ($carry, $memberid) {
             $carry[$memberid] = 0;
             return $carry;
         }, []);
@@ -149,17 +148,17 @@ class calculator extends peerworkcalculator_plugin {
         // Apply the fudge factor to all scores received.
         $nummembers = count($memberids);
         $fudgefactor = $numsubmitted > 0 ? $nummembers / $numsubmitted : 1;
-        $webpascores = array_map(function($grade) use ($fudgefactor) {
+        $webpascores = array_map(function ($grade) use ($fudgefactor) {
             return $grade * $fudgefactor;
         }, $webpascores);
 
         // Calculate the students' preliminary grade (excludes weighting and penalties).
-        $prelimgrades = array_map(function($score) use ($groupmark) {
+        $prelimgrades = array_map(function ($score) use ($groupmark) {
             return max(0, min(100, $score * $groupmark));
         }, $webpascores);
 
         // Calculate penalties.
-        $noncompletionpenalties = array_reduce($memberids, function($carry, $memberid) use ($fracscores, $noncompletionpenalty) {
+        $noncompletionpenalties = array_reduce($memberids, function ($carry, $memberid) use ($fracscores, $noncompletionpenalty) {
             $ispenalised = empty($fracscores[$memberid]);
             $carry[$memberid] = $ispenalised ? $noncompletionpenalty : 0;
             return $carry;
@@ -168,7 +167,7 @@ class calculator extends peerworkcalculator_plugin {
         // Calculate the grades again, but with weighting and penalties.
         $grades = array_reduce(
             $memberids,
-            function($carry, $memberid) use ($webpascores, $noncompletionpenalties, $groupmark, $paweighting) {
+            function ($carry, $memberid) use ($webpascores, $noncompletionpenalties, $groupmark, $paweighting) {
                 $score = $webpascores[$memberid];
 
                 $adjustedgroupmark = $groupmark * $paweighting;
@@ -183,7 +182,8 @@ class calculator extends peerworkcalculator_plugin {
                 $carry[$memberid] = $grade;
                 return $carry;
             },
-            []);
+            []
+        );
 
         return new pa_result($fracscores, $webpascores, $prelimgrades, $grades, $noncompletionpenalties);
     }
